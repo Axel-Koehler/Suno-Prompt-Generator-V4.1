@@ -1,4 +1,4 @@
-# Suno Auswahlmenue
+# SUNO Prompt Generator V4.1
 
 Statische HTML-Ausgabe fuer das Suno-Auswahlmenue.
 
