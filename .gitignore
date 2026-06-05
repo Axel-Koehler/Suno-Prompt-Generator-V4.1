@@ -1,4 +1,3 @@
-work/edge-profile/
-work/node_modules/
-work/edge-preview.png
+work/
+outputs/*.zip
 *.log
