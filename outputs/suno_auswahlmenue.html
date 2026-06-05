@@ -697,14 +697,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
                 Speichern
               </button>
-              <button class="button magenta" id="duplicateButton" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
-                Kopie
-              </button>
-              <button class="button magenta" id="deleteButton" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-                Löschen
-              </button>
               <button class="button magenta" id="resetButton" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
                 Reset
@@ -733,7 +725,7 @@
       workbook: "Suno Prompt.xlsx",
       textSource: "Suno Prompt 1.txt",
       sheet: "Tabelle1 + TXT",
-      generatedAt: "2026-06-05T18:58:16.389Z"
+      generatedAt: "2026-06-05T19:06:30.102Z"
     };
 
     const STORAGE_KEY = "suno-prompt-menu-records-xlsx-txt-v1";
@@ -759,8 +751,6 @@
       promptPreview: document.getElementById("promptPreview"),
       newButton: document.getElementById("newButton"),
       saveButton: document.getElementById("saveButton"),
-      duplicateButton: document.getElementById("duplicateButton"),
-      deleteButton: document.getElementById("deleteButton"),
       copyPromptButton: document.getElementById("copyPromptButton"),
       resetButton: document.getElementById("resetButton")
     };
@@ -882,8 +872,6 @@
       els.interpreter.addEventListener("change", renderList);
       els.newButton.addEventListener("click", newRecord);
       els.saveButton.addEventListener("click", () => saveCurrent(true));
-      els.duplicateButton.addEventListener("click", duplicateRecord);
-      els.deleteButton.addEventListener("click", deleteRecord);
       els.copyPromptButton.addEventListener("click", copyPrompt);
       els.resetButton.addEventListener("click", resetRecords);
     }
@@ -973,8 +961,6 @@
         input.disabled = !record;
       });
       els.selectedMeta.textContent = record ? "ID " + record._id : "kein Datensatz";
-      els.deleteButton.disabled = !record;
-      els.duplicateButton.disabled = !record;
       els.saveButton.disabled = !record;
     }
 
@@ -1016,37 +1002,6 @@
       const firstInput = els.form.querySelector("[data-column]");
       if (firstInput) firstInput.focus();
       setToast("Neuer Datensatz angelegt.");
-    }
-
-    function duplicateRecord() {
-      if (state.dirty) saveCurrent(false);
-      const current = byId(state.selectedId);
-      if (!current) return;
-      const copy = Object.assign({}, current, {
-        _id: "N" + Date.now().toString(36),
-        _sourceRow: ""
-      });
-      if (copy.Interpret) copy.Interpret = copy.Interpret + " Kopie";
-      state.records.unshift(copy);
-      state.selectedId = copy._id;
-      state.dirty = true;
-      saveStorage();
-      renderAll();
-      setToast("Kopie angelegt.");
-    }
-
-    function deleteRecord() {
-      const current = byId(state.selectedId);
-      if (!current) return;
-      const label = text(current, "Interpret") || current._id;
-      if (!confirm("Datensatz löschen: " + label + "?")) return;
-      const index = state.records.findIndex((record) => record._id === state.selectedId);
-      if (index >= 0) state.records.splice(index, 1);
-      state.selectedId = state.records[0] ? state.records[0]._id : null;
-      state.dirty = false;
-      saveStorage();
-      renderAll();
-      setToast("Datensatz gelöscht.");
     }
 
     function resetRecords() {
