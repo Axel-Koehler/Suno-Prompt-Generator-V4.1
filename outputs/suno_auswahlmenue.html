@@ -159,6 +159,12 @@
       z-index: 2;
     }
 
+    .title-stack {
+      display: grid;
+      justify-items: center;
+      gap: 7px;
+    }
+
     .rail-line {
       height: 2px;
       background: linear-gradient(90deg, transparent, var(--yellow), rgba(0, 217, 255, 0.55));
@@ -180,6 +186,15 @@
       background: linear-gradient(90deg, #00d9ff, #44efff);
       box-shadow: 0 0 22px rgba(0, 217, 255, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.35);
       clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+      white-space: nowrap;
+    }
+
+    .title-subline {
+      color: rgba(247, 251, 255, 0.88);
+      font-size: 14px;
+      line-height: 1.2;
+      text-transform: none;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.45);
       white-space: nowrap;
     }
 
@@ -579,9 +594,15 @@
         display: none;
       }
 
+      .title-stack,
       .title-chip {
         width: 100%;
         min-width: 0;
+      }
+
+      .title-subline {
+        white-space: normal;
+        text-align: center;
       }
 
       .menu-grid,
@@ -635,7 +656,10 @@
 
       <div class="top-rail">
         <span class="rail-line"></span>
-        <div class="title-chip">SUNO Prompt Generator V4.1</div>
+        <div class="title-stack">
+          <div class="title-chip">SUNO Prompt Generator V4.1</div>
+          <div class="title-subline">Erstellt von Axel Köhler AI Music</div>
+        </div>
         <span class="rail-line right"></span>
       </div>
 
@@ -725,7 +749,7 @@
       workbook: "Suno Prompt.xlsx",
       textSource: "Suno Prompt 1.txt",
       sheet: "Tabelle1 + TXT",
-      generatedAt: "2026-06-05T19:06:30.102Z"
+      generatedAt: "2026-06-05T19:13:26.431Z"
     };
 
     const STORAGE_KEY = "suno-prompt-menu-records-xlsx-txt-v1";
