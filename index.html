@@ -125,33 +125,49 @@
       display: grid;
       justify-items: center;
       gap: 8px;
-      margin: 4px 0 24px;
+      margin: 4px 0 12px;
     }
 
     .home-title-chip {
       position: relative;
-      min-width: min(500px, 90vw);
-      min-height: 48px;
+      min-width: 380px;
+      padding: 13px 34px 12px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 14px 38px;
+      text-align: center;
       color: rgba(247, 251, 255, 0.96);
       font-weight: 400;
-      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0;
       background:
         linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
         linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
-        linear-gradient(45deg, var(--orange) 0 10px, transparent 10px) left bottom / 30px 30px no-repeat,
-        linear-gradient(315deg, var(--orange) 0 10px, transparent 10px) right bottom / 30px 30px no-repeat,
+        linear-gradient(45deg, #ff8a19 0 10px, transparent 10px) left bottom / 30px 30px no-repeat,
+        linear-gradient(315deg, #ff8a19 0 10px, transparent 10px) right bottom / 30px 30px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
       border: 1px solid rgba(0, 217, 255, 0.8);
-      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
       box-shadow:
         0 0 26px rgba(0, 217, 255, 0.52),
         0 0 34px rgba(175, 25, 255, 0.36),
         inset 0 0 16px rgba(0, 217, 255, 0.28);
+      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
       text-shadow: 0 0 12px rgba(0, 217, 255, 0.78);
+      white-space: nowrap;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .home-title-chip::before {
+      content: "";
+      position: absolute;
+      inset: 5px 12px;
+      border-top: 1px solid rgba(198, 31, 255, 0.78);
+      border-bottom: 1px solid rgba(198, 31, 255, 0.78);
+      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
+      pointer-events: none;
     }
 
     .home-subline {
@@ -225,12 +241,12 @@
 <body>
   <main class="home-stage">
     <section class="home-shell" aria-label="Hauptseite">
-      <nav class="site-nav" data-active="home" aria-label="Hauptnavigation"></nav>
-
       <div class="home-title">
         <div class="home-title-chip">SUNO Prompt Generator V4.1</div>
         <div class="home-subline">Erstellt von Axel Köhler AI Music</div>
       </div>
+
+      <nav class="site-nav" data-active="home" aria-label="Hauptnavigation"></nav>
 
       <div class="home-fields">
         <label class="home-field">
