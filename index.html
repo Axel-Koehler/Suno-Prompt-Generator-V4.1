@@ -290,6 +290,7 @@
     .home-image {
       width: 100%;
       min-height: 220px;
+      margin-bottom: 12px;
       border: 1px solid rgba(0, 217, 255, 0.42);
       border-radius: 6px;
       background: rgba(2, 5, 20, 0.62);
@@ -303,6 +304,10 @@
       height: 100%;
       min-height: 220px;
       object-fit: cover;
+    }
+
+    .home-image:last-child {
+      margin-bottom: 0;
     }
 
     @media (max-width: 820px) {
@@ -389,6 +394,9 @@ Mein Ziel ist es, Menschen, Unternehmen und Kreative dabei zu unterstützen, die
           <span>Meine Vision</span>
           <div class="home-image">
             <img src="assets/vision-studio.png" alt="KI-Musikstudio mit digitaler Audiowelle">
+          </div>
+          <div class="home-image">
+            <img src="assets/vision-prompt-studio.png" alt="KI-Prompt-Studio für Musikproduktion">
           </div>
         </label>
       </div>
