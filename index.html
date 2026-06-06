@@ -217,6 +217,57 @@
       white-space: pre-line;
     }
 
+    .home-text.formatted {
+      white-space: normal;
+    }
+
+    .home-text.formatted p {
+      margin: 0 0 14px;
+    }
+
+    .home-text.formatted p:last-child {
+      margin-bottom: 0;
+    }
+
+    .home-kicker {
+      color: rgba(255, 238, 0, 0.92);
+      letter-spacing: 0;
+      text-shadow: 0 0 12px rgba(255, 238, 0, 0.22);
+    }
+
+    .home-section-title {
+      margin: 20px 0 8px;
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.35);
+    }
+
+    .home-feature-list {
+      display: grid;
+      gap: 6px;
+      margin: 0 0 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .home-feature-list li {
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .home-feature-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.72em;
+      width: 7px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--yellow), var(--cyan));
+      box-shadow: 0 0 8px rgba(0, 217, 255, 0.7);
+    }
+
     .home-video {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -293,28 +344,27 @@ Mein Ziel ist es, Menschen, Unternehmen und Kreative dabei zu unterstützen, die
 
         <label class="home-field">
           <span>Von der Idee zum Song</span>
-          <div class="home-text">„Von der Idee zum Song – intelligente Prompts für bessere KI-Musik.“
+          <div class="home-text formatted">
+            <p class="home-kicker">„Von der Idee zum Song – intelligente Prompts für bessere KI-Musik.“</p>
+            <p>Musik mit KI zu erzeugen ist heute einfacher denn je. Die eigentliche Herausforderung liegt jedoch darin, die richtigen Anweisungen zu formulieren. Genau hier setzt unser erstes Projekt an.</p>
+            <p>Mit den Prompt Generatoren für Suno AI entwickeln wir eine eigene Plattform, die kreative Ideen automatisch in professionelle Musik-Prompts übersetzt.</p>
+            <p>Anstatt komplexe Beschreibungen manuell zu erstellen, können Nutzer ihre Vorstellungen eingeben und erhalten optimierte Prompts für hochwertige KI-generierte Songs.</p>
+            <p>Das System analysiert Musikstile, Stimmungen, Songstrukturen, Instrumentierungen und Gesangskonzepte und kombiniert diese zu präzisen Eingaben für Suno.</p>
+            <p>Dadurch entstehen konsistentere Ergebnisse, bessere Klangqualität und ein deutlich effizienterer kreativer Workflow.</p>
+            <p>Unser Ziel ist es, die Brücke zwischen kreativer Vision und künstlicher Intelligenz zu schlagen. Es soll nicht nur die Erstellung von Musik vereinfachen, sondern auch neue kreative Möglichkeiten eröffnen, die mit klassischen Produktionsmethoden nur schwer erreichbar wären.</p>
 
-Musik mit KI zu erzeugen ist heute einfacher denn je – die eigentliche Herausforderung liegt jedoch darin, die richtigen Anweisungen zu formulieren. Genau hier setzt unser erstes Projekt an.
+            <div class="home-section-title">Features</div>
+            <ul class="home-feature-list">
+              <li>Automatische Generierung professioneller Suno-Prompts</li>
+              <li>Genre- und Stilassistent</li>
+              <li>Vorlagen für verschiedene Musikrichtungen</li>
+              <li>Mehrsprachige Prompt-Erstellung</li>
+              <li>Kontinuierliche Weiterentwicklung durch Praxistests</li>
+            </ul>
 
-Mit den Prompt Generatoren für Suno AI entwickeln wir eine eigene Plattform, die kreative Ideen automatisch in professionelle Musik-Prompts übersetzt. Anstatt komplexe Beschreibungen manuell zu erstellen, können Nutzer ihre Vorstellungen eingeben und erhalten optimierte Prompts für hochwertige KI-generierte Songs.
-
-Das System analysiert Musikstile, Stimmungen, Songstrukturen, Instrumentierungen und Gesangskonzepte und kombiniert diese zu präzisen Eingaben für Suno. Dadurch entstehen konsistentere Ergebnisse, bessere Klangqualität und ein deutlich effizienterer kreativer Workflow.
-Unser Ziel ist es, die Brücke zwischen kreativer Vision und künstlicher Intelligenz zu schlagen. Es soll nicht nur die Erstellung von Musik vereinfachen, sondern auch neue kreative Möglichkeiten eröffnen, die mit klassischen Produktionsmethoden nur schwer erreichbar wären.
-
-Features
-
-Automatische Generierung professioneller Suno-Prompts
-Genre- und Stilassistent
-Vorlagen für verschiedene Musikrichtungen
-Mehrsprachige Prompt-Erstellung
-Kontinuierliche Weiterentwicklung durch Praxistests
-
-
-
-Vision
-
-Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erweitern soll. Dies ist der erste Schritt auf dem Weg zu einer neuen Generation intelligenter Musikproduktions-Tools, die das Beste aus menschlicher Kreativität und künstlicher Intelligenz verbindet.</div>
+            <div class="home-section-title">Vision</div>
+            <p>Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erweitern soll. Dies ist der erste Schritt auf dem Weg zu einer neuen Generation intelligenter Musikproduktions-Tools, die das Beste aus menschlicher Kreativität und künstlicher Intelligenz verbindet.</p>
+          </div>
         </label>
 
         <label class="home-field">
