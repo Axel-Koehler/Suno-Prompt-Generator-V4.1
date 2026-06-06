@@ -17,4 +17,23 @@
       return '<a class="site-nav-link' + (isActive ? ' is-active' : '') + '" href="' + root + page.path + '"' + ariaCurrent + '><span>' + page.label + '</span></a>';
     }).join("");
   });
+
+  const resizeTextarea = (textarea) => {
+    if (!(textarea instanceof HTMLTextAreaElement)) return;
+    if (textarea.dataset.noAutoGrow === "true") return;
+    if (textarea.style.position === "fixed") return;
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+  };
+
+  const resizeAllTextareas = () => {
+    document.querySelectorAll("textarea").forEach(resizeTextarea);
+  };
+
+  window.autoGrowTextareas = resizeAllTextareas;
+  document.addEventListener("input", (event) => resizeTextarea(event.target));
+  new MutationObserver(() => requestAnimationFrame(resizeAllTextareas))
+    .observe(document.documentElement, { childList: true, subtree: true });
+  requestAnimationFrame(resizeAllTextareas);
+  window.addEventListener("load", resizeAllTextareas);
 })();

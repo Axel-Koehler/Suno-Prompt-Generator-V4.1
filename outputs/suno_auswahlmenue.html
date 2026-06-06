@@ -351,7 +351,8 @@
 
     .field textarea {
       min-height: 112px;
-      resize: vertical;
+      resize: none;
+      overflow: hidden;
       padding: 11px 12px;
       line-height: 1.45;
     }
@@ -584,7 +585,8 @@
     .manual-text {
       width: 100%;
       min-height: clamp(148px, 18vh, 168px);
-      resize: vertical;
+      resize: none;
+      overflow: hidden;
       padding: 12px;
       border: 1px solid rgba(0, 217, 255, 0.42);
       border-radius: 6px;
@@ -1074,6 +1076,7 @@
         input.value = record ? text(record, input.dataset.column) : "";
         input.disabled = !record;
       });
+      window.autoGrowTextareas?.();
       els.selectedMeta.textContent = record ? "ID " + record._id : "kein Datensatz";
       els.saveButton.disabled = !record;
     }
