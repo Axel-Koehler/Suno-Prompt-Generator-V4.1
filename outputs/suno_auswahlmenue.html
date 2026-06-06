@@ -521,6 +521,34 @@
       padding: 7px 11px;
     }
 
+    .manual-field {
+      margin-top: 14px;
+    }
+
+    .manual-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--cyan);
+      font-size: 12px;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
+    .manual-text {
+      width: 100%;
+      min-height: 168px;
+      resize: vertical;
+      padding: 12px;
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      border-radius: 6px;
+      color: rgba(247, 251, 255, 0.9);
+      background: rgba(2, 5, 20, 0.62);
+      box-shadow: inset 0 0 18px rgba(0, 217, 255, 0.07);
+      font-size: 12px;
+      line-height: 1.45;
+      text-transform: none;
+    }
+
     .metric-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -735,6 +763,17 @@
               </button>
             </div>
             <div class="prompt-box" id="promptPreview"></div>
+
+            <div class="manual-field">
+              <label class="manual-label" for="manualText">Bedienungsanleitung</label>
+              <textarea class="manual-text" id="manualText" readonly spellcheck="false">1. Links einen Datensatz auswählen.
+2. Mit Jahr, Genre oder Interpret filtern.
+3. Im Bereich Datensatz die Felder bearbeiten.
+4. Speichern sichert Änderungen im Browser.
+5. + Neu legt einen neuen leeren Datensatz an.
+6. Copy kopiert den Prompt für SUNO Styles.
+7. Reset stellt die Originaldaten wieder her.</textarea>
+            </div>
           </div>
         </section>
       </div>
@@ -749,7 +788,7 @@
       workbook: "Suno Prompt.xlsx",
       textSource: "Suno Prompt 1.txt",
       sheet: "Tabelle1 + TXT",
-      generatedAt: "2026-06-05T19:13:26.431Z"
+      generatedAt: "2026-06-06T06:17:13.600Z"
     };
 
     const STORAGE_KEY = "suno-prompt-menu-records-xlsx-txt-v1";
