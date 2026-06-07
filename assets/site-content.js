@@ -124,11 +124,91 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
       selector: '[data-content-key="project.manual.text"]',
       defaultText: `1. Links einen Datensatz auswählen.
 2. Mit Jahr, Genre oder Interpret filtern.
-3. Im Bereich Datensatz die Felder bearbeiten.
-4. Speichern sichert Änderungen im Browser.
-5. + Neu legt einen neuen leeren Datensatz an.
-6. Copy kopiert den Prompt für SUNO Styles.
-7. Reset stellt die Originaldaten wieder her.`,
+3. Im Bereich Datensatz die Felder bearbeiten. Änderungen werden automatisch gespeichert.
+4. Copy kopiert den Prompt für SUNO Styles.
+5. Reset stellt die Originaldaten wieder her. Zusatzdatensätze bleiben gespeichert.
+6. Suno öffnet die SUNO Create Seite.`,
+    },
+    {
+      id: "legal.imprint.title",
+      page: "Rechtliches",
+      label: "Impressum Titel",
+      selector: '[data-content-key="legal.imprint.title"]',
+      defaultText: "Impressum",
+    },
+    {
+      id: "legal.imprint.text",
+      page: "Rechtliches",
+      label: "Impressum Text",
+      selector: '[data-content-key="legal.imprint.text"]',
+      defaultText: `Angaben gemaess Paragraf 5 DDG
+
+AK AI Music Studio
+Axel Koehler
+[Strasse und Hausnummer einfuegen]
+[PLZ und Ort einfuegen]
+Deutschland
+
+Kontakt
+E-Mail: [E-Mail-Adresse einfuegen]
+Telefon: [Telefonnummer einfuegen, falls vorhanden]
+
+Verantwortlich fuer den Inhalt
+Axel Koehler
+[Anschrift einfuegen]
+
+Hinweis
+Bitte pruefe und ergaenze diese Angaben vor der Veroeffentlichung. Je nach Taetigkeit koennen weitere Pflichtangaben erforderlich sein, zum Beispiel Umsatzsteuer-ID, Registerangaben, Aufsichtsbehoerde oder berufsrechtliche Angaben.
+
+Haftung fuer Inhalte
+Die Inhalte dieser Seite wurden mit Sorgfalt erstellt. Fuer Richtigkeit, Vollstaendigkeit und Aktualitaet der Inhalte kann jedoch keine Gewaehr uebernommen werden.
+
+Haftung fuer Links
+Diese Seite kann Links zu externen Websites enthalten. Auf deren Inhalte habe ich keinen Einfluss. Fuer externe Inhalte ist stets der jeweilige Anbieter oder Betreiber verantwortlich.`,
+    },
+    {
+      id: "legal.privacy.title",
+      page: "Rechtliches",
+      label: "Datenschutz Titel",
+      selector: '[data-content-key="legal.privacy.title"]',
+      defaultText: "Datenschutz",
+    },
+    {
+      id: "legal.privacy.text",
+      page: "Rechtliches",
+      label: "Datenschutz Text",
+      selector: '[data-content-key="legal.privacy.text"]',
+      defaultText: `Datenschutzerklaerung
+
+Verantwortlicher
+AK AI Music Studio
+Axel Koehler
+[Anschrift einfuegen]
+E-Mail: [E-Mail-Adresse einfuegen]
+
+Allgemeine Hinweise
+Der Schutz personenbezogener Daten ist mir wichtig. Diese Datenschutzerklaerung informiert darueber, welche Daten beim Besuch dieser Website verarbeitet werden koennen.
+
+Hosting und technische Zugriffsdaten
+Diese Website kann ueber GitHub Pages oder einen vergleichbaren Hosting-Dienst bereitgestellt werden. Beim Aufruf der Seite koennen technisch erforderliche Daten verarbeitet werden, zum Beispiel IP-Adresse, Datum und Uhrzeit des Zugriffs, Browsertyp, Betriebssystem und angeforderte Dateien. Diese Verarbeitung dient der technischen Bereitstellung, Sicherheit und Stabilitaet der Website.
+
+Rechtsgrundlage
+Die Verarbeitung technisch erforderlicher Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der sicheren und funktionsfaehigen Bereitstellung der Website.
+
+Lokaler Speicher im Browser
+Diese Seite nutzt den lokalen Speicher des Browsers, um vom Nutzer vorgenommene Einstellungen, Texte und Datensaetze lokal zu speichern. Diese Daten werden im Browser des Nutzers abgelegt und nicht automatisch an den Seitenbetreiber uebermittelt.
+
+Kontaktaufnahme
+Wenn du per E-Mail Kontakt aufnimmst, werden die uebermittelten Daten zur Bearbeitung der Anfrage verarbeitet. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit die Anfrage mit einem Vertrag oder vorvertraglichen Massnahmen zusammenhaengt, sonst Art. 6 Abs. 1 lit. f DSGVO.
+
+Externe Links
+Diese Website enthaelt Links zu externen Angeboten, zum Beispiel SUNO oder YouTube. Beim Aufrufen externer Seiten gelten die Datenschutzbestimmungen des jeweiligen Anbieters.
+
+Deine Rechte
+Du hast nach Massgabe der DSGVO das Recht auf Auskunft, Berichtigung, Loeschung, Einschraenkung der Verarbeitung, Datenuebertragbarkeit und Widerspruch. Ausserdem besteht ein Beschwerderecht bei einer zustaendigen Datenschutzaufsichtsbehoerde.
+
+Hinweis
+Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung. Je nach eingesetzten Diensten, Analysewerkzeugen, Kontaktformularen, Cookies oder eingebetteten Medien koennen weitere Angaben erforderlich sein.`,
     },
   ];
 
