@@ -496,6 +496,7 @@
       const recordStatus = document.getElementById("recordStatus");
       const presetColors = Array.from(colorPreset.options).map((option) => option.value).filter(Boolean);
       const projectRecordStorageKey = "suno-prompt-menu-records-xlsx-txt-v1";
+      const projectCustomRecordStorageKey = "suno-prompt-menu-custom-records-v1";
 
       const readJson = (key) => {
         try {
@@ -511,10 +512,42 @@
 
       const cleanValue = (value) => String(value || "").trim().replace(/\s+/g, " ");
 
+      const recordKey = (record) => ["Jahr", "Interpret", "Genre", "Mood", "Style"]
+        .map((column) => cleanValue(record[column]).toLocaleLowerCase("de"))
+        .join("|");
+
       const clearRecordForm = () => {
         ["recordYear", "recordInterpreter", "recordGenre", "recordMood", "recordStyle"].forEach((id) => {
           document.getElementById(id).value = "";
         });
+      };
+
+      const mergeRecords = (records, customRecords) => {
+        const merged = records.slice();
+        const seen = new Set(merged.map(recordKey));
+        customRecords.forEach((record) => {
+          const key = recordKey(record);
+          if (seen.has(key)) return;
+          seen.add(key);
+          merged.push(record);
+        });
+        return merged;
+      };
+
+      const normalizeProjectIds = (records, prefix = "R") => {
+        records.forEach((record, index) => {
+          record._id = prefix + String(index + 1).padStart(4, "0");
+        });
+      };
+
+      const loadProjectCustomRecords = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(projectCustomRecordStorageKey) || "[]");
+          return Array.isArray(saved) ? saved : [];
+        } catch (error) {
+          localStorage.removeItem(projectCustomRecordStorageKey);
+          return [];
+        }
       };
 
       const loadProjectDefaults = () => new Promise((resolve) => {
@@ -539,13 +572,14 @@
       });
 
       const loadProjectRecords = async () => {
+        const customRecords = loadProjectCustomRecords();
         try {
           const saved = JSON.parse(localStorage.getItem(projectRecordStorageKey) || "[]");
-          if (Array.isArray(saved) && saved.length) return saved;
+          if (Array.isArray(saved) && saved.length) return mergeRecords(saved, customRecords);
         } catch (error) {
           localStorage.removeItem(projectRecordStorageKey);
         }
-        return loadProjectDefaults();
+        return mergeRecords(await loadProjectDefaults(), customRecords);
       };
 
       const saveProjectRecord = async () => {
@@ -564,23 +598,22 @@
         }
 
         const records = await loadProjectRecords();
-        const duplicate = records.some((record) => (
-          ["Jahr", "Interpret", "Genre", "Mood", "Style"].map((column) => cleanValue(record[column]).toLocaleLowerCase("de")).join("|")
-          === ["Jahr", "Interpret", "Genre", "Mood", "Style"].map((column) => nextRecord[column].toLocaleLowerCase("de")).join("|")
-        ));
+        const duplicate = records.some((record) => recordKey(record) === recordKey(nextRecord));
 
         if (duplicate) {
           recordStatus.textContent = "Dieser Datensatz ist bereits vorhanden.";
           return;
         }
 
+        const customRecords = loadProjectCustomRecords();
+        customRecords.push(nextRecord);
+        normalizeProjectIds(customRecords, "C");
+        localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(customRecords));
         records.push(nextRecord);
-        records.forEach((record, index) => {
-          record._id = "R" + String(index + 1).padStart(4, "0");
-        });
+        normalizeProjectIds(records);
         localStorage.setItem(projectRecordStorageKey, JSON.stringify(records));
         clearRecordForm();
-        recordStatus.textContent = "Datensatz gespeichert. Projekt 1 neu laden, um ihn anzuzeigen.";
+        recordStatus.textContent = "Datensatz dauerhaft gespeichert. Projekt 1 neu laden, um ihn anzuzeigen.";
       };
 
       const contentKey = () => window.SiteContent.storageKey;

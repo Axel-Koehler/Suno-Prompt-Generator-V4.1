@@ -831,7 +831,7 @@
 4. Speichern sichert Änderungen im Browser.
 5. + Neu legt einen neuen leeren Datensatz an.
 6. Copy kopiert den Prompt für SUNO Styles.
-7. Reset stellt die Originaldaten wieder her.</textarea>
+7. Reset stellt die Originaldaten wieder her. Zusatzdatensätze bleiben gespeichert.</textarea>
             </div>
           </div>
         </section>
@@ -851,8 +851,11 @@
     };
 
     const STORAGE_KEY = "suno-prompt-menu-records-xlsx-txt-v1";
+    const CUSTOM_RECORDS_KEY = "suno-prompt-menu-custom-records-v1";
+    const INITIAL_RECORD_IDS = new Set(INITIAL_RECORDS.map((record) => record._id));
     window.SunoPromptRecords = {
       storageKey: STORAGE_KEY,
+      customRecordsKey: CUSTOM_RECORDS_KEY,
       columns: COLUMNS,
       initialRecords: INITIAL_RECORDS
     };
@@ -885,13 +888,46 @@
     function loadRecords() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return normalizeRecords(clone(INITIAL_RECORDS));
+        if (!saved) return normalizeRecords(mergeRecords(clone(INITIAL_RECORDS), loadCustomRecords()));
         const parsed = JSON.parse(saved);
-        if (!Array.isArray(parsed) || parsed.length === 0) return normalizeRecords(clone(INITIAL_RECORDS));
-        return normalizeRecords(parsed);
+        if (!Array.isArray(parsed) || parsed.length === 0) return normalizeRecords(mergeRecords(clone(INITIAL_RECORDS), loadCustomRecords()));
+        return normalizeRecords(mergeRecords(parsed, loadCustomRecords()));
       } catch (error) {
-        return normalizeRecords(clone(INITIAL_RECORDS));
+        return normalizeRecords(mergeRecords(clone(INITIAL_RECORDS), loadCustomRecords()));
       }
+    }
+
+    function loadCustomRecords() {
+      try {
+        const saved = localStorage.getItem(CUSTOM_RECORDS_KEY);
+        if (!saved) return [];
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function mergeRecords(records, customRecords) {
+      const merged = clone(records);
+      const seen = new Set(merged.map(recordKey));
+      customRecords.forEach((record) => {
+        const key = recordKey(record);
+        if (seen.has(key)) return;
+        seen.add(key);
+        merged.push(record);
+      });
+      return merged;
+    }
+
+    function recordKey(record) {
+      if (!record || typeof record !== "object") return "";
+      const signature = COLUMNS.map((column) => String(record[column] || "").trim().toLocaleLowerCase("de")).join("|");
+      return signature || String(record._id || "");
+    }
+
+    function customRecordsFrom(records) {
+      return records.filter((record) => !INITIAL_RECORD_IDS.has(record._id));
     }
 
     function clone(value) {
@@ -910,6 +946,7 @@
 
     function saveStorage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
+      localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(customRecordsFrom(state.records)));
     }
 
     function byId(id) {
@@ -1134,7 +1171,7 @@
 
     function resetRecords() {
       if (!confirm("Alle lokalen Änderungen verwerfen?")) return;
-      state.records = clone(INITIAL_RECORDS);
+      state.records = normalizeRecords(mergeRecords(clone(INITIAL_RECORDS), loadCustomRecords()));
       state.selectedId = state.records[0] ? state.records[0]._id : null;
       state.dirty = false;
       localStorage.removeItem(STORAGE_KEY);
@@ -1142,7 +1179,7 @@
       els.genre.value = "";
       els.interpreter.value = "";
       renderAll();
-      setToast("Originaldaten wiederhergestellt.");
+      setToast("Originaldaten wiederhergestellt. Zusatzdatensätze bleiben erhalten.");
     }
 
     function renderMetrics() {
