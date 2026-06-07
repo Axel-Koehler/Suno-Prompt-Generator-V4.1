@@ -1171,7 +1171,10 @@
 
     function resetRecords() {
       if (!confirm("Alle lokalen Änderungen verwerfen?")) return;
-      state.records = normalizeRecords(mergeRecords(clone(INITIAL_RECORDS), loadCustomRecords()));
+      if (state.dirty) saveCurrent(false);
+      const customRecords = mergeRecords(loadCustomRecords(), customRecordsFrom(state.records));
+      localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(customRecords));
+      state.records = normalizeRecords(mergeRecords(clone(INITIAL_RECORDS), customRecords));
       state.selectedId = state.records[0] ? state.records[0]._id : null;
       state.dirty = false;
       localStorage.removeItem(STORAGE_KEY);
