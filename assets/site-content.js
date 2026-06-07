@@ -146,6 +146,7 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
       return;
     }
     element.textContent = text;
+    element.style.whiteSpace = "pre-wrap";
   };
 
   const applyContent = () => {
@@ -160,6 +161,7 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
         const style = styles[field.id] || {};
         if (style.fontSize) element.style.fontSize = style.fontSize + "px";
         if (style.color) element.style.color = style.color;
+        if (style.textAlign) element.style.textAlign = style.textAlign;
       });
     });
 

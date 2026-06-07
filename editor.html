@@ -247,7 +247,7 @@
 
     .control-row {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -365,6 +365,16 @@
                 Schriftfarbe
                 <input class="editor-input" id="fontColor" type="color">
               </label>
+              <label class="editor-label">
+                Textausrichtung
+                <select class="editor-input" id="textAlign">
+                  <option value="">Standard</option>
+                  <option value="left">Links</option>
+                  <option value="center">Zentriert</option>
+                  <option value="right">Rechts</option>
+                  <option value="justify">Blocksatz</option>
+                </select>
+              </label>
             </div>
 
             <div class="action-row">
@@ -395,6 +405,7 @@
       const fieldText = document.getElementById("fieldText");
       const fontSize = document.getElementById("fontSize");
       const fontColor = document.getElementById("fontColor");
+      const textAlign = document.getElementById("textAlign");
       const editorStatus = document.getElementById("editorStatus");
 
       const readJson = (key) => {
@@ -430,6 +441,7 @@
         fieldText.value = typeof content[field.id] === "string" ? content[field.id] : field.defaultText;
         fontSize.value = style.fontSize || "";
         fontColor.value = style.color || "#f7fbff";
+        textAlign.value = style.textAlign || "";
         editorStatus.textContent = "";
 
         fieldList.querySelectorAll("button").forEach((button) => {
@@ -458,6 +470,7 @@
         styles[activeField.id] = {
           fontSize: fontSize.value || "",
           color: fontColor.value || "",
+          textAlign: textAlign.value || "",
         };
         writeJson(contentKey(), content);
         writeJson(styleKey(), styles);
