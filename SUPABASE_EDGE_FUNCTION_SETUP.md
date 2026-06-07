@@ -17,19 +17,8 @@ https://rglpcsnkctqukbvkwaeo.supabase.co/functions/v1/site-state
 supabase functions deploy site-state --project-ref rglpcsnkctqukbvkwaeo
 ```
 
-3. In Supabase unter Project Settings > API den `service_role` Key kopieren.
-4. Als Function Secret setzen:
+3. Danach Online-Seite neu laden und im Editor speichern.
 
-```bash
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=DEIN_SERVICE_ROLE_KEY --project-ref rglpcsnkctqukbvkwaeo
-```
+Die Meldung sollte dann `Zentral gespeichert.` anzeigen.
 
-`SUPABASE_URL` ist in Supabase Edge Functions normalerweise automatisch vorhanden. Falls nicht, ebenfalls setzen:
-
-```bash
-supabase secrets set SUPABASE_URL=https://rglpcsnkctqukbvkwaeo.supabase.co --project-ref rglpcsnkctqukbvkwaeo
-```
-
-Danach Online-Seite neu laden und im Editor speichern. Die Meldung sollte dann `Zentral gespeichert.` anzeigen.
-
-Hinweis: Der `service_role` Key darf niemals in `assets/remote-config.js` oder in den Browser-Code eingetragen werden. Er gehoert nur als Secret in die Edge Function.
+Hinweis: `SUPABASE_URL` und `SUPABASE_SERVICE_ROLE_KEY` sind in Supabase Edge Functions reservierte Umgebungsvariablen und werden automatisch bereitgestellt. Sie muessen nicht manuell als Secrets gesetzt werden. Der `service_role` Key darf niemals in `assets/remote-config.js` oder in den Browser-Code eingetragen werden.
