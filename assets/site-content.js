@@ -220,6 +220,10 @@ Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung.
     }
   };
 
+  const writeJson = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  };
+
   const appendTextWithLineBreaks = (target, text) => {
     text.split("\n").forEach((line, index) => {
       if (index > 0) target.appendChild(document.createElement("br"));
@@ -303,17 +307,44 @@ Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung.
     }
   };
 
+  const loadRemoteContent = async () => {
+    if (!window.AKRemoteStore?.isConfigured) return false;
+    const remoteContent = await window.AKRemoteStore.get(STORAGE_KEY, null);
+    const remoteStyles = await window.AKRemoteStore.get(STYLE_KEY, null);
+    if (remoteContent && typeof remoteContent === "object") writeJson(STORAGE_KEY, remoteContent);
+    if (remoteStyles && typeof remoteStyles === "object") writeJson(STYLE_KEY, remoteStyles);
+    if (remoteContent || remoteStyles) {
+      applyContent();
+      return true;
+    }
+    return false;
+  };
+
+  const saveRemoteContent = async (content, styles) => {
+    if (!window.AKRemoteStore?.isConfigured) return false;
+    const contentSaved = await window.AKRemoteStore.set(STORAGE_KEY, content);
+    const stylesSaved = await window.AKRemoteStore.set(STYLE_KEY, styles);
+    return contentSaved && stylesSaved;
+  };
+
   window.SiteContent = {
     fields,
     storageKey: STORAGE_KEY,
     styleKey: STYLE_KEY,
     readJson,
+    writeJson,
     applyContent,
+    loadRemoteContent,
+    saveRemoteContent,
   };
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", applyContent);
+    document.addEventListener("DOMContentLoaded", () => {
+      applyContent();
+      loadRemoteContent();
+    });
   } else {
     applyContent();
+    loadRemoteContent();
   }
 })();

@@ -6,6 +6,8 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
   <link rel="stylesheet" href="assets/site-nav.css">
+  <script src="assets/remote-config.js" defer></script>
+  <script src="assets/remote-store.js" defer></script>
   <script src="assets/site-nav.js" defer></script>
   <script src="assets/site-content.js" defer></script>
   <title>Editor</title>
@@ -508,6 +510,11 @@
         localStorage.setItem(key, JSON.stringify(value));
       };
 
+      const saveProjectCustomRecordsRemote = async (records) => {
+        if (!window.AKRemoteStore?.isConfigured) return false;
+        return window.AKRemoteStore.set(projectCustomRecordStorageKey, records);
+      };
+
       const cleanValue = (value) => String(value || "").trim().replace(/\s+/g, " ");
 
       const recordKey = (record) => ["Jahr", "Interpret", "Genre", "Mood", "Style"]
@@ -548,6 +555,16 @@
         }
       };
 
+      const loadProjectCustomRecordsRemote = async () => {
+        if (!window.AKRemoteStore?.isConfigured) return loadProjectCustomRecords();
+        const remoteRecords = await window.AKRemoteStore.get(projectCustomRecordStorageKey, null);
+        if (Array.isArray(remoteRecords)) {
+          localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(remoteRecords));
+          return remoteRecords;
+        }
+        return loadProjectCustomRecords();
+      };
+
       const loadProjectDefaults = () => new Promise((resolve) => {
         const iframe = document.createElement("iframe");
         iframe.className = "is-hidden";
@@ -570,7 +587,7 @@
       });
 
       const loadProjectRecords = async () => {
-        const customRecords = loadProjectCustomRecords();
+        const customRecords = await loadProjectCustomRecordsRemote();
         try {
           const saved = JSON.parse(localStorage.getItem(projectRecordStorageKey) || "[]");
           if (Array.isArray(saved) && saved.length) return mergeRecords(saved, customRecords);
@@ -607,6 +624,7 @@
         customRecords.push(nextRecord);
         normalizeProjectIds(customRecords, "C");
         localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(customRecords));
+        await saveProjectCustomRecordsRemote(customRecords);
         records.push(nextRecord);
         normalizeProjectIds(records);
         localStorage.setItem(projectRecordStorageKey, JSON.stringify(records));
@@ -657,7 +675,7 @@
         selectField(window.SiteContent.fields[0]);
       };
 
-      const saveField = () => {
+      const saveField = async () => {
         if (!activeField) return;
         const content = getContent();
         const styles = getStyles();
@@ -670,7 +688,10 @@
         writeJson(contentKey(), content);
         writeJson(styleKey(), styles);
         window.SiteContent.applyContent();
-        editorStatus.textContent = "Gespeichert.";
+        const remoteSaved = await window.SiteContent.saveRemoteContent(content, styles);
+        editorStatus.textContent = window.AKRemoteStore?.isConfigured
+          ? (remoteSaved ? "Zentral gespeichert." : "Lokal gespeichert. Online-Speicher nicht erreichbar.")
+          : "Lokal gespeichert. Online-Speicher ist noch nicht konfiguriert.";
       };
 
       colorPreset.addEventListener("change", () => {
@@ -727,9 +748,11 @@
         editorStatus.textContent = "Alle Textfelder wurden zurückgesetzt.";
       };
 
-      const openEditor = () => {
+      const openEditor = async () => {
         localStorage.setItem(AUTH_KEY, "true");
         setEditorOpen(true);
+        await window.SiteContent.loadRemoteContent();
+        await loadProjectCustomRecordsRemote();
         renderFieldList();
       };
 

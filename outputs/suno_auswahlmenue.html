@@ -6,6 +6,8 @@
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="apple-touch-icon" href="../favicon.png">
   <link rel="stylesheet" href="../assets/site-nav.css">
+  <script src="../assets/remote-config.js" defer></script>
+  <script src="../assets/remote-store.js" defer></script>
   <script src="../assets/site-nav.js" defer></script>
   <script src="../assets/site-content.js" defer></script>
   <title>SUNO Prompt Generator V4.1</title>
@@ -936,6 +938,29 @@
     function saveStorage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
       localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(customRecordsFrom(state.records)));
+      saveCustomRecordsRemote(customRecordsFrom(state.records));
+    }
+
+    async function loadCustomRecordsRemote() {
+      if (!window.AKRemoteStore?.isConfigured) return [];
+      const remoteRecords = await window.AKRemoteStore.get(CUSTOM_RECORDS_KEY, null);
+      if (!Array.isArray(remoteRecords)) return [];
+      localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(remoteRecords));
+      return remoteRecords;
+    }
+
+    async function saveCustomRecordsRemote(records) {
+      if (!window.AKRemoteStore?.isConfigured) return false;
+      return window.AKRemoteStore.set(CUSTOM_RECORDS_KEY, records);
+    }
+
+    async function syncRemoteCustomRecords() {
+      const remoteRecords = await loadCustomRecordsRemote();
+      if (!remoteRecords.length) return;
+      state.records = normalizeRecords(mergeRecords(state.records, remoteRecords));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
+      renderAll();
+      if (!state.selectedId && filteredRecords()[0]) selectRecord(filteredRecords()[0]._id, false);
     }
 
     function byId(id) {
@@ -964,6 +989,7 @@
       renderAll();
       const firstRecord = filteredRecords()[0];
       if (firstRecord) selectRecord(firstRecord._id, false);
+      syncRemoteCustomRecords();
       setToast("Bereit. " + SOURCE_INFO.sheet + " geladen.");
     }
 
