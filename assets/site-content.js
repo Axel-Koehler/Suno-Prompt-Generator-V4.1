@@ -140,13 +140,45 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
     }
   };
 
+  const appendTextWithLineBreaks = (target, text) => {
+    text.split("\n").forEach((line, index) => {
+      if (index > 0) target.appendChild(document.createElement("br"));
+      target.appendChild(document.createTextNode(line));
+    });
+  };
+
+  const writeFormattedText = (element, text) => {
+    const blocks = text.replace(/\r\n/g, "\n").split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
+    element.replaceChildren();
+    element.style.whiteSpace = "normal";
+
+    blocks.forEach((block, index) => {
+      const lower = block.toLocaleLowerCase("de");
+      const isSectionTitle = lower === "features" || lower === "vision";
+      const node = document.createElement(isSectionTitle ? "div" : "p");
+
+      if (isSectionTitle) {
+        node.className = "home-section-title";
+      } else if (index === 0 && block.startsWith("„")) {
+        node.className = "home-kicker";
+      }
+
+      appendTextWithLineBreaks(node, block);
+      element.appendChild(node);
+    });
+  };
+
   const writeText = (element, text) => {
     if (element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement) {
       element.value = text;
       return;
     }
+    if (text.includes("\n")) {
+      writeFormattedText(element, text);
+      return;
+    }
     element.textContent = text;
-    element.style.whiteSpace = "pre-wrap";
+    element.style.whiteSpace = "";
   };
 
   const applyContent = () => {
@@ -159,9 +191,9 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
         if (typeof text === "string") writeText(element, text);
 
         const style = styles[field.id] || {};
-        if (style.fontSize) element.style.fontSize = style.fontSize + "px";
-        if (style.color) element.style.color = style.color;
-        if (style.textAlign) element.style.textAlign = style.textAlign;
+        element.style.fontSize = style.fontSize ? style.fontSize + "px" : "";
+        element.style.color = style.color || "";
+        element.style.textAlign = style.textAlign || "";
       });
     });
 
