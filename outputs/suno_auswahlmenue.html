@@ -796,14 +796,6 @@
             </div>
 
             <div class="action-grid">
-              <button class="button magenta" id="newButton" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-                Neu
-              </button>
-              <button class="button magenta" id="saveButton" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
-                Speichern
-              </button>
               <button class="button magenta" id="resetButton" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
                 Reset
@@ -827,11 +819,10 @@
               <label class="manual-label" for="manualText" data-content-key="project.manual.title">Bedienungsanleitung</label>
               <textarea class="manual-text" id="manualText" data-content-key="project.manual.text" readonly spellcheck="false">1. Links einen Datensatz auswählen.
 2. Mit Jahr, Genre oder Interpret filtern.
-3. Im Bereich Datensatz die Felder bearbeiten.
-4. Speichern sichert Änderungen im Browser.
-5. + Neu legt einen neuen leeren Datensatz an.
-6. Copy kopiert den Prompt für SUNO Styles.
-7. Reset stellt die Originaldaten wieder her. Zusatzdatensätze bleiben gespeichert.</textarea>
+3. Im Bereich Datensatz die Felder bearbeiten. Änderungen werden automatisch gespeichert.
+4. Copy kopiert den Prompt für SUNO Styles.
+5. Reset stellt die Originaldaten wieder her. Zusatzdatensätze bleiben gespeichert.
+6. Suno öffnet die SUNO Create Seite.</textarea>
             </div>
           </div>
         </section>
@@ -879,8 +870,6 @@
       uniqueInterpreters: document.getElementById("uniqueInterpreters"),
       dirtyState: document.getElementById("dirtyState"),
       promptPreview: document.getElementById("promptPreview"),
-      newButton: document.getElementById("newButton"),
-      saveButton: document.getElementById("saveButton"),
       copyPromptButton: document.getElementById("copyPromptButton"),
       resetButton: document.getElementById("resetButton")
     };
@@ -1016,6 +1005,7 @@
         if (!isLongField(column)) input.type = "text";
         input.addEventListener("input", () => {
           state.dirty = true;
+          saveCurrent(false, false);
           updateDirty();
           renderPrompt();
         });
@@ -1034,8 +1024,6 @@
       els.year.addEventListener("change", renderList);
       els.genre.addEventListener("change", renderList);
       els.interpreter.addEventListener("change", renderList);
-      els.newButton.addEventListener("click", newRecord);
-      els.saveButton.addEventListener("click", () => saveCurrent(true));
       els.copyPromptButton.addEventListener("click", copyPrompt);
       els.resetButton.addEventListener("click", resetRecords);
     }
@@ -1126,7 +1114,6 @@
       });
       window.autoGrowTextareas?.();
       els.selectedMeta.textContent = record ? "ID " + record._id : "kein Datensatz";
-      els.saveButton.disabled = !record;
     }
 
     function formRecord() {
@@ -1139,14 +1126,14 @@
       return next;
     }
 
-    function saveCurrent(showMessage) {
+    function saveCurrent(showMessage, rerender = true) {
       const next = formRecord();
       if (!next) return;
       const index = state.records.findIndex((record) => record._id === state.selectedId);
       if (index >= 0) state.records[index] = next;
       state.dirty = false;
       saveStorage();
-      renderAll();
+      if (rerender) renderAll();
       if (showMessage) setToast("Datensatz gespeichert.");
     }
 
