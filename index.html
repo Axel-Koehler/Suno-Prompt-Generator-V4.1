@@ -189,6 +189,16 @@
       margin: 0 auto;
     }
 
+    .home-column {
+      display: grid;
+      gap: 0;
+      min-width: 0;
+    }
+
+    .home-column .home-field + .home-field {
+      margin-top: 0;
+    }
+
     .home-field {
       display: grid;
       gap: 8px;
@@ -344,61 +354,68 @@
       <nav class="site-nav" data-active="home" aria-label="Hauptnavigation"></nav>
 
       <div class="home-fields">
-        <label class="home-field">
-          <span>Über mich</span>
-          <div class="home-text">Hallo, ich bin Axel Köhler – Gründer von AK AI Music Studio und leidenschaftlicher Experte für die Verbindung von Musik, Technologie und künstlicher Intelligenz.
+        <div class="home-column">
+          <label class="home-field">
+            <span>Über mich</span>
+            <div class="home-text">Hallo, ich bin Axel Köhler – Gründer von AK AI Music Studio und leidenschaftlicher Experte für die Verbindung von Musik, Technologie und künstlicher Intelligenz.
 
 Musik war schon immer ein kreativer Ausdruck von Emotionen, Ideen und Geschichten. Mit den heutigen Möglichkeiten der KI eröffnen sich völlig neue Wege, Musik zu erschaffen, zu produzieren und zu erleben. Genau hier setzt meine Arbeit an.
 
 Auf AK AI Music Studio kombiniere ich moderne KI-Technologien mit musikalischer Kreativität, um innovative Klangwelten, individuelle Songs und zukunftsweisende Musikprojekte zu entwickeln. Dabei nutze ich die neuesten Werkzeuge der künstlichen Intelligenz, um einzigartige musikalische Konzepte zu realisieren – von der ersten Idee bis zum fertigen Track.
 
 Mein Ziel ist es, Menschen, Unternehmen und Kreative dabei zu unterstützen, die Möglichkeiten der KI-Musikproduktion zu entdecken und für ihre eigenen Projekte zu nutzen. Ob individuelle Musikstücke, Sounddesign, kreative Experimente oder professionelle Produktionen – ich glaube daran, dass Technologie und Kreativität gemeinsam etwas Außergewöhnliches schaffen können.</div>
-        </label>
+          </label>
 
-        <label class="home-field">
-          <span>Inspiration</span>
-          <div class="home-video">
-            <iframe src="https://www.youtube.com/embed/Z_Iqd9njZdw" title="Inspiration" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-          </div>
-          <div class="home-video">
-            <iframe src="https://www.youtube.com/embed/W8BixscgCQU" title="Inspiration 2" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-          </div>
-        </label>
+          <label class="home-field">
+            <span>Von der Idee zum Song</span>
+            <div class="home-text formatted">
+              <p class="home-kicker">„Von der Idee zum Song – intelligente Prompts für bessere KI-Musik.“</p>
+              <p>Musik mit KI zu erzeugen ist heute einfacher denn je. Die eigentliche Herausforderung liegt jedoch darin, die richtigen Anweisungen zu formulieren. Genau hier setzt unser erstes Projekt an.</p>
+              <p>Mit den Prompt Generatoren für Suno AI entwickeln wir eine eigene Plattform, die kreative Ideen automatisch in professionelle Musik-Prompts übersetzt.</p>
+              <p>Anstatt komplexe Beschreibungen manuell zu erstellen, können Nutzer ihre Vorstellungen eingeben und erhalten optimierte Prompts für hochwertige KI-generierte Songs.</p>
+              <p>Das System analysiert Musikstile, Stimmungen, Songstrukturen, Instrumentierungen und Gesangskonzepte und kombiniert diese zu präzisen Eingaben für Suno.</p>
+              <p>Dadurch entstehen konsistentere Ergebnisse, bessere Klangqualität und ein deutlich effizienterer kreativer Workflow.</p>
+              <p>Unser Ziel ist es, die Brücke zwischen kreativer Vision und künstlicher Intelligenz zu schlagen. Es soll nicht nur die Erstellung von Musik vereinfachen, sondern auch neue kreative Möglichkeiten eröffnen, die mit klassischen Produktionsmethoden nur schwer erreichbar wären.</p>
 
-        <label class="home-field">
-          <span>Von der Idee zum Song</span>
-          <div class="home-text formatted">
-            <p class="home-kicker">„Von der Idee zum Song – intelligente Prompts für bessere KI-Musik.“</p>
-            <p>Musik mit KI zu erzeugen ist heute einfacher denn je. Die eigentliche Herausforderung liegt jedoch darin, die richtigen Anweisungen zu formulieren. Genau hier setzt unser erstes Projekt an.</p>
-            <p>Mit den Prompt Generatoren für Suno AI entwickeln wir eine eigene Plattform, die kreative Ideen automatisch in professionelle Musik-Prompts übersetzt.</p>
-            <p>Anstatt komplexe Beschreibungen manuell zu erstellen, können Nutzer ihre Vorstellungen eingeben und erhalten optimierte Prompts für hochwertige KI-generierte Songs.</p>
-            <p>Das System analysiert Musikstile, Stimmungen, Songstrukturen, Instrumentierungen und Gesangskonzepte und kombiniert diese zu präzisen Eingaben für Suno.</p>
-            <p>Dadurch entstehen konsistentere Ergebnisse, bessere Klangqualität und ein deutlich effizienterer kreativer Workflow.</p>
-            <p>Unser Ziel ist es, die Brücke zwischen kreativer Vision und künstlicher Intelligenz zu schlagen. Es soll nicht nur die Erstellung von Musik vereinfachen, sondern auch neue kreative Möglichkeiten eröffnen, die mit klassischen Produktionsmethoden nur schwer erreichbar wären.</p>
+              <div class="home-section-title">Features</div>
+              <ul class="home-feature-list">
+                <li>Automatische Generierung professioneller Suno-Prompts</li>
+                <li>Genre- und Stilassistent</li>
+                <li>Vorlagen für verschiedene Musikrichtungen</li>
+                <li>Mehrsprachige Prompt-Erstellung</li>
+                <li>Kontinuierliche Weiterentwicklung durch Praxistests</li>
+              </ul>
 
-            <div class="home-section-title">Features</div>
-            <ul class="home-feature-list">
-              <li>Automatische Generierung professioneller Suno-Prompts</li>
-              <li>Genre- und Stilassistent</li>
-              <li>Vorlagen für verschiedene Musikrichtungen</li>
-              <li>Mehrsprachige Prompt-Erstellung</li>
-              <li>Kontinuierliche Weiterentwicklung durch Praxistests</li>
-            </ul>
+              <div class="home-section-title">Vision</div>
+              <p>Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erweitern soll. Dies ist der erste Schritt auf dem Weg zu einer neuen Generation intelligenter Musikproduktions-Tools, die das Beste aus menschlicher Kreativität und künstlicher Intelligenz verbindet.</p>
+            </div>
+          </label>
+        </div>
 
-            <div class="home-section-title">Vision</div>
-            <p>Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erweitern soll. Dies ist der erste Schritt auf dem Weg zu einer neuen Generation intelligenter Musikproduktions-Tools, die das Beste aus menschlicher Kreativität und künstlicher Intelligenz verbindet.</p>
-          </div>
-        </label>
+        <div class="home-column">
+          <label class="home-field">
+            <span>Inspiration</span>
+            <div class="home-video">
+              <iframe src="https://www.youtube.com/embed/Z_Iqd9njZdw" title="Inspiration" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="home-video">
+              <iframe src="https://www.youtube.com/embed/W8BixscgCQU" title="Inspiration 2" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+          </label>
 
-        <label class="home-field">
-          <span>Meine Vision</span>
-          <div class="home-image">
-            <img src="assets/vision-studio.png" alt="KI-Musikstudio mit digitaler Audiowelle">
-          </div>
-          <div class="home-image">
-            <img src="assets/vision-prompt-studio.png" alt="KI-Prompt-Studio für Musikproduktion">
-          </div>
-        </label>
+          <label class="home-field">
+            <span>Meine Vision</span>
+            <div class="home-image">
+              <img src="assets/vision-studio.png" alt="KI-Musikstudio mit digitaler Audiowelle">
+            </div>
+            <div class="home-image">
+              <img src="assets/vision-prompt-studio.png" alt="KI-Prompt-Studio für Musikproduktion">
+            </div>
+            <div class="home-image">
+              <img src="assets/vision-daw-studio.jpeg" alt="Musikstudio mit digitaler Audio-Workstation">
+            </div>
+          </label>
+        </div>
       </div>
     </section>
   </main>
