@@ -10,9 +10,12 @@
   );
 
   const table = config.table || "site_state";
+  const mode = config.mode || "rest";
+  const functionName = config.functionName || "site-state";
   const endpoint = (key) => (
     cleanUrl + "/rest/v1/" + encodeURIComponent(table) + "?key=eq." + encodeURIComponent(key)
   );
+  const functionEndpoint = cleanUrl + "/functions/v1/" + encodeURIComponent(functionName);
 
   const headers = () => ({
     apikey: config.supabaseAnonKey,
@@ -23,6 +26,14 @@
   const get = async (key, fallback) => {
     if (!isConfigured) return fallback;
     try {
+      if (mode === "function") {
+        const response = await fetch(functionEndpoint + "?key=" + encodeURIComponent(key), {
+          headers: headers(),
+        });
+        if (!response.ok) return fallback;
+        const data = await response.json();
+        return data && data.value !== undefined ? data.value : fallback;
+      }
       const response = await fetch(endpoint(key) + "&select=value", {
         headers: headers(),
       });
@@ -37,6 +48,14 @@
   const set = async (key, value) => {
     if (!isConfigured) return false;
     try {
+      if (mode === "function") {
+        const response = await fetch(functionEndpoint, {
+          method: "POST",
+          headers: headers(),
+          body: JSON.stringify({ key, value }),
+        });
+        return response.ok;
+      }
       const response = await fetch(
         cleanUrl + "/rest/v1/" + encodeURIComponent(table) + "?on_conflict=key",
         {
