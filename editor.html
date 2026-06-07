@@ -556,13 +556,17 @@
       };
 
       const loadProjectCustomRecordsRemote = async () => {
-        if (!window.AKRemoteStore?.isConfigured) return loadProjectCustomRecords();
+        const localRecords = loadProjectCustomRecords();
+        if (!window.AKRemoteStore?.isConfigured) return localRecords;
         const remoteRecords = await window.AKRemoteStore.get(projectCustomRecordStorageKey, null);
         if (Array.isArray(remoteRecords)) {
-          localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(remoteRecords));
-          return remoteRecords;
+          const mergedRecords = mergeRecords(localRecords, remoteRecords);
+          localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(mergedRecords));
+          if (mergedRecords.length !== remoteRecords.length) await saveProjectCustomRecordsRemote(mergedRecords);
+          return mergedRecords;
         }
-        return loadProjectCustomRecords();
+        if (localRecords.length) await saveProjectCustomRecordsRemote(localRecords);
+        return localRecords;
       };
 
       const loadProjectDefaults = () => new Promise((resolve) => {

@@ -945,7 +945,6 @@
       if (!window.AKRemoteStore?.isConfigured) return [];
       const remoteRecords = await window.AKRemoteStore.get(CUSTOM_RECORDS_KEY, null);
       if (!Array.isArray(remoteRecords)) return [];
-      localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(remoteRecords));
       return remoteRecords;
     }
 
@@ -956,8 +955,12 @@
 
     async function syncRemoteCustomRecords() {
       const remoteRecords = await loadCustomRecordsRemote();
-      if (!remoteRecords.length) return;
-      state.records = normalizeRecords(mergeRecords(state.records, remoteRecords));
+      const localCustomRecords = customRecordsFrom(state.records);
+      const customRecords = mergeRecords(localCustomRecords, remoteRecords);
+      if (!customRecords.length) return;
+      localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(customRecords));
+      await saveCustomRecordsRemote(customRecords);
+      state.records = normalizeRecords(mergeRecords(state.records, customRecords));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
       renderAll();
       if (!state.selectedId && filteredRecords()[0]) selectRecord(filteredRecords()[0]._id, false);
