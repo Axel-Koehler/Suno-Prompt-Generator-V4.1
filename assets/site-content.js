@@ -147,12 +147,33 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
     });
   };
 
+  const isBulletBlock = (block) => {
+    const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+    return lines.length > 1 && lines.every((line) => /^(?:[-•]\s+)/.test(line));
+  };
+
+  const appendBulletList = (element, block) => {
+    const list = document.createElement("ul");
+    list.className = "home-feature-list";
+    block.split("\n").map((line) => line.trim()).filter(Boolean).forEach((line) => {
+      const item = document.createElement("li");
+      item.textContent = line.replace(/^(?:[-•]\s+)/, "");
+      list.appendChild(item);
+    });
+    element.appendChild(list);
+  };
+
   const writeFormattedText = (element, text) => {
     const blocks = text.replace(/\r\n/g, "\n").split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
     element.replaceChildren();
     element.style.whiteSpace = "normal";
 
     blocks.forEach((block, index) => {
+      if (isBulletBlock(block)) {
+        appendBulletList(element, block);
+        return;
+      }
+
       const lower = block.toLocaleLowerCase("de");
       const isSectionTitle = lower === "features" || lower === "vision";
       const node = document.createElement(isSectionTitle ? "div" : "p");

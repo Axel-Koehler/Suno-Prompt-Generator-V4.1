@@ -378,6 +378,7 @@
             </div>
 
             <div class="action-row">
+              <button class="button" id="bulletButton" type="button">Aufzählung</button>
               <button class="button" id="saveButton" type="button">Speichern</button>
               <button class="button" id="resetButton" type="button">Feld zurücksetzen</button>
               <button class="button" id="resetAllButton" type="button">Alles zurücksetzen</button>
@@ -478,6 +479,30 @@
         editorStatus.textContent = "Gespeichert.";
       };
 
+      const toggleBullets = () => {
+        const start = fieldText.selectionStart;
+        const end = fieldText.selectionEnd;
+        const value = fieldText.value;
+        const lineStart = value.lastIndexOf("\n", Math.max(0, start - 1)) + 1;
+        const lineEndIndex = value.indexOf("\n", end);
+        const lineEnd = lineEndIndex === -1 ? value.length : lineEndIndex;
+        const selectedText = value.slice(lineStart, lineEnd);
+        const lines = selectedText.split("\n");
+        const hasBullets = lines
+          .filter((line) => line.trim() !== "")
+          .every((line) => /^\s*(?:[-•]\s+)/.test(line));
+        const nextLines = lines.map((line) => {
+          if (line.trim() === "") return line;
+          if (hasBullets) return line.replace(/^(\s*)(?:[-•]\s+)/, "$1");
+          return line.replace(/^(\s*)/, "$1- ");
+        });
+        const replacement = nextLines.join("\n");
+        fieldText.value = value.slice(0, lineStart) + replacement + value.slice(lineEnd);
+        fieldText.focus();
+        fieldText.setSelectionRange(lineStart, lineStart + replacement.length);
+        editorStatus.textContent = hasBullets ? "Aufzählung entfernt." : "Aufzählung eingefügt.";
+      };
+
       const resetField = () => {
         if (!activeField) return;
         const content = getContent();
@@ -517,6 +542,7 @@
       });
 
       document.getElementById("saveButton").addEventListener("click", saveField);
+      document.getElementById("bulletButton").addEventListener("click", toggleBullets);
       document.getElementById("resetButton").addEventListener("click", resetField);
       document.getElementById("resetAllButton").addEventListener("click", resetAll);
       document.getElementById("logoutButton").addEventListener("click", () => {
