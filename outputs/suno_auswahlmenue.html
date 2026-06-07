@@ -846,6 +846,11 @@
     };
 
     const STORAGE_KEY = "suno-prompt-menu-records-xlsx-txt-v1";
+    window.SunoPromptRecords = {
+      storageKey: STORAGE_KEY,
+      columns: COLUMNS,
+      initialRecords: INITIAL_RECORDS
+    };
     const collator = new Intl.Collator("de", { numeric: true, sensitivity: "base" });
     const state = {
       records: loadRecords(),

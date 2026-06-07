@@ -264,6 +264,39 @@
       gap: 10px;
     }
 
+    .record-entry-panel {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+      padding: 13px;
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      border-radius: 6px;
+      background: rgba(2, 5, 20, 0.46);
+      box-shadow: inset 0 0 18px rgba(0, 217, 255, 0.06);
+    }
+
+    .record-entry-title {
+      margin: 0;
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 400;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.42);
+    }
+
+    .record-entry-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .record-entry-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .record-entry-panel .editor-textarea {
+      min-height: 130px;
+    }
+
     .button {
       min-height: 40px;
       padding: 9px 16px;
@@ -405,6 +438,37 @@
               <button class="button" id="logoutButton" type="button">Abmelden</button>
             </div>
             <div class="status" id="editorStatus"></div>
+
+            <section class="record-entry-panel" aria-label="Neuer Datensatz Projekt 1">
+              <h2 class="record-entry-title">Neuen Datensatz für Projekt 1 hinzufügen</h2>
+              <div class="record-entry-grid">
+                <label class="editor-label">
+                  Jahr
+                  <input class="editor-input" id="recordYear" type="text" inputmode="numeric">
+                </label>
+                <label class="editor-label">
+                  Interpret
+                  <input class="editor-input" id="recordInterpreter" type="text">
+                </label>
+                <label class="editor-label">
+                  Genre
+                  <input class="editor-input" id="recordGenre" type="text">
+                </label>
+                <label class="editor-label">
+                  Mood
+                  <input class="editor-input" id="recordMood" type="text">
+                </label>
+                <label class="editor-label wide">
+                  Style
+                  <textarea class="editor-textarea" id="recordStyle" spellcheck="false"></textarea>
+                </label>
+              </div>
+              <div class="action-row">
+                <button class="button" id="recordSaveButton" type="button">Datensatz speichern</button>
+                <button class="button" id="recordClearButton" type="button">Felder leeren</button>
+              </div>
+              <div class="status" id="recordStatus"></div>
+            </section>
           </div>
         </section>
       </div>
@@ -429,7 +493,9 @@
       const fontColor = document.getElementById("fontColor");
       const textAlign = document.getElementById("textAlign");
       const editorStatus = document.getElementById("editorStatus");
+      const recordStatus = document.getElementById("recordStatus");
       const presetColors = Array.from(colorPreset.options).map((option) => option.value).filter(Boolean);
+      const projectRecordStorageKey = "suno-prompt-menu-records-xlsx-txt-v1";
 
       const readJson = (key) => {
         try {
@@ -441,6 +507,80 @@
 
       const writeJson = (key, value) => {
         localStorage.setItem(key, JSON.stringify(value));
+      };
+
+      const cleanValue = (value) => String(value || "").trim().replace(/\s+/g, " ");
+
+      const clearRecordForm = () => {
+        ["recordYear", "recordInterpreter", "recordGenre", "recordMood", "recordStyle"].forEach((id) => {
+          document.getElementById(id).value = "";
+        });
+      };
+
+      const loadProjectDefaults = () => new Promise((resolve) => {
+        const iframe = document.createElement("iframe");
+        iframe.className = "is-hidden";
+        iframe.src = "outputs/suno_auswahlmenue.html";
+        iframe.addEventListener("load", () => {
+          try {
+            const source = iframe.contentWindow.SunoPromptRecords;
+            resolve(Array.isArray(source.initialRecords) ? source.initialRecords : []);
+          } catch (error) {
+            resolve([]);
+          } finally {
+            iframe.remove();
+          }
+        });
+        iframe.addEventListener("error", () => {
+          iframe.remove();
+          resolve([]);
+        });
+        document.body.appendChild(iframe);
+      });
+
+      const loadProjectRecords = async () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(projectRecordStorageKey) || "[]");
+          if (Array.isArray(saved) && saved.length) return saved;
+        } catch (error) {
+          localStorage.removeItem(projectRecordStorageKey);
+        }
+        return loadProjectDefaults();
+      };
+
+      const saveProjectRecord = async () => {
+        const nextRecord = {
+          _sourceRow: "Editor",
+          Jahr: cleanValue(document.getElementById("recordYear").value).replace(/^(\d{3,4})s$/i, "$1"),
+          Interpret: cleanValue(document.getElementById("recordInterpreter").value),
+          Genre: cleanValue(document.getElementById("recordGenre").value),
+          Mood: cleanValue(document.getElementById("recordMood").value),
+          Style: cleanValue(document.getElementById("recordStyle").value),
+        };
+
+        if (!nextRecord.Jahr || !nextRecord.Interpret || !nextRecord.Genre || !nextRecord.Mood || !nextRecord.Style) {
+          recordStatus.textContent = "Bitte alle Datensatzfelder ausfüllen.";
+          return;
+        }
+
+        const records = await loadProjectRecords();
+        const duplicate = records.some((record) => (
+          ["Jahr", "Interpret", "Genre", "Mood", "Style"].map((column) => cleanValue(record[column]).toLocaleLowerCase("de")).join("|")
+          === ["Jahr", "Interpret", "Genre", "Mood", "Style"].map((column) => nextRecord[column].toLocaleLowerCase("de")).join("|")
+        ));
+
+        if (duplicate) {
+          recordStatus.textContent = "Dieser Datensatz ist bereits vorhanden.";
+          return;
+        }
+
+        records.push(nextRecord);
+        records.forEach((record, index) => {
+          record._id = "R" + String(index + 1).padStart(4, "0");
+        });
+        localStorage.setItem(projectRecordStorageKey, JSON.stringify(records));
+        clearRecordForm();
+        recordStatus.textContent = "Datensatz gespeichert. Projekt 1 neu laden, um ihn anzuzeigen.";
       };
 
       const contentKey = () => window.SiteContent.storageKey;
@@ -577,6 +717,11 @@
       document.getElementById("bulletButton").addEventListener("click", toggleBullets);
       document.getElementById("resetButton").addEventListener("click", resetField);
       document.getElementById("resetAllButton").addEventListener("click", resetAll);
+      document.getElementById("recordSaveButton").addEventListener("click", saveProjectRecord);
+      document.getElementById("recordClearButton").addEventListener("click", () => {
+        clearRecordForm();
+        recordStatus.textContent = "Felder geleert.";
+      });
       document.getElementById("logoutButton").addEventListener("click", () => {
         localStorage.removeItem(AUTH_KEY);
         setEditorOpen(false);
