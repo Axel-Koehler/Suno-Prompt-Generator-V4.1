@@ -251,6 +251,13 @@
       gap: 10px;
     }
 
+    .color-control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 48px;
+      gap: 8px;
+      align-items: end;
+    }
+
     .action-row {
       display: flex;
       flex-wrap: wrap;
@@ -363,7 +370,20 @@
               </label>
               <label class="editor-label">
                 Schriftfarbe
-                <input class="editor-input" id="fontColor" type="color">
+                <div class="color-control">
+                  <select class="editor-input" id="colorPreset">
+                    <option value="#f7fbff">Text Weiß</option>
+                    <option value="#00d9ff">Neon Cyan</option>
+                    <option value="#f8ff13">Neon Gelb</option>
+                    <option value="#ff2dfd">Neon Magenta</option>
+                    <option value="#6736ff">Violett</option>
+                    <option value="#ff9f1c">Orange</option>
+                    <option value="#9da7d7">Gedämpft Blau</option>
+                    <option value="#ffffff">Rein Weiß</option>
+                    <option value="">Eigene Farbe</option>
+                  </select>
+                  <input class="editor-input" id="fontColor" type="color">
+                </div>
               </label>
               <label class="editor-label">
                 Textausrichtung
@@ -405,9 +425,11 @@
       const fieldName = document.getElementById("fieldName");
       const fieldText = document.getElementById("fieldText");
       const fontSize = document.getElementById("fontSize");
+      const colorPreset = document.getElementById("colorPreset");
       const fontColor = document.getElementById("fontColor");
       const textAlign = document.getElementById("textAlign");
       const editorStatus = document.getElementById("editorStatus");
+      const presetColors = Array.from(colorPreset.options).map((option) => option.value).filter(Boolean);
 
       const readJson = (key) => {
         try {
@@ -442,6 +464,7 @@
         fieldText.value = typeof content[field.id] === "string" ? content[field.id] : field.defaultText;
         fontSize.value = style.fontSize || "";
         fontColor.value = style.color || "#f7fbff";
+        colorPreset.value = presetColors.includes(fontColor.value.toLowerCase()) ? fontColor.value.toLowerCase() : "";
         textAlign.value = style.textAlign || "";
         editorStatus.textContent = "";
 
@@ -478,6 +501,15 @@
         window.SiteContent.applyContent();
         editorStatus.textContent = "Gespeichert.";
       };
+
+      colorPreset.addEventListener("change", () => {
+        if (colorPreset.value) fontColor.value = colorPreset.value;
+      });
+
+      fontColor.addEventListener("input", () => {
+        const color = fontColor.value.toLowerCase();
+        colorPreset.value = presetColors.includes(color) ? color : "";
+      });
 
       const toggleBullets = () => {
         const start = fieldText.selectionStart;
