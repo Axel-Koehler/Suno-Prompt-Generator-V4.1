@@ -7,6 +7,7 @@
   <link rel="apple-touch-icon" href="../favicon.png">
   <link rel="stylesheet" href="../assets/site-nav.css">
   <script src="../assets/site-nav.js" defer></script>
+  <script src="../assets/site-content.js" defer></script>
   <title>SUNO Prompt Generator V4.1</title>
   <style>
     :root {
@@ -738,8 +739,8 @@
       <div class="top-rail">
         <span class="rail-line"></span>
         <div class="title-stack">
-          <div class="title-chip">SUNO Prompt Generator V4.1</div>
-          <div class="title-subline">Die Zukunft der Musik: KI trifft Kreativität</div>
+          <div class="title-chip" data-content-key="project.title">SUNO Prompt Generator V4.1</div>
+          <div class="title-subline" data-content-key="project.subtitle">Die Zukunft der Musik: KI trifft Kreativität</div>
         </div>
         <span class="rail-line right"></span>
       </div>
@@ -809,7 +810,7 @@
             </div>
 
             <div class="prompt-head">
-              <h2 class="panel-title">Prompt - kopieren und in SUNO Styles einf&uuml;gen</h2>
+              <h2 class="panel-title" data-content-key="project.prompt.title">Prompt - kopieren und in SUNO Styles einf&uuml;gen</h2>
               <button class="button prompt-copy" id="copyPromptButton" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
                 Copy
@@ -818,8 +819,8 @@
             <div class="prompt-box" id="promptPreview"></div>
 
             <div class="manual-field">
-              <label class="manual-label" for="manualText">Bedienungsanleitung</label>
-              <textarea class="manual-text" id="manualText" readonly spellcheck="false">1. Links einen Datensatz auswählen.
+              <label class="manual-label" for="manualText" data-content-key="project.manual.title">Bedienungsanleitung</label>
+              <textarea class="manual-text" id="manualText" data-content-key="project.manual.text" readonly spellcheck="false">1. Links einen Datensatz auswählen.
 2. Mit Jahr, Genre oder Interpret filtern.
 3. Im Bereich Datensatz die Felder bearbeiten.
 4. Speichern sichert Änderungen im Browser.

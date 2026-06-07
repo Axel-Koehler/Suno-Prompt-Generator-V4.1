@@ -1,11 +1,16 @@
 (() => {
   const pages = [
     { id: "home", label: "Home", path: "index.html" },
-    { id: "project-1", label: "SUNO Prompt Generator V4.1", path: "outputs/suno_auswahlmenue.html" }
+    { id: "project-1", label: "SUNO Prompt Generator V4.1", path: "outputs/suno_auswahlmenue.html" },
+    { id: "editor", label: "Editor", path: "editor.html" }
   ];
 
   const currentPath = decodeURIComponent(window.location.pathname || "").replace(/\\/g, "/");
-  const inferredActive = currentPath.endsWith("/outputs/suno_auswahlmenue.html") ? "project-1" : "home";
+  const inferredActive = currentPath.endsWith("/outputs/suno_auswahlmenue.html")
+    ? "project-1"
+    : currentPath.endsWith("/editor.html")
+      ? "editor"
+      : "home";
 
   document.querySelectorAll(".site-nav").forEach((nav) => {
     const root = nav.dataset.root || "";
