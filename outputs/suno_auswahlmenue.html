@@ -938,6 +938,7 @@
     function saveStorage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
       localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(customRecordsFrom(state.records)));
+      saveRecordsRemote(state.records);
       saveCustomRecordsRemote(customRecordsFrom(state.records));
     }
 
@@ -948,20 +949,47 @@
       return remoteRecords;
     }
 
+    async function loadRecordsRemote() {
+      if (!window.AKRemoteStore?.isConfigured) return null;
+      const remoteRecords = await window.AKRemoteStore.get(STORAGE_KEY, null);
+      if (!Array.isArray(remoteRecords) || remoteRecords.length === 0) return null;
+      return remoteRecords;
+    }
+
     async function saveCustomRecordsRemote(records) {
       if (!window.AKRemoteStore?.isConfigured) return false;
       return window.AKRemoteStore.set(CUSTOM_RECORDS_KEY, records);
     }
 
+    async function saveRecordsRemote(records) {
+      if (!window.AKRemoteStore?.isConfigured) return false;
+      return window.AKRemoteStore.set(STORAGE_KEY, records);
+    }
+
     async function syncRemoteCustomRecords() {
+      const remoteFullRecords = await loadRecordsRemote();
       const remoteRecords = await loadCustomRecordsRemote();
       const localCustomRecords = customRecordsFrom(state.records);
+
+      if (remoteFullRecords) {
+        const records = normalizeRecords(mergeRecords(remoteFullRecords, remoteRecords));
+        state.records = records;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
+        localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(customRecordsFrom(state.records)));
+        await saveRecordsRemote(state.records);
+        await saveCustomRecordsRemote(customRecordsFrom(state.records));
+        renderAll();
+        if (!state.selectedId && filteredRecords()[0]) selectRecord(filteredRecords()[0]._id, false);
+        return;
+      }
+
       const customRecords = mergeRecords(localCustomRecords, remoteRecords);
       if (!customRecords.length) return;
       localStorage.setItem(CUSTOM_RECORDS_KEY, JSON.stringify(customRecords));
       await saveCustomRecordsRemote(customRecords);
       state.records = normalizeRecords(mergeRecords(state.records, customRecords));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
+      await saveRecordsRemote(state.records);
       renderAll();
       if (!state.selectedId && filteredRecords()[0]) selectRecord(filteredRecords()[0]._id, false);
     }

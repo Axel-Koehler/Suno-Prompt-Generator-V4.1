@@ -307,6 +307,11 @@
     .record-manager-list {
       display: grid;
       gap: 8px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 6px;
+      scrollbar-color: rgba(0, 217, 255, 0.64) rgba(2, 5, 20, 0.48);
+      scrollbar-width: thin;
     }
 
     .record-manager-list button {
@@ -525,7 +530,7 @@
             </section>
 
             <section class="record-entry-panel" aria-label="Datensätze Projekt 1 bearbeiten">
-              <h2 class="record-entry-title">Zusätzliche Datensätze Projekt 1 bearbeiten</h2>
+              <h2 class="record-entry-title">Datensätze Projekt 1 bearbeiten</h2>
               <div class="record-manager-grid">
                 <label class="editor-label">
                   Datensatzliste
@@ -594,7 +599,7 @@
       const projectRecordStorageKey = "suno-prompt-menu-records-xlsx-txt-v1";
       const projectCustomRecordStorageKey = "suno-prompt-menu-custom-records-v1";
       let activeProjectRecordId = "";
-      let projectCustomRecordsCache = [];
+      let projectRecordsCache = [];
 
       const readJson = (key) => {
         try {
@@ -611,6 +616,11 @@
       const saveProjectCustomRecordsRemote = async (records) => {
         if (!window.AKRemoteStore?.isConfigured) return false;
         return window.AKRemoteStore.set(projectCustomRecordStorageKey, records);
+      };
+
+      const saveProjectRecordsRemote = async (records) => {
+        if (!window.AKRemoteStore?.isConfigured) return false;
+        return window.AKRemoteStore.set(projectRecordStorageKey, records);
       };
 
       const cleanValue = (value) => String(value || "").trim().replace(/\s+/g, " ");
@@ -667,6 +677,12 @@
         return localRecords;
       };
 
+      const loadProjectRecordsRemote = async () => {
+        if (!window.AKRemoteStore?.isConfigured) return null;
+        const remoteRecords = await window.AKRemoteStore.get(projectRecordStorageKey, null);
+        return Array.isArray(remoteRecords) && remoteRecords.length ? remoteRecords : null;
+      };
+
       const loadProjectDefaults = () => new Promise((resolve) => {
         const iframe = document.createElement("iframe");
         iframe.className = "is-hidden";
@@ -690,6 +706,8 @@
 
       const loadProjectRecords = async () => {
         const customRecords = await loadProjectCustomRecordsRemote();
+        const remoteRecords = await loadProjectRecordsRemote();
+        if (remoteRecords) return mergeRecords(remoteRecords, customRecords);
         try {
           const saved = JSON.parse(localStorage.getItem(projectRecordStorageKey) || "[]");
           if (Array.isArray(saved) && saved.length) return mergeRecords(saved, customRecords);
@@ -697,6 +715,10 @@
           localStorage.removeItem(projectRecordStorageKey);
         }
         return mergeRecords(await loadProjectDefaults(), customRecords);
+      };
+
+      const customRecordsFromProjectRecords = (records, defaultIds) => {
+        return records.filter((record) => !defaultIds.has(record._id));
       };
 
       const getProjectRecordForm = () => ({
@@ -719,21 +741,18 @@
         projectRecordList.querySelectorAll("button").forEach((button) => button.classList.remove("is-active"));
       };
 
-      const persistProjectCustomRecords = async (customRecords) => {
-        normalizeProjectIds(customRecords, "C");
-        localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(customRecords));
-        const remoteSaved = await saveProjectCustomRecordsRemote(customRecords);
-
-        const baseRecords = await loadProjectDefaults();
-        const fullRecords = mergeRecords(
-          baseRecords.map((record) => ({ ...record })),
-          customRecords.map((record) => ({ ...record }))
-        );
-        normalizeProjectIds(fullRecords);
+      const persistProjectRecords = async (records) => {
+        const defaults = await loadProjectDefaults();
+        const defaultIds = new Set(defaults.map((record) => record._id));
+        const fullRecords = records.map((record) => ({ ...record }));
         localStorage.setItem(projectRecordStorageKey, JSON.stringify(fullRecords));
-        projectCustomRecordsCache = customRecords.map((record) => ({ ...record }));
+        const customRecords = customRecordsFromProjectRecords(fullRecords, defaultIds);
+        localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(customRecords));
+        const fullSaved = await saveProjectRecordsRemote(fullRecords);
+        await saveProjectCustomRecordsRemote(customRecords);
+        projectRecordsCache = fullRecords.map((record) => ({ ...record }));
         renderProjectRecordList();
-        return remoteSaved;
+        return fullSaved;
       };
 
       const projectRecordLabel = (record) => {
@@ -743,7 +762,7 @@
       };
 
       const selectProjectRecord = (recordId) => {
-        const record = projectCustomRecordsCache.find((entry) => entry._id === recordId);
+        const record = projectRecordsCache.find((entry) => entry._id === recordId);
         if (!record) return;
         activeProjectRecordId = record._id;
         document.getElementById("editRecordYear").value = record.Jahr || "";
@@ -761,7 +780,7 @@
 
       const renderProjectRecordList = () => {
         projectRecordList.innerHTML = "";
-        const sortedRecords = projectCustomRecordsCache.slice().sort((left, right) => {
+        const sortedRecords = projectRecordsCache.slice().sort((left, right) => {
           const leftLabel = [left.Interpret, left.Jahr, left.Genre].join(" ");
           const rightLabel = [right.Interpret, right.Jahr, right.Genre].join(" ");
           return leftLabel.localeCompare(rightLabel, "de", { sensitivity: "base" });
@@ -770,7 +789,7 @@
         if (!sortedRecords.length) {
           const empty = document.createElement("p");
           empty.className = "record-manager-empty";
-          empty.textContent = "Noch keine zusätzlichen Datensätze vorhanden.";
+          empty.textContent = "Noch keine Datensätze vorhanden.";
           projectRecordList.appendChild(empty);
           clearProjectRecordEditor();
           return;
@@ -791,16 +810,15 @@
           projectRecordList.appendChild(button);
         });
 
-        if (!activeProjectRecordId || !projectCustomRecordsCache.some((record) => record._id === activeProjectRecordId)) {
+        if (!activeProjectRecordId || !projectRecordsCache.some((record) => record._id === activeProjectRecordId)) {
           clearProjectRecordEditor();
         }
       };
 
       const refreshProjectRecordList = async () => {
-        const customRecords = await loadProjectCustomRecordsRemote();
-        normalizeProjectIds(customRecords, "C");
-        projectCustomRecordsCache = customRecords.map((record) => ({ ...record }));
-        localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(projectCustomRecordsCache));
+        const records = await loadProjectRecords();
+        projectRecordsCache = records.map((record) => ({ ...record }));
+        localStorage.setItem(projectRecordStorageKey, JSON.stringify(projectRecordsCache));
         renderProjectRecordList();
       };
 
@@ -816,26 +834,25 @@
           return;
         }
 
-        const customRecords = projectCustomRecordsCache.map((record) => ({ ...record }));
-        const recordIndex = customRecords.findIndex((record) => record._id === activeProjectRecordId);
+        const projectRecords = projectRecordsCache.map((record) => ({ ...record }));
+        const recordIndex = projectRecords.findIndex((record) => record._id === activeProjectRecordId);
         if (recordIndex === -1) {
           recordEditStatus.textContent = "Datensatz wurde nicht gefunden.";
           return;
         }
 
-        const currentRecordKey = recordKey(customRecords[recordIndex]);
-        const projectRecords = await loadProjectRecords();
-        const duplicate = projectRecords.some((record) => {
+        const currentRecordKey = recordKey(projectRecords[recordIndex]);
+        const duplicate = projectRecords.some((record, index) => {
           const key = recordKey(record);
-          return key !== currentRecordKey && key === recordKey(nextRecord);
+          return index !== recordIndex && key !== currentRecordKey && key === recordKey(nextRecord);
         });
         if (duplicate) {
           recordEditStatus.textContent = "Dieser Datensatz ist bereits vorhanden.";
           return;
         }
 
-        customRecords[recordIndex] = nextRecord;
-        const remoteSaved = await persistProjectCustomRecords(customRecords);
+        projectRecords[recordIndex] = nextRecord;
+        const remoteSaved = await persistProjectRecords(projectRecords);
         selectProjectRecord(nextRecord._id);
         recordEditStatus.textContent = window.AKRemoteStore?.isConfigured
           ? (remoteSaved ? "Datensatz zentral gespeichert." : "Lokal gespeichert. Online-Speicher nicht erreichbar.")
@@ -847,15 +864,15 @@
           recordEditStatus.textContent = "Bitte zuerst einen Datensatz auswählen.";
           return;
         }
-        const record = projectCustomRecordsCache.find((entry) => entry._id === activeProjectRecordId);
+        const record = projectRecordsCache.find((entry) => entry._id === activeProjectRecordId);
         if (!record) return;
         const label = projectRecordLabel(record).title;
         if (!window.confirm('Datensatz "' + label + '" wirklich löschen?')) return;
 
-        const customRecords = projectCustomRecordsCache
+        const projectRecords = projectRecordsCache
           .filter((entry) => entry._id !== activeProjectRecordId)
           .map((entry) => ({ ...entry }));
-        const remoteSaved = await persistProjectCustomRecords(customRecords);
+        const remoteSaved = await persistProjectRecords(projectRecords);
         clearProjectRecordEditor();
         recordEditStatus.textContent = window.AKRemoteStore?.isConfigured
           ? (remoteSaved ? "Datensatz zentral gelöscht." : "Lokal gelöscht. Online-Speicher nicht erreichbar.")
@@ -885,9 +902,9 @@
           return;
         }
 
-        const customRecords = await loadProjectCustomRecordsRemote();
-        customRecords.push(nextRecord);
-        const remoteSaved = await persistProjectCustomRecords(customRecords);
+        nextRecord._id = "C" + String(Date.now());
+        records.push(nextRecord);
+        const remoteSaved = await persistProjectRecords(records);
         clearRecordForm();
         recordStatus.textContent = window.AKRemoteStore?.isConfigured
           ? (remoteSaved ? "Datensatz zentral gespeichert. Projekt 1 neu laden, um ihn anzuzeigen." : "Lokal gespeichert. Online-Speicher nicht erreichbar.")
