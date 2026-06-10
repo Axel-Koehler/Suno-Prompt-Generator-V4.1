@@ -534,6 +534,7 @@
               <div class="record-manager-grid">
                 <label class="editor-label">
                   Datensatzliste
+                  <input class="editor-input" id="projectRecordSearch" type="search" placeholder="Datensätze suchen">
                   <div class="record-manager-list" id="projectRecordList"></div>
                 </label>
 
@@ -592,6 +593,7 @@
       const editorStatus = document.getElementById("editorStatus");
       const recordStatus = document.getElementById("recordStatus");
       const projectRecordList = document.getElementById("projectRecordList");
+      const projectRecordSearch = document.getElementById("projectRecordSearch");
       const recordEditStatus = document.getElementById("recordEditStatus");
       const recordUpdateButton = document.getElementById("recordUpdateButton");
       const recordDeleteButton = document.getElementById("recordDeleteButton");
@@ -761,6 +763,15 @@
         return { title: title || "Ohne Titel", meta };
       };
 
+      const recordMatchesSearch = (record, query) => {
+        if (!query) return true;
+        const searchable = ["Jahr", "Interpret", "Genre", "Mood", "Style"]
+          .map((column) => cleanValue(record[column]))
+          .join(" ")
+          .toLocaleLowerCase("de");
+        return searchable.includes(query);
+      };
+
       const selectProjectRecord = (recordId) => {
         const record = projectRecordsCache.find((entry) => entry._id === recordId);
         if (!record) return;
@@ -780,7 +791,8 @@
 
       const renderProjectRecordList = () => {
         projectRecordList.innerHTML = "";
-        const sortedRecords = projectRecordsCache.slice().sort((left, right) => {
+        const query = cleanValue(projectRecordSearch.value).toLocaleLowerCase("de");
+        const sortedRecords = projectRecordsCache.filter((record) => recordMatchesSearch(record, query)).sort((left, right) => {
           const leftLabel = [left.Interpret, left.Jahr, left.Genre].join(" ");
           const rightLabel = [right.Interpret, right.Jahr, right.Genre].join(" ");
           return leftLabel.localeCompare(rightLabel, "de", { sensitivity: "base" });
@@ -789,9 +801,9 @@
         if (!sortedRecords.length) {
           const empty = document.createElement("p");
           empty.className = "record-manager-empty";
-          empty.textContent = "Noch keine Datensätze vorhanden.";
+          empty.textContent = query ? "Keine Datensätze zur Suche gefunden." : "Noch keine Datensätze vorhanden.";
           projectRecordList.appendChild(empty);
-          clearProjectRecordEditor();
+          if (!projectRecordsCache.some((record) => record._id === activeProjectRecordId)) clearProjectRecordEditor();
           return;
         }
 
@@ -1051,6 +1063,7 @@
       document.getElementById("resetButton").addEventListener("click", resetField);
       document.getElementById("resetAllButton").addEventListener("click", resetAll);
       document.getElementById("recordSaveButton").addEventListener("click", saveProjectRecord);
+      projectRecordSearch.addEventListener("input", renderProjectRecordList);
       document.getElementById("recordUpdateButton").addEventListener("click", updateProjectRecord);
       document.getElementById("recordDeleteButton").addEventListener("click", deleteProjectRecord);
       document.getElementById("recordClearButton").addEventListener("click", () => {
