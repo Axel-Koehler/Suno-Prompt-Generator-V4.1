@@ -7,6 +7,7 @@ const corsHeaders = {
 };
 
 const bucket = "ak-site-state";
+const visitStatsKey = "visitor-stats-v1";
 
 const jsonResponse = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -17,6 +18,8 @@ const jsonResponse = (body: unknown, status = 200) => new Response(JSON.stringif
 });
 
 const safeKey = (key: string) => key.replace(/[^a-z0-9._-]/gi, "_");
+
+const statePath = (key: string) => "state/" + safeKey(key) + ".json";
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") {
@@ -37,33 +40,85 @@ Deno.serve(async (request) => {
     if (error && !/already exists/i.test(error.message)) throw error;
   };
 
+  const readState = async (key: string, fallback: unknown) => {
+    const { data, error } = await supabase.storage.from(bucket).download(statePath(key));
+    if (error) return fallback;
+    return JSON.parse(await data.text());
+  };
+
+  const writeState = async (key: string, value: unknown) => {
+    const payload = JSON.stringify(value ?? null);
+    const { error } = await supabase.storage.from(bucket).upload(statePath(key), payload, {
+      contentType: "application/json",
+      upsert: true,
+    });
+    if (error) throw error;
+  };
+
   try {
     await ensureBucket();
 
     if (request.method === "GET") {
+      const stats = new URL(request.url).searchParams.get("stats");
+      if (stats === "visits") {
+        return jsonResponse({
+          value: await readState(visitStatsKey, {
+            total: 0,
+            today: 0,
+            lastVisit: "",
+            days: {},
+            pages: {},
+          }),
+        });
+      }
+
       const key = new URL(request.url).searchParams.get("key");
       if (!key) return jsonResponse({ error: "Missing key." }, 400);
 
-      const path = "state/" + safeKey(key) + ".json";
-      const { data, error } = await supabase.storage.from(bucket).download(path);
-      if (error) return jsonResponse({ value: null });
-
-      const value = JSON.parse(await data.text());
-      return jsonResponse({ value });
+      return jsonResponse({ value: await readState(key, null) });
     }
 
     if (request.method === "POST") {
       const body = await request.json();
+      if (body.action === "visit") {
+        const now = new Date();
+        const todayKey = now.toISOString().slice(0, 10);
+        const page = safeKey(String(body.page || "unknown"));
+        const stats = await readState(visitStatsKey, {
+          total: 0,
+          today: 0,
+          lastVisit: "",
+          days: {},
+          pages: {},
+        }) as {
+          total?: number;
+          today?: number;
+          lastVisit?: string;
+          days?: Record<string, number>;
+          pages?: Record<string, number>;
+        };
+
+        const days = stats.days || {};
+        const pages = stats.pages || {};
+        days[todayKey] = (Number(days[todayKey]) || 0) + 1;
+        pages[page] = (Number(pages[page]) || 0) + 1;
+
+        const nextStats = {
+          total: (Number(stats.total) || 0) + 1,
+          today: days[todayKey],
+          lastVisit: now.toISOString(),
+          days,
+          pages,
+        };
+
+        await writeState(visitStatsKey, nextStats);
+        return jsonResponse({ ok: true, value: nextStats });
+      }
+
       const key = String(body.key || "");
       if (!key) return jsonResponse({ error: "Missing key." }, 400);
 
-      const path = "state/" + safeKey(key) + ".json";
-      const payload = JSON.stringify(body.value ?? null);
-      const { error } = await supabase.storage.from(bucket).upload(path, payload, {
-        contentType: "application/json",
-        upsert: true,
-      });
-      if (error) return jsonResponse({ error: error.message }, 500);
+      await writeState(key, body.value ?? null);
 
       return jsonResponse({ ok: true });
     }

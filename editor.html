@@ -148,6 +148,42 @@
       margin: 0 auto;
     }
 
+    .visitor-counter {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 auto 12px;
+      padding: 12px;
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      border-radius: 6px;
+      background: rgba(2, 5, 20, 0.52);
+      box-shadow: inset 0 0 18px rgba(0, 217, 255, 0.06);
+    }
+
+    .visitor-counter-item {
+      display: grid;
+      gap: 3px;
+      min-height: 56px;
+      align-content: center;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 45, 253, 0.26);
+      border-radius: 5px;
+      background: rgba(13, 17, 50, 0.62);
+    }
+
+    .visitor-counter-label {
+      color: var(--cyan);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .visitor-counter-value {
+      color: rgba(247, 251, 255, 0.96);
+      font-size: 18px;
+      text-transform: none;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.32);
+    }
+
     .login-panel,
     .editor-panel {
       border: 1px solid rgba(0, 217, 255, 0.42);
@@ -405,6 +441,10 @@
         grid-template-columns: 1fr;
       }
 
+      .visitor-counter {
+        grid-template-columns: 1fr;
+      }
+
       .record-manager-grid,
       .record-entry-grid {
         grid-template-columns: 1fr;
@@ -423,6 +463,21 @@
       <nav class="site-nav" data-active="editor" aria-label="Hauptnavigation"></nav>
 
       <div class="editor-content">
+        <section class="visitor-counter is-hidden" id="visitorCounter" aria-label="Besucherzähler">
+          <div class="visitor-counter-item">
+            <span class="visitor-counter-label">Besuche gesamt</span>
+            <span class="visitor-counter-value" id="visitorTotal">-</span>
+          </div>
+          <div class="visitor-counter-item">
+            <span class="visitor-counter-label">Heute</span>
+            <span class="visitor-counter-value" id="visitorToday">-</span>
+          </div>
+          <div class="visitor-counter-item">
+            <span class="visitor-counter-label">Letzter Besuch</span>
+            <span class="visitor-counter-value" id="visitorLast">-</span>
+          </div>
+        </section>
+
         <form class="login-panel" id="loginForm" autocomplete="off">
           <label class="editor-label">
             Benutzername
@@ -583,6 +638,10 @@
       const loginForm = document.getElementById("loginForm");
       const loginStatus = document.getElementById("loginStatus");
       const editorPanel = document.getElementById("editorPanel");
+      const visitorCounter = document.getElementById("visitorCounter");
+      const visitorTotal = document.getElementById("visitorTotal");
+      const visitorToday = document.getElementById("visitorToday");
+      const visitorLast = document.getElementById("visitorLast");
       const fieldList = document.getElementById("fieldList");
       const fieldName = document.getElementById("fieldName");
       const fieldText = document.getElementById("fieldText");
@@ -929,6 +988,28 @@
       const setEditorOpen = (open) => {
         loginForm.classList.toggle("is-hidden", open);
         editorPanel.classList.toggle("is-open", open);
+        visitorCounter.classList.toggle("is-hidden", !open);
+      };
+
+      const formatLastVisit = (value) => {
+        if (!value) return "-";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "-";
+        return date.toLocaleString("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      };
+
+      const loadVisitorCounter = async () => {
+        const fallback = { total: 0, today: 0, lastVisit: "" };
+        const stats = await window.AKRemoteStore?.getVisitorStats?.(fallback) || fallback;
+        visitorTotal.textContent = String(Number(stats.total) || 0);
+        visitorToday.textContent = String(Number(stats.today) || 0);
+        visitorLast.textContent = formatLastVisit(stats.lastVisit);
       };
 
       const getContent = () => readJson(contentKey());
@@ -1044,6 +1125,7 @@
         setEditorOpen(true);
         await window.SiteContent.loadRemoteContent();
         await refreshProjectRecordList();
+        await loadVisitorCounter();
         renderFieldList();
       };
 

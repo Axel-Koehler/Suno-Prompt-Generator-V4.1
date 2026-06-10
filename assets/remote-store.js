@@ -70,9 +70,52 @@
     }
   };
 
+  const trackVisit = async (page) => {
+    if (!isConfigured || mode !== "function") return false;
+    try {
+      const response = await fetch(functionEndpoint, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ action: "visit", page }),
+      });
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const getVisitorStats = async (fallback) => {
+    if (!isConfigured || mode !== "function") return fallback;
+    try {
+      const response = await fetch(functionEndpoint + "?stats=visits", {
+        headers: headers(),
+      });
+      if (!response.ok) return fallback;
+      const data = await response.json();
+      return data && data.value !== undefined ? data.value : fallback;
+    } catch (error) {
+      return fallback;
+    }
+  };
+
+  const trackCurrentPageVisit = () => {
+    const path = decodeURIComponent(window.location.pathname || "").replace(/\\/g, "/");
+    if (path.endsWith("/editor.html")) return;
+    const page = path.endsWith("/outputs/suno_auswahlmenue.html") ? "project-1" : "home";
+    window.setTimeout(() => trackVisit(page), 300);
+  };
+
   window.AKRemoteStore = {
     isConfigured,
     get,
     set,
+    trackVisit,
+    getVisitorStats,
   };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", trackCurrentPageVisit, { once: true });
+  } else {
+    trackCurrentPageVisit();
+  }
 })();
