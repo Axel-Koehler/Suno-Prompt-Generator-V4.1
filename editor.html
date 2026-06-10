@@ -297,6 +297,55 @@
       min-height: 130px;
     }
 
+    .record-manager-grid {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.42fr) minmax(0, 0.58fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .record-manager-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .record-manager-list button {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      color: rgba(247, 251, 255, 0.92);
+      text-align: left;
+      text-transform: none;
+      background: rgba(13, 17, 50, 0.84);
+      border: 1px solid rgba(0, 217, 255, 0.32);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .record-manager-list button.is-active {
+      color: var(--yellow);
+      border-color: rgba(248, 255, 19, 0.86);
+      box-shadow: 0 0 18px rgba(248, 255, 19, 0.16);
+    }
+
+    .record-manager-meta {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: none;
+    }
+
+    .record-manager-empty {
+      margin: 0;
+      padding: 10px 12px;
+      color: rgba(247, 251, 255, 0.78);
+      text-transform: none;
+      border: 1px solid rgba(0, 217, 255, 0.24);
+      border-radius: 6px;
+      background: rgba(2, 5, 20, 0.38);
+    }
+
     .button {
       min-height: 40px;
       padding: 9px 16px;
@@ -348,6 +397,11 @@
       }
 
       .control-row {
+        grid-template-columns: 1fr;
+      }
+
+      .record-manager-grid,
+      .record-entry-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -469,6 +523,44 @@
               </div>
               <div class="status" id="recordStatus"></div>
             </section>
+
+            <section class="record-entry-panel" aria-label="Datensätze Projekt 1 bearbeiten">
+              <h2 class="record-entry-title">Zusätzliche Datensätze Projekt 1 bearbeiten</h2>
+              <div class="record-manager-grid">
+                <label class="editor-label">
+                  Datensatzliste
+                  <div class="record-manager-list" id="projectRecordList"></div>
+                </label>
+
+                <div class="record-entry-grid">
+                  <label class="editor-label">
+                    Jahr
+                    <input class="editor-input" id="editRecordYear" type="text" inputmode="numeric">
+                  </label>
+                  <label class="editor-label">
+                    Interpret
+                    <input class="editor-input" id="editRecordInterpreter" type="text">
+                  </label>
+                  <label class="editor-label">
+                    Genre
+                    <input class="editor-input" id="editRecordGenre" type="text">
+                  </label>
+                  <label class="editor-label">
+                    Mood
+                    <input class="editor-input" id="editRecordMood" type="text">
+                  </label>
+                  <label class="editor-label wide">
+                    Style
+                    <textarea class="editor-textarea" id="editRecordStyle" spellcheck="false"></textarea>
+                  </label>
+                  <div class="action-row wide">
+                    <button class="button" id="recordUpdateButton" type="button">Änderung speichern</button>
+                    <button class="button" id="recordDeleteButton" type="button">Datensatz löschen</button>
+                  </div>
+                  <div class="status wide" id="recordEditStatus"></div>
+                </div>
+              </div>
+            </section>
           </div>
         </section>
       </div>
@@ -494,9 +586,15 @@
       const textAlign = document.getElementById("textAlign");
       const editorStatus = document.getElementById("editorStatus");
       const recordStatus = document.getElementById("recordStatus");
+      const projectRecordList = document.getElementById("projectRecordList");
+      const recordEditStatus = document.getElementById("recordEditStatus");
+      const recordUpdateButton = document.getElementById("recordUpdateButton");
+      const recordDeleteButton = document.getElementById("recordDeleteButton");
       const presetColors = Array.from(colorPreset.options).map((option) => option.value).filter(Boolean);
       const projectRecordStorageKey = "suno-prompt-menu-records-xlsx-txt-v1";
       const projectCustomRecordStorageKey = "suno-prompt-menu-custom-records-v1";
+      let activeProjectRecordId = "";
+      let projectCustomRecordsCache = [];
 
       const readJson = (key) => {
         try {
@@ -601,6 +699,169 @@
         return mergeRecords(await loadProjectDefaults(), customRecords);
       };
 
+      const getProjectRecordForm = () => ({
+        _sourceRow: "Editor",
+        _id: activeProjectRecordId,
+        Jahr: cleanValue(document.getElementById("editRecordYear").value).replace(/^(\d{3,4})s$/i, "$1"),
+        Interpret: cleanValue(document.getElementById("editRecordInterpreter").value),
+        Genre: cleanValue(document.getElementById("editRecordGenre").value),
+        Mood: cleanValue(document.getElementById("editRecordMood").value),
+        Style: cleanValue(document.getElementById("editRecordStyle").value),
+      });
+
+      const clearProjectRecordEditor = () => {
+        activeProjectRecordId = "";
+        ["editRecordYear", "editRecordInterpreter", "editRecordGenre", "editRecordMood", "editRecordStyle"].forEach((id) => {
+          document.getElementById(id).value = "";
+        });
+        recordUpdateButton.disabled = true;
+        recordDeleteButton.disabled = true;
+        projectRecordList.querySelectorAll("button").forEach((button) => button.classList.remove("is-active"));
+      };
+
+      const persistProjectCustomRecords = async (customRecords) => {
+        normalizeProjectIds(customRecords, "C");
+        localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(customRecords));
+        const remoteSaved = await saveProjectCustomRecordsRemote(customRecords);
+
+        const baseRecords = await loadProjectDefaults();
+        const fullRecords = mergeRecords(
+          baseRecords.map((record) => ({ ...record })),
+          customRecords.map((record) => ({ ...record }))
+        );
+        normalizeProjectIds(fullRecords);
+        localStorage.setItem(projectRecordStorageKey, JSON.stringify(fullRecords));
+        projectCustomRecordsCache = customRecords.map((record) => ({ ...record }));
+        renderProjectRecordList();
+        return remoteSaved;
+      };
+
+      const projectRecordLabel = (record) => {
+        const title = [record.Interpret, record.Jahr].filter(Boolean).join(" - ");
+        const meta = [record.Genre, record.Mood].filter(Boolean).join(" · ");
+        return { title: title || "Ohne Titel", meta };
+      };
+
+      const selectProjectRecord = (recordId) => {
+        const record = projectCustomRecordsCache.find((entry) => entry._id === recordId);
+        if (!record) return;
+        activeProjectRecordId = record._id;
+        document.getElementById("editRecordYear").value = record.Jahr || "";
+        document.getElementById("editRecordInterpreter").value = record.Interpret || "";
+        document.getElementById("editRecordGenre").value = record.Genre || "";
+        document.getElementById("editRecordMood").value = record.Mood || "";
+        document.getElementById("editRecordStyle").value = record.Style || "";
+        recordUpdateButton.disabled = false;
+        recordDeleteButton.disabled = false;
+        recordEditStatus.textContent = "";
+        projectRecordList.querySelectorAll("button").forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.recordId === recordId);
+        });
+      };
+
+      const renderProjectRecordList = () => {
+        projectRecordList.innerHTML = "";
+        const sortedRecords = projectCustomRecordsCache.slice().sort((left, right) => {
+          const leftLabel = [left.Interpret, left.Jahr, left.Genre].join(" ");
+          const rightLabel = [right.Interpret, right.Jahr, right.Genre].join(" ");
+          return leftLabel.localeCompare(rightLabel, "de", { sensitivity: "base" });
+        });
+
+        if (!sortedRecords.length) {
+          const empty = document.createElement("p");
+          empty.className = "record-manager-empty";
+          empty.textContent = "Noch keine zusätzlichen Datensätze vorhanden.";
+          projectRecordList.appendChild(empty);
+          clearProjectRecordEditor();
+          return;
+        }
+
+        sortedRecords.forEach((record) => {
+          const button = document.createElement("button");
+          const label = projectRecordLabel(record);
+          const meta = document.createElement("span");
+          button.type = "button";
+          button.dataset.recordId = record._id;
+          button.textContent = label.title;
+          meta.className = "record-manager-meta";
+          meta.textContent = label.meta;
+          button.appendChild(meta);
+          button.classList.toggle("is-active", record._id === activeProjectRecordId);
+          button.addEventListener("click", () => selectProjectRecord(record._id));
+          projectRecordList.appendChild(button);
+        });
+
+        if (!activeProjectRecordId || !projectCustomRecordsCache.some((record) => record._id === activeProjectRecordId)) {
+          clearProjectRecordEditor();
+        }
+      };
+
+      const refreshProjectRecordList = async () => {
+        const customRecords = await loadProjectCustomRecordsRemote();
+        normalizeProjectIds(customRecords, "C");
+        projectCustomRecordsCache = customRecords.map((record) => ({ ...record }));
+        localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(projectCustomRecordsCache));
+        renderProjectRecordList();
+      };
+
+      const updateProjectRecord = async () => {
+        if (!activeProjectRecordId) {
+          recordEditStatus.textContent = "Bitte zuerst einen Datensatz auswählen.";
+          return;
+        }
+
+        const nextRecord = getProjectRecordForm();
+        if (!nextRecord.Jahr || !nextRecord.Interpret || !nextRecord.Genre || !nextRecord.Mood || !nextRecord.Style) {
+          recordEditStatus.textContent = "Bitte alle Datensatzfelder ausfüllen.";
+          return;
+        }
+
+        const customRecords = projectCustomRecordsCache.map((record) => ({ ...record }));
+        const recordIndex = customRecords.findIndex((record) => record._id === activeProjectRecordId);
+        if (recordIndex === -1) {
+          recordEditStatus.textContent = "Datensatz wurde nicht gefunden.";
+          return;
+        }
+
+        const currentRecordKey = recordKey(customRecords[recordIndex]);
+        const projectRecords = await loadProjectRecords();
+        const duplicate = projectRecords.some((record) => {
+          const key = recordKey(record);
+          return key !== currentRecordKey && key === recordKey(nextRecord);
+        });
+        if (duplicate) {
+          recordEditStatus.textContent = "Dieser Datensatz ist bereits vorhanden.";
+          return;
+        }
+
+        customRecords[recordIndex] = nextRecord;
+        const remoteSaved = await persistProjectCustomRecords(customRecords);
+        selectProjectRecord(nextRecord._id);
+        recordEditStatus.textContent = window.AKRemoteStore?.isConfigured
+          ? (remoteSaved ? "Datensatz zentral gespeichert." : "Lokal gespeichert. Online-Speicher nicht erreichbar.")
+          : "Datensatz lokal gespeichert.";
+      };
+
+      const deleteProjectRecord = async () => {
+        if (!activeProjectRecordId) {
+          recordEditStatus.textContent = "Bitte zuerst einen Datensatz auswählen.";
+          return;
+        }
+        const record = projectCustomRecordsCache.find((entry) => entry._id === activeProjectRecordId);
+        if (!record) return;
+        const label = projectRecordLabel(record).title;
+        if (!window.confirm('Datensatz "' + label + '" wirklich löschen?')) return;
+
+        const customRecords = projectCustomRecordsCache
+          .filter((entry) => entry._id !== activeProjectRecordId)
+          .map((entry) => ({ ...entry }));
+        const remoteSaved = await persistProjectCustomRecords(customRecords);
+        clearProjectRecordEditor();
+        recordEditStatus.textContent = window.AKRemoteStore?.isConfigured
+          ? (remoteSaved ? "Datensatz zentral gelöscht." : "Lokal gelöscht. Online-Speicher nicht erreichbar.")
+          : "Datensatz lokal gelöscht.";
+      };
+
       const saveProjectRecord = async () => {
         const nextRecord = {
           _sourceRow: "Editor",
@@ -624,16 +885,13 @@
           return;
         }
 
-        const customRecords = loadProjectCustomRecords();
+        const customRecords = await loadProjectCustomRecordsRemote();
         customRecords.push(nextRecord);
-        normalizeProjectIds(customRecords, "C");
-        localStorage.setItem(projectCustomRecordStorageKey, JSON.stringify(customRecords));
-        await saveProjectCustomRecordsRemote(customRecords);
-        records.push(nextRecord);
-        normalizeProjectIds(records);
-        localStorage.setItem(projectRecordStorageKey, JSON.stringify(records));
+        const remoteSaved = await persistProjectCustomRecords(customRecords);
         clearRecordForm();
-        recordStatus.textContent = "Datensatz dauerhaft gespeichert. Projekt 1 neu laden, um ihn anzuzeigen.";
+        recordStatus.textContent = window.AKRemoteStore?.isConfigured
+          ? (remoteSaved ? "Datensatz zentral gespeichert. Projekt 1 neu laden, um ihn anzuzeigen." : "Lokal gespeichert. Online-Speicher nicht erreichbar.")
+          : "Datensatz lokal gespeichert. Projekt 1 neu laden, um ihn anzuzeigen.";
       };
 
       const contentKey = () => window.SiteContent.storageKey;
@@ -756,7 +1014,7 @@
         localStorage.setItem(AUTH_KEY, "true");
         setEditorOpen(true);
         await window.SiteContent.loadRemoteContent();
-        await loadProjectCustomRecordsRemote();
+        await refreshProjectRecordList();
         renderFieldList();
       };
 
@@ -776,6 +1034,8 @@
       document.getElementById("resetButton").addEventListener("click", resetField);
       document.getElementById("resetAllButton").addEventListener("click", resetAll);
       document.getElementById("recordSaveButton").addEventListener("click", saveProjectRecord);
+      document.getElementById("recordUpdateButton").addEventListener("click", updateProjectRecord);
+      document.getElementById("recordDeleteButton").addEventListener("click", deleteProjectRecord);
       document.getElementById("recordClearButton").addEventListener("click", () => {
         clearRecordForm();
         recordStatus.textContent = "Felder geleert.";
@@ -791,8 +1051,7 @@
           return;
         }
         if (localStorage.getItem(AUTH_KEY) === "true") {
-          setEditorOpen(true);
-          renderFieldList();
+          openEditor();
         }
       };
 
