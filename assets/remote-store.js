@@ -116,19 +116,30 @@
     functionEndpoint + "?audio=" + encodeURIComponent(id)
   );
 
-  const uploadAudio = async ({ title, filename, contentType, data }) => {
+  const uploadAudio = async ({ title, filename, contentType, file, data }) => {
     if (!isConfigured || mode !== "function") return { ok: false };
     try {
-      const response = await fetch(functionEndpoint, {
+      const isBinaryUpload = file instanceof Blob;
+      const response = await fetch(functionEndpoint + (isBinaryUpload ? "?audio=upload" : ""), {
         method: "POST",
-        headers: headers(),
-        body: JSON.stringify({
-          action: "audio-upload",
-          title,
-          filename,
-          contentType,
-          data,
-        }),
+        headers: isBinaryUpload
+          ? {
+              apikey: config.supabaseAnonKey,
+              Authorization: "Bearer " + config.supabaseAnonKey,
+              "Content-Type": contentType,
+              "x-audio-title": encodeURIComponent(title),
+              "x-audio-filename": encodeURIComponent(filename),
+            }
+          : headers(),
+        body: isBinaryUpload
+          ? file
+          : JSON.stringify({
+              action: "audio-upload",
+              title,
+              filename,
+              contentType,
+              data,
+            }),
       });
       const payload = await response.json().catch(() => ({}));
       return Object.assign({ ok: response.ok }, payload);

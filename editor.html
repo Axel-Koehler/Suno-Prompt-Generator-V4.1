@@ -1045,16 +1045,6 @@
         visitorLast.textContent = formatLastVisit(stats.lastVisit);
       };
 
-      const fileToBase64 = (file) => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.addEventListener("load", () => {
-          const result = String(reader.result || "");
-          resolve(result.includes(",") ? result.split(",").pop() : result);
-        });
-        reader.addEventListener("error", () => reject(reader.error));
-        reader.readAsDataURL(file);
-      });
-
       const uploadSong = async () => {
         const file = songUploadFile.files && songUploadFile.files[0];
         const title = cleanValue(songUploadTitle.value);
@@ -1074,12 +1064,11 @@
         songUploadButton.disabled = true;
         songUploadStatus.textContent = "Song wird hochgeladen...";
         try {
-          const data = await fileToBase64(file);
           const result = await window.AKRemoteStore?.uploadAudio?.({
             title,
             filename: file.name,
             contentType: file.type || "audio/mpeg",
-            data,
+            file,
           });
 
           if (result?.ok) {
@@ -1088,7 +1077,7 @@
             songUploadStatus.textContent = "Song hochgeladen. Er ist auf der Seite Meine Song`s sichtbar.";
             return;
           }
-          songUploadStatus.textContent = "Upload fehlgeschlagen.";
+          songUploadStatus.textContent = result?.error ? "Upload fehlgeschlagen: " + result.error : "Upload fehlgeschlagen.";
         } catch (error) {
           songUploadStatus.textContent = "Upload fehlgeschlagen.";
         } finally {

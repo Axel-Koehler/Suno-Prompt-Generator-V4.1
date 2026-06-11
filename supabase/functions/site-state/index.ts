@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-audio-title, x-audio-filename",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
@@ -107,6 +107,37 @@ Deno.serve(async (request) => {
     }
 
     if (request.method === "POST") {
+      const uploadMode = new URL(request.url).searchParams.get("audio");
+      if (uploadMode === "upload") {
+        const title = decodeURIComponent(request.headers.get("x-audio-title") || "").trim();
+        const filename = decodeURIComponent(request.headers.get("x-audio-filename") || "audio").trim();
+        const contentType = request.headers.get("content-type") || "";
+        if (!title) return jsonResponse({ error: "Missing title." }, 400);
+        if (!contentType.startsWith("audio/")) return jsonResponse({ error: "Only audio files are allowed." }, 400);
+
+        const bytes = new Uint8Array(await request.arrayBuffer());
+        if (!bytes.length) return jsonResponse({ error: "Missing audio data." }, 400);
+
+        const id = crypto.randomUUID();
+        const { error } = await supabase.storage.from(bucket).upload(audioPath(id), bytes, {
+          contentType,
+          upsert: false,
+        });
+        if (error) return jsonResponse({ error: error.message }, 500);
+
+        const items = await readState(audioListKey, []) as AudioItem[];
+        const nextItem = {
+          id,
+          title,
+          filename,
+          contentType,
+          uploadedAt: new Date().toISOString(),
+        };
+        const nextItems = Array.isArray(items) ? [nextItem, ...items] : [nextItem];
+        await writeState(audioListKey, nextItems);
+        return jsonResponse({ ok: true, value: nextItem });
+      }
+
       const body = await request.json();
       if (body.action === "audio-upload") {
         const title = String(body.title || "").trim();
