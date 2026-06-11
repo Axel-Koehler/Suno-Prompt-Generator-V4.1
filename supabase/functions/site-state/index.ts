@@ -8,6 +8,7 @@ const corsHeaders = {
 
 const bucket = "ak-site-state";
 const visitStatsKey = "visitor-stats-v1";
+const audioListKey = "audio-list-v1";
 
 const jsonResponse = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -20,6 +21,15 @@ const jsonResponse = (body: unknown, status = 200) => new Response(JSON.stringif
 const safeKey = (key: string) => key.replace(/[^a-z0-9._-]/gi, "_");
 
 const statePath = (key: string) => "state/" + safeKey(key) + ".json";
+const audioPath = (id: string) => "audio/" + safeKey(id);
+
+type AudioItem = {
+  id: string;
+  title: string;
+  filename: string;
+  contentType: string;
+  uploadedAt: string;
+};
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") {
@@ -59,6 +69,24 @@ Deno.serve(async (request) => {
     await ensureBucket();
 
     if (request.method === "GET") {
+      const audio = new URL(request.url).searchParams.get("audio");
+      if (audio === "list") {
+        return jsonResponse({ value: await readState(audioListKey, []) });
+      }
+      if (audio) {
+        const { data, error } = await supabase.storage.from(bucket).download(audioPath(audio));
+        if (error) return jsonResponse({ error: "Audio not found." }, 404);
+        const items = await readState(audioListKey, []) as AudioItem[];
+        const item = Array.isArray(items) ? items.find((entry) => entry.id === audio) : null;
+        return new Response(data, {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": item?.contentType || "audio/mpeg",
+            "Cache-Control": "public, max-age=3600",
+          },
+        });
+      }
+
       const stats = new URL(request.url).searchParams.get("stats");
       if (stats === "visits") {
         return jsonResponse({
@@ -80,6 +108,41 @@ Deno.serve(async (request) => {
 
     if (request.method === "POST") {
       const body = await request.json();
+      if (body.action === "audio-upload") {
+        const title = String(body.title || "").trim();
+        const filename = String(body.filename || "audio").trim();
+        const contentType = String(body.contentType || "");
+        const base64 = String(body.data || "");
+        if (!title) return jsonResponse({ error: "Missing title." }, 400);
+        if (!contentType.startsWith("audio/")) return jsonResponse({ error: "Only audio files are allowed." }, 400);
+        if (!base64) return jsonResponse({ error: "Missing audio data." }, 400);
+
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let index = 0; index < binary.length; index += 1) {
+          bytes[index] = binary.charCodeAt(index);
+        }
+
+        const id = crypto.randomUUID();
+        const { error } = await supabase.storage.from(bucket).upload(audioPath(id), bytes, {
+          contentType,
+          upsert: false,
+        });
+        if (error) return jsonResponse({ error: error.message }, 500);
+
+        const items = await readState(audioListKey, []) as AudioItem[];
+        const nextItem = {
+          id,
+          title,
+          filename,
+          contentType,
+          uploadedAt: new Date().toISOString(),
+        };
+        const nextItems = Array.isArray(items) ? [nextItem, ...items] : [nextItem];
+        await writeState(audioListKey, nextItems);
+        return jsonResponse({ ok: true, value: nextItem });
+      }
+
       if (body.action === "visit") {
         const now = new Date();
         const todayKey = now.toISOString().slice(0, 10);

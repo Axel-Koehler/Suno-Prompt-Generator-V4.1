@@ -2,12 +2,15 @@
   const pages = [
     { id: "home", label: "Home", path: "index.html" },
     { id: "project-1", label: "SUNO Prompt Generator V4.1", path: "outputs/suno_auswahlmenue.html" },
+    { id: "songs", label: "Meine Song`s", path: "songs.html" },
     { id: "editor", label: "Editor", path: "editor.html" }
   ];
 
   const currentPath = decodeURIComponent(window.location.pathname || "").replace(/\\/g, "/");
   const inferredActive = currentPath.endsWith("/outputs/suno_auswahlmenue.html")
     ? "project-1"
+    : currentPath.endsWith("/songs.html")
+      ? "songs"
     : currentPath.endsWith("/editor.html")
       ? "editor"
       : "home";

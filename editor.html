@@ -333,6 +333,16 @@
       min-height: 130px;
     }
 
+    .audio-upload-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .audio-upload-grid .wide {
+      grid-column: 1 / -1;
+    }
+
     .record-manager-grid {
       display: grid;
       grid-template-columns: minmax(220px, 0.42fr) minmax(0, 0.58fr);
@@ -446,7 +456,8 @@
       }
 
       .record-manager-grid,
-      .record-entry-grid {
+      .record-entry-grid,
+      .audio-upload-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -553,6 +564,24 @@
             </div>
             <div class="status" id="editorStatus"></div>
 
+            <section class="record-entry-panel" aria-label="Song hochladen">
+              <h2 class="record-entry-title">Song hochladen</h2>
+              <div class="audio-upload-grid">
+                <label class="editor-label">
+                  Titel
+                  <input class="editor-input" id="songUploadTitle" type="text">
+                </label>
+                <label class="editor-label">
+                  Audiodatei
+                  <input class="editor-input" id="songUploadFile" type="file" accept="audio/*">
+                </label>
+              </div>
+              <div class="action-row">
+                <button class="button" id="songUploadButton" type="button">Song hochladen</button>
+              </div>
+              <div class="status" id="songUploadStatus"></div>
+            </section>
+
             <section class="record-entry-panel" aria-label="Neuer Datensatz Projekt 1">
               <h2 class="record-entry-title">Neuen Datensatz für Projekt 1 hinzufügen</h2>
               <div class="record-entry-grid">
@@ -656,6 +685,10 @@
       const recordEditStatus = document.getElementById("recordEditStatus");
       const recordUpdateButton = document.getElementById("recordUpdateButton");
       const recordDeleteButton = document.getElementById("recordDeleteButton");
+      const songUploadTitle = document.getElementById("songUploadTitle");
+      const songUploadFile = document.getElementById("songUploadFile");
+      const songUploadButton = document.getElementById("songUploadButton");
+      const songUploadStatus = document.getElementById("songUploadStatus");
       const presetColors = Array.from(colorPreset.options).map((option) => option.value).filter(Boolean);
       const projectRecordStorageKey = "suno-prompt-menu-records-xlsx-txt-v1";
       const projectCustomRecordStorageKey = "suno-prompt-menu-custom-records-v1";
@@ -1012,6 +1045,57 @@
         visitorLast.textContent = formatLastVisit(stats.lastVisit);
       };
 
+      const fileToBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          const result = String(reader.result || "");
+          resolve(result.includes(",") ? result.split(",").pop() : result);
+        });
+        reader.addEventListener("error", () => reject(reader.error));
+        reader.readAsDataURL(file);
+      });
+
+      const uploadSong = async () => {
+        const file = songUploadFile.files && songUploadFile.files[0];
+        const title = cleanValue(songUploadTitle.value);
+        if (!title) {
+          songUploadStatus.textContent = "Bitte einen Titel eingeben.";
+          return;
+        }
+        if (!file) {
+          songUploadStatus.textContent = "Bitte eine Audiodatei auswählen.";
+          return;
+        }
+        if (!file.type.startsWith("audio/")) {
+          songUploadStatus.textContent = "Bitte nur Audiodateien hochladen.";
+          return;
+        }
+
+        songUploadButton.disabled = true;
+        songUploadStatus.textContent = "Song wird hochgeladen...";
+        try {
+          const data = await fileToBase64(file);
+          const result = await window.AKRemoteStore?.uploadAudio?.({
+            title,
+            filename: file.name,
+            contentType: file.type || "audio/mpeg",
+            data,
+          });
+
+          if (result?.ok) {
+            songUploadTitle.value = "";
+            songUploadFile.value = "";
+            songUploadStatus.textContent = "Song hochgeladen. Er ist auf der Seite Meine Song`s sichtbar.";
+            return;
+          }
+          songUploadStatus.textContent = "Upload fehlgeschlagen.";
+        } catch (error) {
+          songUploadStatus.textContent = "Upload fehlgeschlagen.";
+        } finally {
+          songUploadButton.disabled = false;
+        }
+      };
+
       const getContent = () => readJson(contentKey());
       const getStyles = () => readJson(styleKey());
 
@@ -1145,6 +1229,7 @@
       document.getElementById("resetButton").addEventListener("click", resetField);
       document.getElementById("resetAllButton").addEventListener("click", resetAll);
       document.getElementById("recordSaveButton").addEventListener("click", saveProjectRecord);
+      songUploadButton.addEventListener("click", uploadSong);
       projectRecordSearch.addEventListener("input", renderProjectRecordList);
       document.getElementById("recordUpdateButton").addEventListener("click", updateProjectRecord);
       document.getElementById("recordDeleteButton").addEventListener("click", deleteProjectRecord);

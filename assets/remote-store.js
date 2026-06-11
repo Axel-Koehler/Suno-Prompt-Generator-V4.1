@@ -98,10 +98,53 @@
     }
   };
 
+  const listAudio = async (fallback) => {
+    if (!isConfigured || mode !== "function") return fallback;
+    try {
+      const response = await fetch(functionEndpoint + "?audio=list", {
+        headers: headers(),
+      });
+      if (!response.ok) return fallback;
+      const data = await response.json();
+      return data && data.value !== undefined ? data.value : fallback;
+    } catch (error) {
+      return fallback;
+    }
+  };
+
+  const audioUrl = (id) => (
+    functionEndpoint + "?audio=" + encodeURIComponent(id)
+  );
+
+  const uploadAudio = async ({ title, filename, contentType, data }) => {
+    if (!isConfigured || mode !== "function") return { ok: false };
+    try {
+      const response = await fetch(functionEndpoint, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({
+          action: "audio-upload",
+          title,
+          filename,
+          contentType,
+          data,
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      return Object.assign({ ok: response.ok }, payload);
+    } catch (error) {
+      return { ok: false };
+    }
+  };
+
   const trackCurrentPageVisit = () => {
     const path = decodeURIComponent(window.location.pathname || "").replace(/\\/g, "/");
     if (path.endsWith("/editor.html")) return;
-    const page = path.endsWith("/outputs/suno_auswahlmenue.html") ? "project-1" : "home";
+    const page = path.endsWith("/outputs/suno_auswahlmenue.html")
+      ? "project-1"
+      : path.endsWith("/songs.html")
+        ? "songs"
+        : "home";
     window.setTimeout(() => trackVisit(page), 300);
   };
 
@@ -111,6 +154,9 @@
     set,
     trackVisit,
     getVisitorStats,
+    listAudio,
+    audioUrl,
+    uploadAudio,
   };
 
   if (document.readyState === "loading") {
