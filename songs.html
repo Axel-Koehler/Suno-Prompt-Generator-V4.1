@@ -174,9 +174,62 @@
       text-transform: none;
     }
 
-    .song-card audio {
+    .song-player {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(255, 45, 253, 0.42);
+      border-radius: 6px;
+      background:
+        linear-gradient(180deg, rgba(255, 45, 253, 0.12), rgba(103, 54, 255, 0.12)),
+        rgba(13, 17, 50, 0.64);
+      box-shadow: inset 0 0 16px rgba(255, 45, 253, 0.08), 0 0 18px rgba(0, 217, 255, 0.12);
+    }
+
+    .song-play {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: rgba(247, 251, 255, 0.96);
+      background: linear-gradient(180deg, rgba(255, 45, 253, 0.3), rgba(103, 54, 255, 0.24));
+      border: 1px solid rgba(0, 217, 255, 0.72);
+      border-radius: 5px;
+      cursor: pointer;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.72);
+      box-shadow: inset 0 0 12px rgba(0, 217, 255, 0.16);
+    }
+
+    .song-play:disabled {
+      cursor: wait;
+      opacity: 0.62;
+    }
+
+    .song-progress {
       width: 100%;
       accent-color: var(--magenta);
+      cursor: pointer;
+    }
+
+    .song-time {
+      min-width: 92px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+      text-transform: none;
+    }
+
+    .song-load-status {
+      grid-column: 2 / -1;
+      color: var(--yellow);
+      font-size: 12px;
+      text-transform: none;
+    }
+
+    .song-player audio {
+      display: none;
     }
 
     .song-empty {
@@ -205,6 +258,15 @@
         min-width: 0;
         width: 100%;
       }
+
+      .song-player {
+        grid-template-columns: 46px minmax(0, 1fr);
+      }
+
+      .song-time {
+        grid-column: 1 / -1;
+        text-align: left;
+      }
     }
   </style>
 </head>
@@ -227,6 +289,8 @@
   <script>
     (() => {
       const songList = document.getElementById("songList");
+      let activeAudio = null;
+      const objectUrls = [];
 
       const formatDate = (value) => {
         const date = new Date(value);
@@ -254,14 +318,11 @@
           const card = document.createElement("article");
           const title = document.createElement("div");
           const meta = document.createElement("div");
-          const player = document.createElement("audio");
+          const player = createSongPlayer(song);
 
           card.className = "song-card";
           title.className = "song-title";
           meta.className = "song-meta";
-          player.controls = true;
-          player.preload = "metadata";
-          player.src = window.AKRemoteStore.audioUrl(song.id);
 
           title.textContent = song.title || song.filename || "Ohne Titel";
           meta.textContent = formatDate(song.uploadedAt);
@@ -272,6 +333,107 @@
           songList.appendChild(card);
         });
       };
+
+      const formatTime = (seconds) => {
+        if (!Number.isFinite(seconds)) return "0:00";
+        const minutes = Math.floor(seconds / 60);
+        const rest = Math.floor(seconds % 60).toString().padStart(2, "0");
+        return minutes + ":" + rest;
+      };
+
+      function createSongPlayer(song) {
+        const wrapper = document.createElement("div");
+        const playButton = document.createElement("button");
+        const progress = document.createElement("input");
+        const time = document.createElement("div");
+        const status = document.createElement("div");
+        const audio = document.createElement("audio");
+
+        wrapper.className = "song-player";
+        playButton.className = "song-play";
+        progress.className = "song-progress";
+        time.className = "song-time";
+        status.className = "song-load-status";
+
+        playButton.type = "button";
+        playButton.textContent = "▶";
+        progress.type = "range";
+        progress.min = "0";
+        progress.max = "1000";
+        progress.value = "0";
+        time.textContent = "0:00 / 0:00";
+        status.textContent = "Bereit";
+        audio.preload = "metadata";
+
+        const ensureAudioLoaded = async () => {
+          if (audio.src) return true;
+          playButton.disabled = true;
+          status.textContent = "Lade Audiodatei...";
+          const blob = await window.AKRemoteStore?.fetchAudioBlob?.(song.id);
+          if (!blob) {
+            status.textContent = "Audiodatei konnte nicht geladen werden.";
+            playButton.disabled = false;
+            return false;
+          }
+          const objectUrl = URL.createObjectURL(blob);
+          objectUrls.push(objectUrl);
+          audio.src = objectUrl;
+          status.textContent = "";
+          playButton.disabled = false;
+          return true;
+        };
+
+        playButton.addEventListener("click", async () => {
+          const loaded = await ensureAudioLoaded();
+          if (!loaded) return;
+          if (activeAudio && activeAudio !== audio) activeAudio.pause();
+          if (audio.paused) {
+            await audio.play();
+            activeAudio = audio;
+          } else {
+            audio.pause();
+          }
+        });
+
+        audio.addEventListener("play", () => {
+          playButton.textContent = "II";
+        });
+
+        audio.addEventListener("pause", () => {
+          playButton.textContent = "▶";
+        });
+
+        audio.addEventListener("ended", () => {
+          playButton.textContent = "▶";
+          progress.value = "0";
+        });
+
+        audio.addEventListener("timeupdate", () => {
+          const duration = audio.duration || 0;
+          progress.value = duration ? String(Math.round((audio.currentTime / duration) * 1000)) : "0";
+          time.textContent = formatTime(audio.currentTime) + " / " + formatTime(duration);
+        });
+
+        audio.addEventListener("loadedmetadata", () => {
+          time.textContent = "0:00 / " + formatTime(audio.duration || 0);
+        });
+
+        progress.addEventListener("input", () => {
+          if (!audio.duration) return;
+          audio.currentTime = (Number(progress.value) / 1000) * audio.duration;
+        });
+
+        wrapper.appendChild(playButton);
+        wrapper.appendChild(progress);
+        wrapper.appendChild(time);
+        wrapper.appendChild(status);
+        wrapper.appendChild(audio);
+        return wrapper;
+      }
+
+      window.addEventListener("beforeunload", () => {
+        objectUrls.forEach((url) => URL.revokeObjectURL(url));
+      });
 
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", renderSongs, { once: true });

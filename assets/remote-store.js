@@ -116,6 +116,19 @@
     functionEndpoint + "?audio=" + encodeURIComponent(id)
   );
 
+  const fetchAudioBlob = async (id) => {
+    if (!isConfigured || mode !== "function") return null;
+    try {
+      const response = await fetch(audioUrl(id), {
+        headers: headers(),
+      });
+      if (!response.ok) return null;
+      return response.blob();
+    } catch (error) {
+      return null;
+    }
+  };
+
   const uploadAudio = async ({ title, filename, contentType, file, data }) => {
     if (!isConfigured || mode !== "function") return { ok: false };
     try {
@@ -167,6 +180,7 @@
     getVisitorStats,
     listAudio,
     audioUrl,
+    fetchAudioBlob,
     uploadAudio,
   };
 
