@@ -866,6 +866,14 @@
       .filter((option) => store.has(option.value))
       .map(optionLabel);
 
+    const selectedDetails = (options, store) => options
+      .filter((option) => store.has(option.value))
+      .map((option) => ({
+        value: option.value,
+        label: optionLabel(option),
+        description: option.desc || "",
+      }));
+
     const translatedSelections = (options, store, languageCode, translations) => options
       .filter((option) => store.has(option.value))
       .map((option) => translations[languageCode]?.[option.value] || translations["en-US"]?.[option.value] || optionLabel(option));
@@ -905,8 +913,8 @@
       generateButton.textContent = "KI generiert...";
       copyStatus.textContent = "";
 
-      const messages = selectedLabels(kernbotschaftOptions, selectedMessages);
-      const metaphors = selectedLabels(metaphorOptions, selectedMetaphors);
+      const messages = selectedDetails(kernbotschaftOptions, selectedMessages);
+      const metaphors = selectedDetails(metaphorOptions, selectedMetaphors);
       const result = await window.AKRemoteStore?.generateLyrics?.({
         topic: topicInput.value.trim(),
         language: getValue("language"),

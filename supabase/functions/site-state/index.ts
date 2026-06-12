@@ -39,6 +39,19 @@ const languageNames: Record<string, string> = {
   "it-IT": "Italian",
 };
 
+const instructionItems = (value: unknown) => {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => {
+    if (item && typeof item === "object") {
+      const entry = item as Record<string, unknown>;
+      const label = String(entry.label || entry.value || "").trim();
+      const description = String(entry.description || "").trim();
+      return [label, description].filter(Boolean).join(" - ");
+    }
+    return String(item || "").trim();
+  }).filter(Boolean);
+};
+
 const createLyrics = async (body: Record<string, unknown>) => {
   const openAiKey = Deno.env.get("OPENAI_API_KEY");
   const model = Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
@@ -51,8 +64,8 @@ const createLyrics = async (body: Record<string, unknown>) => {
   const language = languageNames[languageCode] || "English";
   const rhyme = String(body.rhyme || "ABAB");
   const rhymeQuality = String(body.rhymeQuality || "");
-  const messages = Array.isArray(body.messages) ? body.messages.map(String).filter(Boolean) : [];
-  const metaphors = Array.isArray(body.metaphors) ? body.metaphors.map(String).filter(Boolean) : [];
+  const messages = instructionItems(body.messages);
+  const metaphors = instructionItems(body.metaphors);
 
   const prompt = [
     "Write complete original song lyrics.",
@@ -60,8 +73,10 @@ const createLyrics = async (body: Record<string, unknown>) => {
     "Topic: " + topic + ".",
     "Rhyme scheme: " + rhyme + ".",
     rhymeQuality ? "Rhyme quality: " + rhymeQuality + "." : "",
-    messages.length ? "Core messages: " + messages.join(", ") + "." : "",
-    metaphors.length ? "Metaphor fields: " + metaphors.join(", ") + "." : "",
+    messages.length ? "MANDATORY core messages: " + messages.join("; ") + "." : "",
+    messages.length ? "Every selected core message must visibly influence the lyrics, especially the chorus and emotional arc." : "",
+    metaphors.length ? "MANDATORY metaphor fields: " + metaphors.join("; ") + "." : "",
+    metaphors.length ? "Use concrete imagery from every selected metaphor field across different song sections. Do not ignore any selected metaphor." : "",
     "Use this structure exactly: [Verse 1], [Pre-Chorus], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro].",
     "Make it emotional, singable, catchy, and suitable for AI music generation.",
     "Output only the lyrics. Do not add explanations.",
