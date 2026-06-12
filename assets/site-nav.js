@@ -2,7 +2,7 @@
   const pages = [
     { id: "home", label: "Home", path: "index.html" },
     { id: "project-1", label: "SUNO Prompt Generator V4.1", path: "outputs/suno_auswahlmenue.html" },
-    { id: "prompt-designer", label: "Prompt Designer", path: "prompt-designer.html" },
+    { id: "prompt-designer", label: "Suno Prompt Generator V2.1", path: "prompt-designer.html" },
     { id: "songs", label: "Meine Song`s", path: "songs.html" },
     { id: "editor", label: "Editor", path: "editor.html" }
   ];
