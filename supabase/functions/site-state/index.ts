@@ -31,6 +31,73 @@ type AudioItem = {
   uploadedAt: string;
 };
 
+const languageNames: Record<string, string> = {
+  "de-DE": "German",
+  "en-US": "English",
+  "es-ES": "Spanish",
+  "fr-FR": "French",
+  "it-IT": "Italian",
+};
+
+const createLyrics = async (body: Record<string, unknown>) => {
+  const openAiKey = Deno.env.get("OPENAI_API_KEY");
+  const model = Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
+  if (!openAiKey) {
+    return jsonResponse({ error: "OPENAI_API_KEY ist in Supabase noch nicht gesetzt." }, 500);
+  }
+
+  const topic = String(body.topic || "").trim() || "a personal story";
+  const languageCode = String(body.language || "de-DE");
+  const language = languageNames[languageCode] || "English";
+  const rhyme = String(body.rhyme || "ABAB");
+  const rhymeQuality = String(body.rhymeQuality || "");
+  const messages = Array.isArray(body.messages) ? body.messages.map(String).filter(Boolean) : [];
+  const metaphors = Array.isArray(body.metaphors) ? body.metaphors.map(String).filter(Boolean) : [];
+
+  const prompt = [
+    "Write complete original song lyrics.",
+    "Language: " + language + ".",
+    "Topic: " + topic + ".",
+    "Rhyme scheme: " + rhyme + ".",
+    rhymeQuality ? "Rhyme quality: " + rhymeQuality + "." : "",
+    messages.length ? "Core messages: " + messages.join(", ") + "." : "",
+    metaphors.length ? "Metaphor fields: " + metaphors.join(", ") + "." : "",
+    "Use this structure exactly: [Verse 1], [Pre-Chorus], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro].",
+    "Make it emotional, singable, catchy, and suitable for AI music generation.",
+    "Output only the lyrics. Do not add explanations.",
+  ].filter(Boolean).join("\n");
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + openAiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.9,
+      max_tokens: 1400,
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional multilingual songwriter. Write polished, original lyrics with clear song sections.",
+        },
+        { role: "user", content: prompt },
+      ],
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = payload?.error?.message || "KI-Anfrage fehlgeschlagen.";
+    return jsonResponse({ error: message }, response.status);
+  }
+
+  const text = payload?.choices?.[0]?.message?.content;
+  if (!text) return jsonResponse({ error: "Keine KI-Antwort erhalten." }, 500);
+  return jsonResponse({ ok: true, value: String(text).trim(), model });
+};
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -172,6 +239,10 @@ Deno.serve(async (request) => {
         const nextItems = Array.isArray(items) ? [nextItem, ...items] : [nextItem];
         await writeState(audioListKey, nextItems);
         return jsonResponse({ ok: true, value: nextItem });
+      }
+
+      if (body.action === "generate-lyrics") {
+        return await createLyrics(body);
       }
 
       if (body.action === "visit") {

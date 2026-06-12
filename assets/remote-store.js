@@ -161,6 +161,21 @@
     }
   };
 
+  const generateLyrics = async (payload) => {
+    if (!isConfigured || mode !== "function") return { ok: false, error: "Online-Speicher ist nicht konfiguriert." };
+    try {
+      const response = await fetch(functionEndpoint, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify(Object.assign({ action: "generate-lyrics" }, payload || {})),
+      });
+      const data = await response.json().catch(() => ({}));
+      return Object.assign({ ok: response.ok }, data);
+    } catch (error) {
+      return { ok: false, error: "KI-Anbindung nicht erreichbar." };
+    }
+  };
+
   const trackCurrentPageVisit = () => {
     const path = decodeURIComponent(window.location.pathname || "").replace(/\\/g, "/");
     if (path.endsWith("/editor.html")) return;
@@ -190,6 +205,7 @@
     audioUrl,
     fetchAudioBlob,
     uploadAudio,
+    generateLyrics,
   };
 
   if (document.readyState === "loading") {

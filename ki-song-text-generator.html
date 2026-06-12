@@ -884,7 +884,7 @@
 
     const line = (parts) => parts.filter(Boolean).join(" ");
 
-    const generateSong = () => {
+    const generateLocalSong = () => {
       const languageCode = getValue("language");
       const template = lyricTemplates[languageCode] || lyricTemplates["en-US"];
       const topic = translateGermanTopic(topicInput.value.trim(), languageCode) || template.topicFallback;
@@ -896,6 +896,41 @@
 
       styleOutput.value = template.lines(topic, mood, image, secondImage).join("\n");
       updateDetail();
+    };
+
+    const generateSong = async () => {
+      const generateButton = document.getElementById("generateButton");
+      const originalText = generateButton.textContent;
+      generateButton.disabled = true;
+      generateButton.textContent = "KI generiert...";
+      copyStatus.textContent = "";
+
+      const messages = selectedLabels(kernbotschaftOptions, selectedMessages);
+      const metaphors = selectedLabels(metaphorOptions, selectedMetaphors);
+      const result = await window.AKRemoteStore?.generateLyrics?.({
+        topic: topicInput.value.trim(),
+        language: getValue("language"),
+        languageLabel: getLabel("language"),
+        rhyme: getValue("rhyme"),
+        rhymeQuality: getLabel("rhymeQuality"),
+        messages,
+        metaphors,
+      });
+
+      if (result?.ok && result.value) {
+        styleOutput.value = result.value;
+        copyStatus.textContent = "KI-Songtext erstellt.";
+        updateDetail();
+      } else {
+        generateLocalSong();
+        copyStatus.textContent = (result?.error || "KI nicht erreichbar.") + " Lokaler Fallback wurde verwendet.";
+      }
+
+      generateButton.disabled = false;
+      generateButton.textContent = originalText;
+      window.setTimeout(() => {
+        if (copyStatus.textContent.includes("KI-Songtext erstellt")) copyStatus.textContent = "";
+      }, 2200);
     };
 
     const copyToClipboard = async (id) => {
