@@ -436,7 +436,6 @@
 
   <script type="module">
     import {
-      languages,
       metaphorOptions,
       kernbotschaftOptions,
       rhymeQualityOptions,
@@ -451,7 +450,7 @@
     const detailOutput = document.getElementById("detailOutput");
     const copyStatus = document.getElementById("copyStatus");
     const selections = new Map([
-      ["language", "Deutsch"],
+      ["language", "de-DE"],
       ["rhyme", "ABAB"],
       ["rhymeQuality", "perfekt"],
     ]);
@@ -463,8 +462,213 @@
     const optionLabel = (option) => cleanLabel(option.label || option.value || option);
     const optionValue = (option) => option.value || option;
 
+    const languageOptions = [
+      { label: "Deutsch", value: "de-DE" },
+      { label: "English", value: "en-US" },
+      { label: "Espanol", value: "es-ES" },
+      { label: "Francais", value: "fr-FR" },
+      { label: "Italiano", value: "it-IT" },
+      { label: "Portugues", value: "pt-PT" },
+      { label: "Nederlands", value: "nl-NL" },
+      { label: "Polski", value: "pl-PL" },
+      { label: "Russisch", value: "ru-RU" },
+      { label: "Turkisch", value: "tr-TR" },
+      { label: "Arabisch", value: "ar-SA" },
+      { label: "Japanisch", value: "ja-JP" },
+      { label: "Koreanisch", value: "ko-KR" },
+      { label: "Chinesisch", value: "zh-CN" },
+      { label: "Hindi", value: "hi-IN" },
+      { label: "Svenska", value: "sv-SE" },
+      { label: "Norsk", value: "nb-NO" },
+      { label: "Dansk", value: "da-DK" },
+      { label: "Suomi", value: "fi-FI" },
+      { label: "Tschechisch", value: "cs-CZ" },
+      { label: "Romanisch", value: "ro-RO" },
+      { label: "Magyar", value: "hu-HU" },
+      { label: "Griechisch", value: "el-GR" },
+      { label: "Ukrainisch", value: "uk-UA" },
+    ];
+
+    const lyricTemplates = {
+      "de-DE": {
+        topicFallback: "deine Geschichte",
+        moodFallback: "Gefuehl",
+        imageFallback: "Licht",
+        secondImageFallback: "Nacht",
+        lines: (topic, mood, image, secondImage) => [
+          "[Verse 1]",
+          line(["Ich trag", topic, "durch den leisen Raum,"]),
+          line(["zwischen", image, "und", secondImage, "wird aus Zweifel ein Traum."]),
+          line(["Jeder Schritt klingt nach", mood + ","]),
+          "und mein Herz schreibt die Worte, die ich nie verlor.",
+          "",
+          "[Pre-Chorus]",
+          "Wenn die Welt zu laut wird, hoer ich mich klar,",
+          "alles, was ich suchte, war schon immer da.",
+          "",
+          "[Chorus]",
+          line([topic, "brennt hell in dieser Nacht,"]),
+          "ich falle nicht, ich bin erwacht.",
+          line(["Mit", image, "in der Stimme und Mut im Blick,"]),
+          "sing ich mich nach vorn, Stueck fuer Stueck.",
+          "",
+          "[Verse 2]",
+          "Aus alten Schatten waechst ein neuer Ton,",
+          "jede Narbe wird Rhythmus, jede Frage wird Lohn.",
+          line(["Und wenn", secondImage, "an den Fenstern zieht,"]),
+          "bleibt diese Melodie, die mich weiter sieht.",
+          "",
+          "[Bridge]",
+          "Kein Zurueck, nur der Beat unter meiner Haut,",
+          "ich sag es laut, bis es jeder glaubt.",
+          "",
+          "[Chorus]",
+          line([topic, "brennt hell in dieser Nacht,"]),
+          "ich falle nicht, ich bin erwacht.",
+          line(["Mit", image, "in der Stimme und Mut im Blick,"]),
+          "sing ich mich nach vorn, Stueck fuer Stueck.",
+          "",
+          "[Outro]",
+          line(["Am Ende bleibt", topic, "wie ein Stern im Wind,"]),
+          "und ich weiss, dass wir noch nicht fertig sind.",
+        ],
+      },
+      "en-US": {
+        topicFallback: "your story",
+        moodFallback: "feeling",
+        imageFallback: "light",
+        secondImageFallback: "night",
+        lines: (topic, mood, image, secondImage) => [
+          "[Verse 1]",
+          line(["I carry", topic, "through the quiet room,"]),
+          line(["between", image, "and", secondImage, "doubt turns into bloom."]),
+          line(["Every step is tuned to", mood + ","]),
+          "and my heart writes the words I almost lost before.",
+          "",
+          "[Pre-Chorus]",
+          "When the world gets loud, I hear myself clear,",
+          "everything I searched for was already here.",
+          "",
+          "[Chorus]",
+          line([topic, "burns bright tonight,"]),
+          "I do not fall, I come alive.",
+          line(["With", image, "in my voice and courage in sight,"]),
+          "I sing myself forward, line by line.",
+          "",
+          "[Verse 2]",
+          "From old shadows grows a brand new tone,",
+          "every scar finds rhythm, every question finds home.",
+          line(["And when", secondImage, "moves across the glass,"]),
+          "this melody remains and lets the moment last.",
+          "",
+          "[Bridge]",
+          "No turning back, just the beat under my skin,",
+          "I say it out loud until the truth comes in.",
+          "",
+          "[Chorus]",
+          line([topic, "burns bright tonight,"]),
+          "I do not fall, I come alive.",
+          line(["With", image, "in my voice and courage in sight,"]),
+          "I sing myself forward, line by line.",
+          "",
+          "[Outro]",
+          line(["In the end", topic, "stays like a star in the wind,"]),
+          "and I know this song has just begun.",
+        ],
+      },
+      "es-ES": {
+        topicFallback: "tu historia",
+        moodFallback: "emocion",
+        imageFallback: "luz",
+        secondImageFallback: "noche",
+        lines: (topic, mood, image, secondImage) => [
+          "[Verse 1]",
+          line(["Llevo", topic, "por la habitacion,"]),
+          line(["entre", image, "y", secondImage, "nace una cancion."]),
+          line(["Cada paso suena a", mood + ","]),
+          "y mi corazon escribe lo que nunca olvido.",
+          "",
+          "[Pre-Chorus]",
+          "Cuando el mundo grita, vuelvo a escuchar,",
+          "todo lo que buscaba estaba en mi lugar.",
+          "",
+          "[Chorus]",
+          line([topic, "brilla fuerte hoy,"]),
+          "no caigo mas, despierto soy.",
+          line(["Con", image, "en la voz y valor al andar,"]),
+          "canto hacia adelante sin mirar atras.",
+          "",
+          "[Bridge]",
+          "No hay regreso, solo pulso en mi piel,",
+          "lo digo alto hasta volver a creer.",
+          "",
+          "[Outro]",
+          line([topic, "queda como estrella en el viento,"]),
+          "y se abre otro comienzo.",
+        ],
+      },
+      "fr-FR": {
+        topicFallback: "ton histoire",
+        moodFallback: "emotion",
+        imageFallback: "lumiere",
+        secondImageFallback: "nuit",
+        lines: (topic, mood, image, secondImage) => [
+          "[Verse 1]",
+          line(["Je porte", topic, "dans la chambre en silence,"]),
+          line(["entre", image, "et", secondImage, "renait l'esperance."]),
+          line(["Chaque pas respire", mood + ","]),
+          "et mon coeur ecrit les mots perdus hier.",
+          "",
+          "[Pre-Chorus]",
+          "Quand le monde crie, je m'entends enfin,",
+          "ce que je cherchais dormait dans mes mains.",
+          "",
+          "[Chorus]",
+          line([topic, "brille dans la nuit,"]),
+          "je ne tombe plus, je reprends ma vie.",
+          line(["Avec", image, "dans la voix et le courage au regard,"]),
+          "je chante plus loin, meme dans le brouillard.",
+          "",
+          "[Bridge]",
+          "Pas de retour, juste un battement clair,",
+          "je le dis plus fort jusqu'a toucher la lumiere.",
+          "",
+          "[Outro]",
+          line([topic, "reste comme une etoile au vent,"]),
+          "et la chanson continue maintenant.",
+        ],
+      },
+      "it-IT": {
+        topicFallback: "la tua storia",
+        moodFallback: "emozione",
+        imageFallback: "luce",
+        secondImageFallback: "notte",
+        lines: (topic, mood, image, secondImage) => [
+          "[Verse 1]",
+          line(["Porto", topic, "nella stanza blu,"]),
+          line(["tra", image, "e", secondImage, "non mi perdo piu."]),
+          line(["Ogni passo suona di", mood + ","]),
+          "e il cuore scrive cio che non svanira.",
+          "",
+          "[Chorus]",
+          line([topic, "splende questa sera,"]),
+          "non cado piu, la voce e vera.",
+          line(["Con", image, "nel respiro e coraggio dentro me,"]),
+          "canto avanti finche il giorno c'e.",
+          "",
+          "[Bridge]",
+          "Niente ritorno, solo ritmo sulla pelle,",
+          "lo dico forte sotto queste stelle.",
+          "",
+          "[Outro]",
+          line([topic, "resta nel vento piano,"]),
+          "e questo canto mi porta lontano.",
+        ],
+      },
+    };
+
     const controls = [
-      { id: "language", title: "Sprache", label: "Songtext", options: languages.map((item) => ({ label: item, value: item })) },
+      { id: "language", title: "Sprache", label: "Songtext", options: languageOptions },
       { id: "rhyme", title: "Reim", label: "Schema", options: rhymeOptions },
       { id: "rhymeQuality", title: "Reim", label: "Qualitaet", options: rhymeQualityOptions },
     ];
@@ -541,50 +745,15 @@
     const line = (parts) => parts.filter(Boolean).join(" ");
 
     const generateSong = () => {
-      const topic = topicInput.value.trim() || "deine Geschichte";
+      const template = lyricTemplates[getValue("language")] || lyricTemplates["en-US"];
+      const topic = topicInput.value.trim() || template.topicFallback;
       const messages = selectedLabels(kernbotschaftOptions, selectedMessages);
       const metaphors = selectedLabels(metaphorOptions, selectedMetaphors);
-      const mood = messages[0] || "Gefuehl";
-      const image = metaphors[0] || "Licht";
-      const secondImage = metaphors[1] || "Nacht";
+      const mood = messages[0] || template.moodFallback;
+      const image = metaphors[0] || template.imageFallback;
+      const secondImage = metaphors[1] || template.secondImageFallback;
 
-      styleOutput.value = [
-        "[Verse 1]",
-        line(["Ich trag", topic, "durch den leisen Raum,"]),
-        line(["zwischen", image, "und", secondImage, "wird aus Zweifel ein Traum."]),
-        line(["Jeder Schritt klingt nach", mood + ","]),
-        "und mein Herz schreibt die Worte, die ich nie verlor.",
-        "",
-        "[Pre-Chorus]",
-        "Wenn die Welt zu laut wird, hoer ich mich klar,",
-        "alles, was ich suchte, war schon immer da.",
-        "",
-        "[Chorus]",
-        line([topic, "brennt hell in dieser Nacht,"]),
-        "ich falle nicht, ich bin erwacht.",
-        line(["Mit", image, "in der Stimme und Mut im Blick,"]),
-        "sing ich mich nach vorn, Stueck fuer Stueck.",
-        "",
-        "[Verse 2]",
-        line(["Aus alten Schatten waechst ein neuer Ton,"]),
-        line(["jede Narbe wird Rhythmus, jede Frage wird Lohn."]),
-        line(["Und wenn", secondImage, "an den Fenstern zieht,"]),
-        "bleibt diese Melodie, die mich weiter sieht.",
-        "",
-        "[Bridge]",
-        "Kein Zurueck, nur der Beat unter meiner Haut,",
-        "ich sag es laut, bis es jeder glaubt.",
-        "",
-        "[Chorus]",
-        line([topic, "brennt hell in dieser Nacht,"]),
-        "ich falle nicht, ich bin erwacht.",
-        line(["Mit", image, "in der Stimme und Mut im Blick,"]),
-        "sing ich mich nach vorn, Stueck fuer Stueck.",
-        "",
-        "[Outro]",
-        line(["Am Ende bleibt", topic, "wie ein Stern im Wind,"]),
-        "und ich weiss, dass wir noch nicht fertig sind.",
-      ].join("\n");
+      styleOutput.value = template.lines(topic, mood, image, secondImage).join("\n");
       updateDetail();
     };
 
@@ -610,23 +779,43 @@
 
     document.getElementById("speakButton").addEventListener("click", () => {
       if (!styleOutput.value) return;
+      if (!("speechSynthesis" in window)) {
+        copyStatus.textContent = "Sprachausgabe wird von diesem Browser nicht unterstuetzt.";
+        return;
+      }
       if (speaking) {
         window.speechSynthesis.cancel();
         speaking = false;
+        document.getElementById("speakButton").textContent = "Vorlesen";
         return;
       }
       const utterance = new SpeechSynthesisUtterance(styleOutput.value);
-      utterance.lang = getValue("language") === "Deutsch" ? "de-DE" : "en-US";
+      const languageCode = getValue("language") || "de-DE";
+      const voices = window.speechSynthesis.getVoices();
+      utterance.lang = languageCode;
+      utterance.voice = voices.find((voice) => voice.lang === languageCode)
+        || voices.find((voice) => voice.lang.toLowerCase().startsWith(languageCode.slice(0, 2).toLowerCase()))
+        || null;
       utterance.onend = () => {
         speaking = false;
+        document.getElementById("speakButton").textContent = "Vorlesen";
+      };
+      utterance.onerror = () => {
+        speaking = false;
+        document.getElementById("speakButton").textContent = "Vorlesen";
+        copyStatus.textContent = "Keine passende Stimme fuer diese Sprache gefunden.";
       };
       window.speechSynthesis.speak(utterance);
       speaking = true;
+      document.getElementById("speakButton").textContent = "Stop";
     });
 
     document.getElementById("resetButton").addEventListener("click", () => {
       topicInput.value = "";
-      selections.set("language", "Deutsch");
+      window.speechSynthesis?.cancel();
+      speaking = false;
+      document.getElementById("speakButton").textContent = "Vorlesen";
+      selections.set("language", "de-DE");
       selections.set("rhyme", "ABAB");
       selections.set("rhymeQuality", "perfekt");
       selectedMessages.clear();
