@@ -172,6 +172,8 @@
         ? "suno-v11"
       : path.endsWith("/suno-prompt-generator-v31.html")
         ? "suno-v31"
+      : path.endsWith("/ki-song-text-generator.html")
+        ? "ki-song-text"
       : path.endsWith("/songs.html")
         ? "songs"
         : "home";

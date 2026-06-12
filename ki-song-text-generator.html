@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="stylesheet" href="assets/site-nav.css">
+  <script src="assets/remote-config.js"></script>
+  <script src="assets/remote-store.js"></script>
+  <script src="assets/site-nav.js" defer></script>
+  <script src="assets/site-content.js" defer></script>
+  <title>KI Song Text Generator</title>
+  <style>
+    :root {
+      --bg: #070812;
+      --cyan: #00d9ff;
+      --magenta: #ff2dfd;
+      --violet: #6736ff;
+      --yellow: #f8ff13;
+      --orange: #ff9f1c;
+      --text: #f7fbff;
+      --muted: #9da7d7;
+      --shadow: 0 0 24px rgba(103, 54, 255, 0.45), 0 0 48px rgba(255, 45, 253, 0.24);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      scrollbar-color: rgba(0, 217, 255, 0.78) rgba(2, 5, 20, 0.82);
+      scrollbar-width: thin;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      overflow-x: hidden;
+    }
+
+    button,
+    select,
+    textarea {
+      font: inherit;
+      font-weight: 400;
+    }
+
+    ::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: linear-gradient(180deg, rgba(2, 5, 20, 0.96), rgba(15, 8, 45, 0.96));
+      border: 1px solid rgba(0, 217, 255, 0.22);
+      box-shadow: inset 0 0 10px rgba(103, 54, 255, 0.28);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background:
+        linear-gradient(180deg, rgba(248, 255, 19, 0.92), rgba(255, 45, 253, 0.86) 48%, rgba(0, 217, 255, 0.88));
+      border: 2px solid rgba(2, 5, 20, 0.96);
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(0, 217, 255, 0.48), 0 0 18px rgba(255, 45, 253, 0.34);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 120, 0.98), rgba(255, 84, 253, 0.96) 48%, rgba(52, 231, 255, 0.98));
+    }
+
+    .prompt-stage {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      align-items: start;
+      justify-items: center;
+      padding: 24px 26px;
+      isolation: isolate;
+      background:
+        linear-gradient(180deg, rgba(5, 7, 20, 0.58), rgba(5, 7, 20, 0.86)),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.07), rgba(255, 45, 253, 0.11), rgba(248, 255, 19, 0.05));
+    }
+
+    .prompt-stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.025) 1px, transparent 1px, transparent 5px),
+        linear-gradient(180deg, rgba(3, 4, 14, 0.08), rgba(3, 4, 14, 0.64));
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .prompt-shell {
+      --shell-corner-depth: clamp(78px, 10vh, 112px);
+      position: relative;
+      width: min(1280px, 96vw);
+      min-height: min(760px, calc(100vh - 48px));
+      padding: 10px 22px 58px;
+      clip-path: polygon(4.5% 0, 95.5% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 95.5% 100%, 4.5% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+      background:
+        linear-gradient(90deg, var(--yellow), var(--orange) 9%, var(--violet) 23%, var(--magenta) 51%, var(--violet) 76%, var(--cyan) 91%, var(--yellow)),
+        linear-gradient(180deg, rgba(17, 8, 47, 0.96), rgba(5, 5, 18, 0.98));
+      box-shadow: var(--shadow);
+    }
+
+    .prompt-shell::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      clip-path: inherit;
+      background:
+        linear-gradient(180deg, rgba(10, 6, 29, 0.95), rgba(8, 5, 24, 0.98)),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.08), rgba(255, 45, 253, 0.08));
+      z-index: -1;
+    }
+
+    .prompt-title {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .prompt-title-chip {
+      position: relative;
+      min-width: 380px;
+      padding: 13px 34px 12px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: rgba(247, 251, 255, 0.96);
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      background:
+        linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
+        linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
+        linear-gradient(45deg, #ff8a19 0 10px, transparent 10px) left bottom / 30px 30px no-repeat,
+        linear-gradient(315deg, #ff8a19 0 10px, transparent 10px) right bottom / 30px 30px no-repeat,
+        linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
+      border: 1px solid rgba(0, 217, 255, 0.8);
+      box-shadow:
+        0 0 26px rgba(0, 217, 255, 0.52),
+        0 0 34px rgba(175, 25, 255, 0.36),
+        inset 0 0 16px rgba(0, 217, 255, 0.28);
+      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+      text-shadow: 0 0 12px rgba(0, 217, 255, 0.78);
+      white-space: nowrap;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .prompt-title-chip::before {
+      content: "";
+      position: absolute;
+      inset: 5px 12px;
+      border-top: 1px solid rgba(198, 31, 255, 0.78);
+      border-bottom: 1px solid rgba(198, 31, 255, 0.78);
+      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
+      pointer-events: none;
+    }
+
+    .prompt-subline {
+      color: rgba(247, 251, 255, 0.88);
+      font-size: 14px;
+      text-transform: none;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.45);
+    }
+
+    .prompt-content {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(340px, 1.1fr);
+      gap: 14px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .control-panel,
+    .output-panel {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      padding: 13px;
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      border-radius: 6px;
+      background: rgba(2, 5, 20, 0.58);
+      box-shadow: inset 0 0 18px rgba(0, 217, 255, 0.07);
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .prompt-label {
+      display: grid;
+      gap: 6px;
+      color: var(--cyan);
+      font-size: 12px;
+      text-transform: none;
+    }
+
+    .prompt-select,
+    .prompt-output {
+      width: 100%;
+      color: rgba(247, 251, 255, 0.94);
+      background: rgba(2, 5, 20, 0.72);
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      border-radius: 6px;
+      outline: none;
+      box-shadow: inset 0 0 16px rgba(0, 217, 255, 0.06);
+    }
+
+    .prompt-select {
+      min-height: 40px;
+      padding: 8px 38px 8px 10px;
+      text-transform: none;
+      appearance: none;
+      background:
+        linear-gradient(135deg, transparent 0 48%, rgba(248, 255, 19, 0.95) 49% 54%, transparent 55%) right 18px center / 9px 9px no-repeat,
+        linear-gradient(225deg, transparent 0 48%, rgba(0, 217, 255, 0.95) 49% 54%, transparent 55%) right 10px center / 9px 9px no-repeat,
+        linear-gradient(90deg, rgba(0, 217, 255, 0.11), rgba(255, 45, 253, 0.08)),
+        rgba(2, 5, 20, 0.82);
+      cursor: pointer;
+      scrollbar-color: rgba(0, 217, 255, 0.78) rgba(2, 5, 20, 0.82);
+      scrollbar-width: thin;
+    }
+
+    .prompt-select:hover,
+    .prompt-select:focus-visible {
+      border-color: rgba(248, 255, 19, 0.86);
+      box-shadow:
+        0 0 16px rgba(0, 217, 255, 0.22),
+        inset 0 0 18px rgba(255, 45, 253, 0.1);
+    }
+
+    .prompt-select option {
+      color: rgba(247, 251, 255, 0.96);
+      background: #08091d;
+      font-weight: 400;
+    }
+
+    .prompt-select option:checked {
+      color: #ffffff;
+      background: #2a126a;
+    }
+
+    .prompt-output {
+      min-height: 150px;
+      padding: 12px;
+      resize: vertical;
+      line-height: 1.45;
+      text-transform: none;
+      scrollbar-color: rgba(0, 217, 255, 0.78) rgba(2, 5, 20, 0.62);
+      scrollbar-width: thin;
+    }
+
+    .prompt-output.lyrics {
+      min-height: 360px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .prompt-button {
+      min-height: 40px;
+      padding: 9px 16px;
+      color: rgba(247, 251, 255, 0.94);
+      text-transform: uppercase;
+      background: linear-gradient(180deg, rgba(255, 45, 253, 0.28), rgba(103, 54, 255, 0.18));
+      border: 1px solid rgba(255, 45, 253, 0.66);
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: inset 0 0 14px rgba(255, 45, 253, 0.12);
+    }
+
+    .prompt-button:hover,
+    .prompt-button:focus-visible {
+      border-color: rgba(248, 255, 19, 0.9);
+      outline: none;
+    }
+
+    .prompt-status {
+      min-height: 18px;
+      color: var(--yellow);
+      font-size: 12px;
+      text-transform: none;
+    }
+
+    .topic-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      color: rgba(247, 251, 255, 0.96);
+      background:
+        linear-gradient(90deg, rgba(0, 217, 255, 0.11), rgba(255, 45, 253, 0.08)),
+        rgba(2, 5, 20, 0.82);
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      border-radius: 6px;
+      outline: none;
+      text-transform: none;
+      box-shadow: inset 0 0 16px rgba(0, 217, 255, 0.06);
+    }
+
+    .topic-input:focus-visible {
+      border-color: rgba(248, 255, 19, 0.86);
+      box-shadow: 0 0 16px rgba(0, 217, 255, 0.22), inset 0 0 18px rgba(255, 45, 253, 0.1);
+    }
+
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .choice-chip {
+      min-height: 34px;
+      padding: 7px 10px;
+      color: rgba(247, 251, 255, 0.82);
+      background: rgba(2, 5, 20, 0.64);
+      border: 1px solid rgba(0, 217, 255, 0.28);
+      border-radius: 6px;
+      cursor: pointer;
+      text-transform: none;
+      box-shadow: inset 0 0 12px rgba(0, 217, 255, 0.05);
+    }
+
+    .choice-chip.is-selected {
+      color: #ffffff;
+      border-color: rgba(248, 255, 19, 0.82);
+      background: linear-gradient(180deg, rgba(255, 45, 253, 0.28), rgba(103, 54, 255, 0.22));
+      box-shadow: 0 0 14px rgba(255, 45, 253, 0.26), inset 0 0 14px rgba(0, 217, 255, 0.1);
+    }
+
+    @media (max-width: 940px) {
+      .prompt-content,
+      .control-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .prompt-stage {
+        padding: 18px 12px 12px;
+      }
+
+      .prompt-shell {
+        --shell-corner-depth: 42px;
+        width: min(100%, 96vw);
+        padding: 10px 14px 44px;
+        clip-path: polygon(3% 0, 97% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 97% 100%, 3% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+      }
+
+      .prompt-title-chip {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="prompt-stage">
+    <section class="prompt-shell" aria-label="KI Song Text Generator">
+      <div class="prompt-title">
+        <div class="prompt-title-chip">KI Song Text Generator</div>
+        <div class="prompt-subline">Die Zukunft der Musik: KI trifft Kreativität</div>
+      </div>
+
+      <nav class="site-nav" data-active="ki-song-text" aria-label="Hauptnavigation"></nav>
+
+      <div class="prompt-content">
+        <section class="control-panel" aria-label="Prompt Parameter">
+          <label class="prompt-label">
+            Thema
+            <input class="topic-input" id="topicInput" type="text" placeholder="Thema des Songs eingeben">
+          </label>
+          <div class="control-grid" id="controlGrid"></div>
+          <label class="prompt-label">
+            Kernbotschaften
+            <div class="chip-grid" id="messageGrid"></div>
+          </label>
+          <label class="prompt-label">
+            Metaphern
+            <div class="chip-grid" id="metaphorGrid"></div>
+          </label>
+          <div class="button-row">
+            <button class="prompt-button" id="generateButton" type="button">Generieren</button>
+            <button class="prompt-button" id="resetButton" type="button">Reset</button>
+          </div>
+        </section>
+
+        <section class="output-panel" aria-label="Prompt Ausgabe">
+          <label class="prompt-label">
+            Songtext
+            <textarea class="prompt-output" id="styleOutput" readonly></textarea>
+          </label>
+          <div class="button-row">
+            <button class="prompt-button" data-copy="styleOutput" type="button">Songtext kopieren</button>
+            <button class="prompt-button" id="speakButton" type="button">Vorlesen</button>
+          </div>
+          <label class="prompt-label">
+            Einstellungen
+            <textarea class="prompt-output lyrics" id="detailOutput" readonly></textarea>
+          </label>
+          <div class="button-row">
+            <button class="prompt-button" data-copy="detailOutput" type="button">Details kopieren</button>
+          </div>
+          <div class="prompt-status" id="copyStatus"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import {
+      languages,
+      metaphorOptions,
+      kernbotschaftOptions,
+      rhymeQualityOptions,
+      rhymeOptions,
+    } from "./assets/ki-song-text-data.js";
+
+    const topicInput = document.getElementById("topicInput");
+    const controlGrid = document.getElementById("controlGrid");
+    const messageGrid = document.getElementById("messageGrid");
+    const metaphorGrid = document.getElementById("metaphorGrid");
+    const styleOutput = document.getElementById("styleOutput");
+    const detailOutput = document.getElementById("detailOutput");
+    const copyStatus = document.getElementById("copyStatus");
+    const selections = new Map([
+      ["language", "Deutsch"],
+      ["rhyme", "ABAB"],
+      ["rhymeQuality", "perfekt"],
+    ]);
+    const selectedMessages = new Set();
+    const selectedMetaphors = new Set();
+    let speaking = false;
+
+    const cleanLabel = (text) => String(text || "").replace(/[^\p{L}\p{N}\s&/-]/gu, "").trim();
+    const optionLabel = (option) => cleanLabel(option.label || option.value || option);
+    const optionValue = (option) => option.value || option;
+
+    const controls = [
+      { id: "language", title: "Sprache", label: "Songtext", options: languages.map((item) => ({ label: item, value: item })) },
+      { id: "rhyme", title: "Reim", label: "Schema", options: rhymeOptions },
+      { id: "rhymeQuality", title: "Reim", label: "Qualitaet", options: rhymeQualityOptions },
+    ];
+
+    const getValue = (id) => selections.get(id) || "";
+    const getLabel = (id) => selections.get(id + "Label") || getValue(id);
+
+    const buildSelects = () => {
+      controls.forEach((group) => {
+        const label = document.createElement("label");
+        const select = document.createElement("select");
+        label.className = "prompt-label";
+        label.textContent = group.title + " - " + group.label;
+        select.className = "prompt-select";
+        select.dataset.groupId = group.id;
+
+        group.options.forEach((option) => {
+          const element = document.createElement("option");
+          element.value = optionValue(option);
+          element.textContent = optionLabel(option);
+          select.appendChild(element);
+        });
+
+        select.value = getValue(group.id);
+        selections.set(group.id + "Label", select.selectedOptions[0]?.textContent || "");
+        select.addEventListener("change", () => {
+          selections.set(group.id, select.value);
+          selections.set(group.id + "Label", select.selectedOptions[0]?.textContent || "");
+          updateDetail();
+        });
+
+        label.appendChild(select);
+        controlGrid.appendChild(label);
+      });
+    };
+
+    const buildChips = (grid, options, store) => {
+      options.filter((option) => option.value).forEach((option) => {
+        const button = document.createElement("button");
+        button.className = "choice-chip";
+        button.type = "button";
+        button.textContent = optionLabel(option);
+        button.title = option.desc || "";
+        button.addEventListener("click", () => {
+          if (store.has(option.value)) {
+            store.delete(option.value);
+            button.classList.remove("is-selected");
+          } else if (store.size < 4) {
+            store.add(option.value);
+            button.classList.add("is-selected");
+          }
+          updateDetail();
+        });
+        grid.appendChild(button);
+      });
+    };
+
+    const selectedLabels = (options, store) => options
+      .filter((option) => store.has(option.value))
+      .map(optionLabel);
+
+    const updateDetail = () => {
+      detailOutput.value = [
+        "Thema: " + (topicInput.value.trim() || "noch nicht eingegeben"),
+        "Sprache: " + getLabel("language"),
+        "Reimschema: " + getLabel("rhyme"),
+        "Reimqualitaet: " + getLabel("rhymeQuality"),
+        "Kernbotschaften: " + (selectedLabels(kernbotschaftOptions, selectedMessages).join(", ") || "keine"),
+        "Metaphern: " + (selectedLabels(metaphorOptions, selectedMetaphors).join(", ") || "keine"),
+      ].join("\n");
+      window.autoGrowTextareas?.();
+    };
+
+    const line = (parts) => parts.filter(Boolean).join(" ");
+
+    const generateSong = () => {
+      const topic = topicInput.value.trim() || "deine Geschichte";
+      const messages = selectedLabels(kernbotschaftOptions, selectedMessages);
+      const metaphors = selectedLabels(metaphorOptions, selectedMetaphors);
+      const mood = messages[0] || "Gefuehl";
+      const image = metaphors[0] || "Licht";
+      const secondImage = metaphors[1] || "Nacht";
+
+      styleOutput.value = [
+        "[Verse 1]",
+        line(["Ich trag", topic, "durch den leisen Raum,"]),
+        line(["zwischen", image, "und", secondImage, "wird aus Zweifel ein Traum."]),
+        line(["Jeder Schritt klingt nach", mood + ","]),
+        "und mein Herz schreibt die Worte, die ich nie verlor.",
+        "",
+        "[Pre-Chorus]",
+        "Wenn die Welt zu laut wird, hoer ich mich klar,",
+        "alles, was ich suchte, war schon immer da.",
+        "",
+        "[Chorus]",
+        line([topic, "brennt hell in dieser Nacht,"]),
+        "ich falle nicht, ich bin erwacht.",
+        line(["Mit", image, "in der Stimme und Mut im Blick,"]),
+        "sing ich mich nach vorn, Stueck fuer Stueck.",
+        "",
+        "[Verse 2]",
+        line(["Aus alten Schatten waechst ein neuer Ton,"]),
+        line(["jede Narbe wird Rhythmus, jede Frage wird Lohn."]),
+        line(["Und wenn", secondImage, "an den Fenstern zieht,"]),
+        "bleibt diese Melodie, die mich weiter sieht.",
+        "",
+        "[Bridge]",
+        "Kein Zurueck, nur der Beat unter meiner Haut,",
+        "ich sag es laut, bis es jeder glaubt.",
+        "",
+        "[Chorus]",
+        line([topic, "brennt hell in dieser Nacht,"]),
+        "ich falle nicht, ich bin erwacht.",
+        line(["Mit", image, "in der Stimme und Mut im Blick,"]),
+        "sing ich mich nach vorn, Stueck fuer Stueck.",
+        "",
+        "[Outro]",
+        line(["Am Ende bleibt", topic, "wie ein Stern im Wind,"]),
+        "und ich weiss, dass wir noch nicht fertig sind.",
+      ].join("\n");
+      updateDetail();
+    };
+
+    const copyToClipboard = async (id) => {
+      const element = document.getElementById(id);
+      if (!element) return;
+      await navigator.clipboard.writeText(element.value);
+      copyStatus.textContent = "Kopiert.";
+      window.setTimeout(() => {
+        copyStatus.textContent = "";
+      }, 1600);
+    };
+
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", () => copyToClipboard(button.dataset.copy));
+    });
+
+    document.getElementById("generateButton").addEventListener("click", generateSong);
+    topicInput.addEventListener("input", updateDetail);
+    topicInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") generateSong();
+    });
+
+    document.getElementById("speakButton").addEventListener("click", () => {
+      if (!styleOutput.value) return;
+      if (speaking) {
+        window.speechSynthesis.cancel();
+        speaking = false;
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(styleOutput.value);
+      utterance.lang = getValue("language") === "Deutsch" ? "de-DE" : "en-US";
+      utterance.onend = () => {
+        speaking = false;
+      };
+      window.speechSynthesis.speak(utterance);
+      speaking = true;
+    });
+
+    document.getElementById("resetButton").addEventListener("click", () => {
+      topicInput.value = "";
+      selections.set("language", "Deutsch");
+      selections.set("rhyme", "ABAB");
+      selections.set("rhymeQuality", "perfekt");
+      selectedMessages.clear();
+      selectedMetaphors.clear();
+      controlGrid.querySelectorAll("select").forEach((select) => {
+        select.value = getValue(select.dataset.groupId);
+        selections.set(select.dataset.groupId + "Label", select.selectedOptions[0]?.textContent || "");
+      });
+      document.querySelectorAll(".choice-chip").forEach((button) => button.classList.remove("is-selected"));
+      styleOutput.value = "";
+      updateDetail();
+    });
+
+    buildSelects();
+    buildChips(messageGrid, kernbotschaftOptions, selectedMessages);
+    buildChips(metaphorGrid, metaphorOptions, selectedMetaphors);
+    updateDetail();
+  </script>
+</body>
+</html>
