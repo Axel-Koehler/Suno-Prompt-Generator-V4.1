@@ -168,6 +168,8 @@
       ? "project-1"
       : path.endsWith("/prompt-designer.html")
         ? "prompt-designer"
+      : path.endsWith("/suno-prompt-generator-v31.html")
+        ? "suno-v31"
       : path.endsWith("/songs.html")
         ? "songs"
         : "home";
