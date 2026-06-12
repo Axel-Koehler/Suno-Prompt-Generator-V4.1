@@ -959,6 +959,10 @@
         styleOutput.value = result.value;
         copyStatus.textContent = "KI-Songtext erstellt.";
         updateDetail();
+      } else if ((result?.error || "").includes("OPENAI_API_KEY")) {
+        styleOutput.value = "";
+        copyStatus.textContent = "Echte KI ist noch nicht aktiv: OPENAI_API_KEY fehlt in Supabase.";
+        updateDetail();
       } else {
         generateLocalSong();
         copyStatus.textContent = (result?.error || "KI nicht erreichbar.") + " Lokaler Ersatztext wurde verwendet.";
