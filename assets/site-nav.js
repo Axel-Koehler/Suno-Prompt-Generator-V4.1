@@ -2,6 +2,7 @@
   const pages = [
     { id: "home", label: "Home", path: "index.html" },
     { id: "project-1", label: "SUNO Prompt Generator V4.1", path: "outputs/suno_auswahlmenue.html" },
+    { id: "suno-v11", label: "SUNO Prompt Generator V1.1", path: "suno-prompt-generator-v11.html" },
     { id: "prompt-designer", label: "Suno Prompt Generator V2.1", path: "prompt-designer.html" },
     { id: "suno-v31", label: "SUNO Prompt Generator V3.1", path: "suno-prompt-generator-v31.html" },
     { id: "songs", label: "Meine Song`s", path: "songs.html" },
@@ -13,6 +14,8 @@
     ? "project-1"
     : currentPath.endsWith("/prompt-designer.html")
       ? "prompt-designer"
+    : currentPath.endsWith("/suno-prompt-generator-v11.html")
+      ? "suno-v11"
     : currentPath.endsWith("/suno-prompt-generator-v31.html")
       ? "suno-v31"
     : currentPath.endsWith("/songs.html")
