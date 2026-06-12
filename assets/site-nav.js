@@ -2,6 +2,7 @@
   const pages = [
     { id: "home", label: "Home", path: "index.html" },
     { id: "project-1", label: "SUNO Prompt Generator V4.1", path: "outputs/suno_auswahlmenue.html" },
+    { id: "prompt-designer", label: "Prompt Designer", path: "prompt-designer.html" },
     { id: "songs", label: "Meine Song`s", path: "songs.html" },
     { id: "editor", label: "Editor", path: "editor.html" }
   ];
@@ -9,6 +10,8 @@
   const currentPath = decodeURIComponent(window.location.pathname || "").replace(/\\/g, "/");
   const inferredActive = currentPath.endsWith("/outputs/suno_auswahlmenue.html")
     ? "project-1"
+    : currentPath.endsWith("/prompt-designer.html")
+      ? "prompt-designer"
     : currentPath.endsWith("/songs.html")
       ? "songs"
     : currentPath.endsWith("/editor.html")
@@ -31,7 +34,7 @@
     { id: "privacy", button: "Datenschutz", titleKey: "legal.privacy.title", textKey: "legal.privacy.text" }
   ];
 
-  const legalHost = document.querySelector(".home-shell, .holo-shell, .editor-shell");
+  const legalHost = document.querySelector(".home-shell, .holo-shell, .prompt-shell, .editor-shell");
   if (legalHost && !document.querySelector(".legal-footer")) {
     const footer = document.createElement("div");
     footer.className = "legal-footer";

@@ -166,6 +166,8 @@
     if (path.endsWith("/editor.html")) return;
     const page = path.endsWith("/outputs/suno_auswahlmenue.html")
       ? "project-1"
+      : path.endsWith("/prompt-designer.html")
+        ? "prompt-designer"
       : path.endsWith("/songs.html")
         ? "songs"
         : "home";
