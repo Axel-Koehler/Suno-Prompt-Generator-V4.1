@@ -64,6 +64,7 @@ const createLyrics = async (body: Record<string, unknown>) => {
   const language = languageNames[languageCode] || "English";
   const rhyme = String(body.rhyme || "ABAB");
   const rhymeQuality = String(body.rhymeQuality || "");
+  const creativeSeed = String(body.creativeSeed || crypto.randomUUID());
   const messages = instructionItems(body.messages);
   const metaphors = instructionItems(body.metaphors);
 
@@ -71,8 +72,12 @@ const createLyrics = async (body: Record<string, unknown>) => {
     "Write complete original song lyrics.",
     "Language: " + language + ".",
     "Underlying theme: " + topic + ".",
+    "Creative variation seed: " + creativeSeed + ".",
+    "First interpret the underlying theme internally. Build the song around the situation, conflict, emotional consequences, and sensory images implied by that theme.",
+    "The listener should clearly feel what the theme is about without seeing the exact theme wording.",
     "Do not use the exact theme wording in the lyrics. Treat it only as creative context and express it indirectly through emotions, situations, images, and consequences.",
     "If the theme is a single word or short phrase, that exact word or phrase must not appear in the final lyrics.",
+    "Avoid generic filler. Use specific scenes, objects, actions, places, and emotional turns connected to the theme.",
     "Rhyme scheme: " + rhyme + ".",
     rhymeQuality ? "Rhyme quality: " + rhymeQuality + "." : "",
     messages.length ? "MANDATORY core messages: " + messages.join("; ") + "." : "",
@@ -92,7 +97,9 @@ const createLyrics = async (body: Record<string, unknown>) => {
     },
     body: JSON.stringify({
       model,
-      temperature: 0.9,
+      temperature: 1.05,
+      presence_penalty: 0.45,
+      frequency_penalty: 0.35,
       max_tokens: 1400,
       messages: [
         {

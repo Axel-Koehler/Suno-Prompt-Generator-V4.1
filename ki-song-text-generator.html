@@ -892,10 +892,39 @@
 
     const line = (parts) => parts.filter(Boolean).join(" ");
 
+    const pick = (items) => items[Math.floor(Math.random() * items.length)];
+
+    const themeScene = (rawTopic, languageCode) => {
+      const key = normalizeGermanKey(rawTopic);
+      const scenes = {
+        "de-DE": {
+          liebe: ["zwei Hände im Regen", "ein Blick, der zu lange bleibt", "warme Fenster im Morgenlicht"],
+          herzschmerz: ["ein leerer Platz am Tisch", "Nachrichten, die niemand mehr schreibt", "kalter Kaffee neben deinem Namen"],
+          fernweh: ["Koffer neben der Tür", "Scheinwerfer auf nassem Asphalt", "ein Bahnhof kurz vor Mitternacht"],
+          hoffnung: ["ein heller Streifen am Rand der Wolken", "ein Funke unter grauer Asche", "Schritte auf neuem Boden"],
+          freiheit: ["offene Türen im Gegenwind", "Staub auf alten Ketten", "ein weiter Himmel ohne Grenzen"],
+          einsamkeit: ["Licht in fremden Fenstern", "Stille zwischen zwei Atemzügen", "ein Telefon, das nicht mehr klingt"],
+          nacht: ["Neon auf nassem Stein", "Motoren weit hinter der Stadt", "Schatten unter blauem Licht"],
+        },
+        "en-US": {
+          love: ["two hands in the rain", "a glance that stays too long", "warm windows in morning light"],
+          heartbreak: ["an empty chair at the table", "messages nobody sends anymore", "cold coffee beside a name"],
+          wanderlust: ["a suitcase by the door", "headlights on wet asphalt", "a station just before midnight"],
+          hope: ["a bright line at the edge of clouds", "a spark under grey ash", "footsteps on new ground"],
+          freedom: ["open doors in the headwind", "dust on broken chains", "a wide sky without borders"],
+          loneliness: ["light in stranger windows", "silence between two breaths", "a phone that never rings"],
+          night: ["neon on wet stone", "engines beyond the city", "shadows under blue light"],
+        },
+      };
+      const translated = translateGermanTopic(rawTopic, languageCode);
+      const languageScenes = scenes[languageCode] || scenes["en-US"];
+      return pick(languageScenes[key] || languageScenes[normalizeGermanKey(translated)] || Object.values(languageScenes).flat());
+    };
+
     const generateLocalSong = () => {
       const languageCode = getValue("language");
       const template = lyricTemplates[languageCode] || lyricTemplates["en-US"];
-      const topic = translateGermanTopic(topicInput.value.trim(), languageCode) || template.topicFallback;
+      const topic = themeScene(topicInput.value.trim() || template.topicFallback, languageCode);
       const messages = translatedSelections(kernbotschaftOptions, selectedMessages, languageCode, messageTranslations);
       const metaphors = translatedSelections(metaphorOptions, selectedMetaphors, languageCode, metaphorTranslations);
       const mood = messages[0] || template.moodFallback;
@@ -921,6 +950,7 @@
         languageLabel: getLabel("language"),
         rhyme: getValue("rhyme"),
         rhymeQuality: getLabel("rhymeQuality"),
+        creativeSeed: String(Date.now()) + "-" + Math.random().toString(36).slice(2),
         messages,
         metaphors,
       });
@@ -931,7 +961,7 @@
         updateDetail();
       } else {
         generateLocalSong();
-        copyStatus.textContent = (result?.error || "KI nicht erreichbar.") + " Lokaler Fallback wurde verwendet.";
+        copyStatus.textContent = (result?.error || "KI nicht erreichbar.") + " Lokaler Ersatztext wurde verwendet.";
       }
 
       generateButton.disabled = false;
