@@ -492,7 +492,7 @@
     const lyricTemplates = {
       "de-DE": {
         topicFallback: "deine Geschichte",
-        moodFallback: "Gefuehl",
+        moodFallback: "Gefühl",
         imageFallback: "Licht",
         secondImageFallback: "Nacht",
         lines: (topic, mood, image, secondImage) => [
@@ -503,34 +503,34 @@
           "und mein Herz schreibt die Worte, die ich nie verlor.",
           "",
           "[Pre-Chorus]",
-          "Wenn die Welt zu laut wird, hoer ich mich klar,",
+          "Wenn die Welt zu laut wird, hör ich mich klar,",
           "alles, was ich suchte, war schon immer da.",
           "",
           "[Chorus]",
           line([topic, "brennt hell in dieser Nacht,"]),
           "ich falle nicht, ich bin erwacht.",
           line(["Mit", image, "in der Stimme und Mut im Blick,"]),
-          "sing ich mich nach vorn, Stueck fuer Stueck.",
+          "sing ich mich nach vorn, Stück für Stück.",
           "",
           "[Verse 2]",
-          "Aus alten Schatten waechst ein neuer Ton,",
+          "Aus alten Schatten wächst ein neuer Ton,",
           "jede Narbe wird Rhythmus, jede Frage wird Lohn.",
           line(["Und wenn", secondImage, "an den Fenstern zieht,"]),
           "bleibt diese Melodie, die mich weiter sieht.",
           "",
           "[Bridge]",
-          "Kein Zurueck, nur der Beat unter meiner Haut,",
+          "Kein Zurück, nur der Beat unter meiner Haut,",
           "ich sag es laut, bis es jeder glaubt.",
           "",
           "[Chorus]",
           line([topic, "brennt hell in dieser Nacht,"]),
           "ich falle nicht, ich bin erwacht.",
           line(["Mit", image, "in der Stimme und Mut im Blick,"]),
-          "sing ich mich nach vorn, Stueck fuer Stueck.",
+          "sing ich mich nach vorn, Stück für Stück.",
           "",
           "[Outro]",
           line(["Am Ende bleibt", topic, "wie ein Stern im Wind,"]),
-          "und ich weiss, dass wir noch nicht fertig sind.",
+          "und ich weiß, dass wir noch nicht fertig sind.",
         ],
       },
       "en-US": {
@@ -670,7 +670,7 @@
     const controls = [
       { id: "language", title: "Sprache", label: "Songtext", options: languageOptions },
       { id: "rhyme", title: "Reim", label: "Schema", options: rhymeOptions },
-      { id: "rhymeQuality", title: "Reim", label: "Qualitaet", options: rhymeQualityOptions },
+      { id: "rhymeQuality", title: "Reim", label: "Qualität", options: rhymeQualityOptions },
     ];
 
     const getValue = (id) => selections.get(id) || "";
@@ -735,7 +735,7 @@
         "Thema: " + (topicInput.value.trim() || "noch nicht eingegeben"),
         "Sprache: " + getLabel("language"),
         "Reimschema: " + getLabel("rhyme"),
-        "Reimqualitaet: " + getLabel("rhymeQuality"),
+        "Reimqualität: " + getLabel("rhymeQuality"),
         "Kernbotschaften: " + (selectedLabels(kernbotschaftOptions, selectedMessages).join(", ") || "keine"),
         "Metaphern: " + (selectedLabels(metaphorOptions, selectedMetaphors).join(", ") || "keine"),
       ].join("\n");
@@ -780,7 +780,7 @@
     document.getElementById("speakButton").addEventListener("click", () => {
       if (!styleOutput.value) return;
       if (!("speechSynthesis" in window)) {
-        copyStatus.textContent = "Sprachausgabe wird von diesem Browser nicht unterstuetzt.";
+        copyStatus.textContent = "Sprachausgabe wird von diesem Browser nicht unterstützt.";
         return;
       }
       if (speaking) {
@@ -803,7 +803,7 @@
       utterance.onerror = () => {
         speaking = false;
         document.getElementById("speakButton").textContent = "Vorlesen";
-        copyStatus.textContent = "Keine passende Stimme fuer diese Sprache gefunden.";
+        copyStatus.textContent = "Keine passende Stimme für diese Sprache gefunden.";
       };
       window.speechSynthesis.speak(utterance);
       speaking = true;
