@@ -70,7 +70,9 @@ const createLyrics = async (body: Record<string, unknown>) => {
   const prompt = [
     "Write complete original song lyrics.",
     "Language: " + language + ".",
-    "Topic: " + topic + ".",
+    "Underlying theme: " + topic + ".",
+    "Do not use the exact theme wording in the lyrics. Treat it only as creative context and express it indirectly through emotions, situations, images, and consequences.",
+    "If the theme is a single word or short phrase, that exact word or phrase must not appear in the final lyrics.",
     "Rhyme scheme: " + rhyme + ".",
     rhymeQuality ? "Rhyme quality: " + rhymeQuality + "." : "",
     messages.length ? "MANDATORY core messages: " + messages.join("; ") + "." : "",
