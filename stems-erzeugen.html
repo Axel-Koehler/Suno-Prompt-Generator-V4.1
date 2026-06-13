@@ -496,6 +496,7 @@
             <input class="file-input" id="stemFile" type="file" accept="audio/mpeg,.mp3">
             <div class="stems-actions">
               <button class="stems-button" id="processButton" type="button" disabled>Stems erzeugen</button>
+              <button class="stems-button" id="playAllButton" type="button" disabled>Alle 8 abspielen</button>
               <button class="stems-button" id="downloadButton" type="button" disabled>ZIP herunterladen</button>
             </div>
           </div>
@@ -532,6 +533,7 @@
 
       const fileInput = document.getElementById("stemFile");
       const processButton = document.getElementById("processButton");
+      const playAllButton = document.getElementById("playAllButton");
       const downloadButton = document.getElementById("downloadButton");
       const mixDownloadButton = document.getElementById("mixDownloadButton");
       const status = document.getElementById("stemStatus");
@@ -583,6 +585,7 @@
             audio.controls = true;
             audio.src = result.url;
             audio.preload = "metadata";
+            result.audio = audio;
 
             volumeLabel.className = "volume-control";
             volumeText.textContent = "Lautstärke";
@@ -810,6 +813,7 @@
         zipBlob = null;
         zipUrl = "";
         downloadButton.disabled = true;
+        playAllButton.disabled = true;
         mixDownloadButton.disabled = true;
       };
 
@@ -903,6 +907,7 @@
           zipBlob = createZip(files);
           zipUrl = URL.createObjectURL(zipBlob);
           downloadButton.disabled = false;
+          playAllButton.disabled = false;
           mixDownloadButton.disabled = false;
           setProgress(100);
           setStatus("Fertig. Die 8 Spuren können als ZIP heruntergeladen werden.");
@@ -927,6 +932,18 @@
       });
 
       processButton.addEventListener("click", processFile);
+
+      playAllButton.addEventListener("click", async () => {
+        if (stemResults.length !== bands.length) return;
+        const audios = stemResults.map((stem) => stem.audio).filter(Boolean);
+        if (audios.length !== bands.length) return;
+        audios.forEach((audio, index) => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.volume = Math.min(1, stemResults[index].volume);
+        });
+        await Promise.allSettled(audios.map((audio) => audio.play()));
+      });
 
       downloadButton.addEventListener("click", () => {
         if (!zipBlob || !zipUrl || !selectedFile) return;
