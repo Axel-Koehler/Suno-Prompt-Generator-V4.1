@@ -504,7 +504,7 @@
           const width = spectrum.width;
           const height = spectrum.height;
           canvas.clearRect(0, 0, width, height);
-          const center = height * 0.52;
+          const center = height * 0.64;
           const points = 72;
           canvas.lineWidth = Math.max(1, width * 0.006);
           canvas.strokeStyle = "rgba(0, 217, 255, 0.42)";
@@ -530,7 +530,7 @@
           const width = spectrum.width;
           const height = spectrum.height;
           const points = 96;
-          const center = height * 0.52;
+          const center = height * 0.64;
           const minFrequency = 20;
           const maxFrequency = 12000;
           const nyquist = (sharedAudioContext?.sampleRate || 44100) / 2;
@@ -564,8 +564,8 @@
           };
 
           strokeLine(0, "rgba(0, 217, 255, 0.94)", 14, 0.007);
-          strokeLine(height * 0.09, "rgba(255, 45, 253, 0.68)", 10, 0.004);
-          strokeLine(-height * 0.08, "rgba(248, 255, 19, 0.5)", 8, 0.003);
+          strokeLine(height * 0.06, "rgba(255, 45, 253, 0.68)", 10, 0.004);
+          strokeLine(-height * 0.1, "rgba(248, 255, 19, 0.5)", 8, 0.003);
 
           canvas.fillStyle = "rgba(0, 217, 255, 0.13)";
           canvas.beginPath();
