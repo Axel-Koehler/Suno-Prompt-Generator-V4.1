@@ -238,9 +238,29 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      opacity: 0.72;
+      opacity: 0.82;
       pointer-events: none;
       z-index: 0;
+      mix-blend-mode: screen;
+    }
+
+    .song-player::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(0, 217, 255, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(rgba(255, 45, 253, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 45, 253, 0.06) 1px, transparent 1px);
+      background-size:
+        12px 12px,
+        12px 12px,
+        48px 48px,
+        48px 48px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.46;
       mix-blend-mode: screen;
     }
 
@@ -252,12 +272,12 @@
         linear-gradient(90deg, rgba(2, 5, 20, 0.68), rgba(2, 5, 20, 0.28), rgba(2, 5, 20, 0.68)),
         linear-gradient(180deg, rgba(2, 5, 20, 0.28), rgba(2, 5, 20, 0.76));
       pointer-events: none;
-      z-index: 1;
+      z-index: 2;
     }
 
     .song-play {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       width: 38px;
       height: 38px;
       display: grid;
@@ -278,7 +298,7 @@
 
     .song-progress {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       width: 100%;
       accent-color: var(--magenta);
       cursor: pointer;
@@ -286,7 +306,7 @@
 
     .song-time {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       grid-column: 1 / -1;
       min-width: 0;
       color: var(--muted);
@@ -297,7 +317,7 @@
 
     .song-load-status {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       grid-column: 1 / -1;
       color: var(--yellow);
       font-size: 12px;
@@ -483,20 +503,21 @@
           const width = spectrum.width;
           const height = spectrum.height;
           canvas.clearRect(0, 0, width, height);
-          const bars = 28;
-          const gap = width * 0.008;
-          const barWidth = (width - gap * (bars - 1)) / bars;
-          for (let index = 0; index < bars; index += 1) {
-            const barHeight = height * (0.12 + Math.sin((index / bars) * Math.PI) * 0.18);
-            const x = index * (barWidth + gap);
-            const y = (height - barHeight) / 2;
-            const gradient = canvas.createLinearGradient(0, y, 0, y + barHeight);
-            gradient.addColorStop(0, "rgba(248, 255, 19, 0.28)");
-            gradient.addColorStop(0.48, "rgba(255, 45, 253, 0.32)");
-            gradient.addColorStop(1, "rgba(0, 217, 255, 0.32)");
-            canvas.fillStyle = gradient;
-            canvas.fillRect(x, y, Math.max(1, barWidth), barHeight);
+          const center = height * 0.52;
+          const points = 72;
+          canvas.lineWidth = Math.max(1, width * 0.006);
+          canvas.strokeStyle = "rgba(0, 217, 255, 0.42)";
+          canvas.shadowColor = "rgba(0, 217, 255, 0.4)";
+          canvas.shadowBlur = 8;
+          canvas.beginPath();
+          for (let index = 0; index <= points; index += 1) {
+            const ratio = index / points;
+            const x = ratio * width;
+            const y = center + Math.sin(ratio * Math.PI * 6) * height * 0.08 + Math.sin(ratio * Math.PI * 13) * height * 0.025;
+            if (index === 0) canvas.moveTo(x, y);
+            else canvas.lineTo(x, y);
           }
+          canvas.stroke();
         };
 
         const drawSpectrum = () => {
@@ -507,28 +528,48 @@
 
           const width = spectrum.width;
           const height = spectrum.height;
-          const bars = 36;
-          const gap = width * 0.006;
-          const barWidth = (width - gap * (bars - 1)) / bars;
-          const step = Math.max(1, Math.floor(frequencyData.length / bars));
+          const points = 96;
+          const step = Math.max(1, Math.floor(frequencyData.length / points));
+          const center = height * 0.52;
           canvas.clearRect(0, 0, width, height);
 
-          for (let index = 0; index < bars; index += 1) {
+          const strokeLine = (offset, color, blur, widthMultiplier) => {
+            canvas.beginPath();
+            canvas.strokeStyle = color;
+            canvas.lineWidth = Math.max(1, width * widthMultiplier);
+            canvas.shadowColor = color;
+            canvas.shadowBlur = blur;
+            for (let index = 0; index <= points; index += 1) {
+              const sampleIndex = Math.min(frequencyData.length - 1, index * step);
+              const value = frequencyData[sampleIndex] || 0;
+              const intensity = value / 255;
+              const x = (index / points) * width;
+              const wave = Math.sin((index / points) * Math.PI * 8 + audio.currentTime * 5) * height * 0.035;
+              const y = center + offset - intensity * height * 0.32 + wave;
+              if (index === 0) canvas.moveTo(x, y);
+              else canvas.lineTo(x, y);
+            }
+            canvas.stroke();
+          };
+
+          strokeLine(0, "rgba(0, 217, 255, 0.94)", 14, 0.007);
+          strokeLine(height * 0.09, "rgba(255, 45, 253, 0.68)", 10, 0.004);
+          strokeLine(-height * 0.08, "rgba(248, 255, 19, 0.5)", 8, 0.003);
+
+          canvas.fillStyle = "rgba(0, 217, 255, 0.13)";
+          canvas.beginPath();
+          canvas.moveTo(0, center);
+          for (let index = 0; index <= points; index += 1) {
             let value = 0;
             for (let offset = 0; offset < step; offset += 1) value += frequencyData[index * step + offset] || 0;
             const intensity = value / step / 255;
-            const barHeight = Math.max(height * 0.08, intensity * height * 0.92);
-            const x = index * (barWidth + gap);
-            const y = (height - barHeight) / 2;
-            const gradient = canvas.createLinearGradient(0, y, 0, y + barHeight);
-            gradient.addColorStop(0, "rgba(248, 255, 19, 0.94)");
-            gradient.addColorStop(0.45, "rgba(255, 45, 253, 0.88)");
-            gradient.addColorStop(1, "rgba(0, 217, 255, 0.92)");
-            canvas.fillStyle = gradient;
-            canvas.shadowColor = "rgba(0, 217, 255, 0.52)";
-            canvas.shadowBlur = 10;
-            canvas.fillRect(x, y, Math.max(1, barWidth), barHeight);
+            const x = (index / points) * width;
+            const y = center - intensity * height * 0.24;
+            canvas.lineTo(x, y);
           }
+          canvas.lineTo(width, center);
+          canvas.closePath();
+          canvas.fill();
 
           animationFrame = requestAnimationFrame(drawSpectrum);
         };
