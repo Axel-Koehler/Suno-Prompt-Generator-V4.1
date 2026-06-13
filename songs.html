@@ -532,7 +532,7 @@
           const points = 96;
           const center = height * 0.52;
           const minFrequency = 20;
-          const maxFrequency = 16000;
+          const maxFrequency = 12000;
           const nyquist = (sharedAudioContext?.sampleRate || 44100) / 2;
           const binFrequency = nyquist / frequencyData.length;
           const frequencyAt = (ratio) => minFrequency * Math.pow(maxFrequency / minFrequency, ratio);
