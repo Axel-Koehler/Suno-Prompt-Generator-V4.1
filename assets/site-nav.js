@@ -7,6 +7,7 @@
     { id: "project-1", label: "SUNO Prompt Generator V4.1", path: "outputs/suno_auswahlmenue.html" },
     { id: "ki-song-text", label: "KI Song Text Generator", path: "ki-song-text-generator.html" },
     { id: "songs", label: "Meine Song`s", path: "songs.html" },
+    { id: "stems", label: "Stems erzeugen", path: "stems-erzeugen.html" },
     { id: "editor", label: "Editor", path: "editor.html" }
   ];
 
@@ -23,6 +24,8 @@
       ? "ki-song-text"
     : currentPath.endsWith("/songs.html")
       ? "songs"
+    : currentPath.endsWith("/stems-erzeugen.html")
+      ? "stems"
     : currentPath.endsWith("/editor.html")
       ? "editor"
       : "home";
@@ -43,7 +46,7 @@
     { id: "privacy", button: "Datenschutz", titleKey: "legal.privacy.title", textKey: "legal.privacy.text" }
   ];
 
-  const legalHost = document.querySelector(".home-shell, .holo-shell, .prompt-shell, .editor-shell");
+  const legalHost = document.querySelector(".home-shell, .holo-shell, .prompt-shell, .songs-shell, .stems-shell, .editor-shell");
   if (legalHost && !document.querySelector(".legal-footer")) {
     const footer = document.createElement("div");
     footer.className = "legal-footer";

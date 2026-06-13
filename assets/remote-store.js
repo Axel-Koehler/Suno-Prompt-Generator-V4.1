@@ -191,6 +191,8 @@
         ? "ki-song-text"
       : path.endsWith("/songs.html")
         ? "songs"
+      : path.endsWith("/stems-erzeugen.html")
+        ? "stems"
         : "home";
     window.setTimeout(() => trackVisit(page), 300);
   };

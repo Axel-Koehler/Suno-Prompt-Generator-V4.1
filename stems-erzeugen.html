@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="stylesheet" href="assets/site-nav.css">
+  <script src="assets/remote-config.js"></script>
+  <script src="assets/remote-store.js"></script>
+  <script src="assets/site-nav.js" defer></script>
+  <script src="assets/site-content.js" defer></script>
+  <title>Stems erzeugen</title>
+  <style>
+    :root {
+      --bg: #070812;
+      --cyan: #00d9ff;
+      --magenta: #ff2dfd;
+      --violet: #6736ff;
+      --yellow: #f8ff13;
+      --orange: #ff9f1c;
+      --text: #f7fbff;
+      --muted: #9da7d7;
+      --panel: rgba(8, 10, 34, 0.9);
+      --shadow: 0 0 24px rgba(103, 54, 255, 0.45), 0 0 48px rgba(255, 45, 253, 0.24);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .stems-stage {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      align-items: start;
+      justify-items: center;
+      padding: 24px 26px;
+      isolation: isolate;
+      background:
+        linear-gradient(180deg, rgba(5, 7, 20, 0.58), rgba(5, 7, 20, 0.86)),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.07), rgba(255, 45, 253, 0.11), rgba(248, 255, 19, 0.05));
+    }
+
+    .stems-stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.025) 1px, transparent 1px, transparent 5px),
+        linear-gradient(180deg, rgba(3, 4, 14, 0.08), rgba(3, 4, 14, 0.64));
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .stems-shell {
+      --shell-corner-depth: clamp(78px, 10vh, 112px);
+      position: relative;
+      width: min(1180px, 96vw);
+      min-height: min(760px, calc(100vh - 48px));
+      padding: 10px 22px 58px;
+      clip-path: polygon(4.5% 0, 95.5% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 95.5% 100%, 4.5% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+      background:
+        linear-gradient(90deg, var(--yellow), var(--orange) 9%, var(--violet) 23%, var(--magenta) 51%, var(--violet) 76%, var(--cyan) 91%, var(--yellow)),
+        linear-gradient(180deg, rgba(17, 8, 47, 0.96), rgba(5, 5, 18, 0.98));
+      box-shadow: var(--shadow);
+    }
+
+    .stems-shell::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      clip-path: inherit;
+      background:
+        linear-gradient(180deg, rgba(10, 6, 29, 0.95), rgba(8, 5, 24, 0.98)),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.08), rgba(255, 45, 253, 0.08));
+      z-index: -1;
+    }
+
+    .stems-title {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .stems-title-chip {
+      position: relative;
+      min-width: min(460px, 92vw);
+      padding: 13px 34px 12px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: rgba(247, 251, 255, 0.96);
+      font-weight: 400;
+      background:
+        linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
+        linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
+        linear-gradient(45deg, #ff8a19 0 10px, transparent 10px) left bottom / 30px 30px no-repeat,
+        linear-gradient(315deg, #ff8a19 0 10px, transparent 10px) right bottom / 30px 30px no-repeat,
+        linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
+      border: 1px solid rgba(0, 217, 255, 0.8);
+      box-shadow:
+        0 0 26px rgba(0, 217, 255, 0.52),
+        0 0 34px rgba(175, 25, 255, 0.36),
+        inset 0 0 16px rgba(0, 217, 255, 0.28);
+      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+      text-shadow: 0 0 12px rgba(0, 217, 255, 0.78);
+      white-space: nowrap;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .stems-title-chip::before {
+      content: "";
+      position: absolute;
+      inset: 5px 12px;
+      border-top: 1px solid rgba(198, 31, 255, 0.78);
+      border-bottom: 1px solid rgba(198, 31, 255, 0.78);
+      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
+      pointer-events: none;
+    }
+
+    .stems-subline {
+      color: rgba(247, 251, 255, 0.88);
+      font-size: 14px;
+      text-transform: none;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.45);
+    }
+
+    .stems-content {
+      position: relative;
+      z-index: 2;
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .stems-card {
+      position: relative;
+      min-height: 100%;
+      padding: 20px 18px;
+      border: 1px solid rgba(0, 217, 255, 0.72);
+      background:
+        linear-gradient(135deg, var(--yellow) 0 10px, transparent 10px) left top / 28px 28px no-repeat,
+        linear-gradient(225deg, var(--yellow) 0 10px, transparent 10px) right top / 28px 28px no-repeat,
+        linear-gradient(45deg, var(--orange) 0 9px, transparent 9px) left bottom / 26px 26px no-repeat,
+        linear-gradient(315deg, var(--orange) 0 9px, transparent 9px) right bottom / 26px 26px no-repeat,
+        linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.82), rgba(9, 14, 42, 0.96));
+      clip-path: polygon(4% 0, 96% 0, 100% 9%, 100% 91%, 96% 100%, 4% 100%, 0 91%, 0 9%);
+      box-shadow:
+        0 0 18px rgba(0, 217, 255, 0.28),
+        0 0 24px rgba(175, 25, 255, 0.2),
+        inset 0 0 15px rgba(0, 217, 255, 0.16);
+    }
+
+    .stems-card::before {
+      content: "";
+      position: absolute;
+      inset: 7px 13px;
+      border-top: 1px solid rgba(198, 31, 255, 0.72);
+      border-bottom: 1px solid rgba(198, 31, 255, 0.72);
+      clip-path: polygon(5% 0, 95% 0, 100% 50%, 95% 100%, 5% 100%, 0 50%);
+      pointer-events: none;
+    }
+
+    .stems-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .stems-card h2 {
+      margin: 0 0 12px;
+      color: var(--cyan);
+      font-size: 18px;
+      font-weight: 400;
+      text-shadow: 0 0 11px rgba(0, 217, 255, 0.52);
+    }
+
+    .stems-help,
+    .stems-status,
+    .stems-note {
+      color: rgba(247, 251, 255, 0.82);
+      font-size: 13px;
+      line-height: 1.55;
+      text-transform: none;
+    }
+
+    .stems-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .stems-textarea {
+      width: 100%;
+      min-height: 190px;
+      resize: vertical;
+      padding: 13px 14px;
+      border: 1px solid rgba(0, 217, 255, 0.5);
+      border-radius: 6px;
+      color: var(--text);
+      background: rgba(2, 5, 20, 0.62);
+      box-shadow: inset 0 0 16px rgba(0, 217, 255, 0.08);
+      outline: none;
+      text-transform: none;
+      line-height: 1.5;
+    }
+
+    .stems-textarea:focus {
+      border-color: rgba(248, 255, 19, 0.82);
+      box-shadow:
+        0 0 16px rgba(248, 255, 19, 0.12),
+        inset 0 0 16px rgba(0, 217, 255, 0.12);
+    }
+
+    .stems-upload {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .file-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(0, 217, 255, 0.48);
+      border-radius: 6px;
+      color: rgba(247, 251, 255, 0.9);
+      background: rgba(2, 5, 20, 0.62);
+      text-transform: none;
+    }
+
+    .file-input::file-selector-button {
+      margin-right: 12px;
+      padding: 9px 15px;
+      border: 1px solid rgba(0, 217, 255, 0.72);
+      color: var(--text);
+      background:
+        linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .stems-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .stems-button {
+      position: relative;
+      min-height: 42px;
+      padding: 10px 24px;
+      border: 1px solid rgba(0, 217, 255, 0.72);
+      color: rgba(247, 251, 255, 0.94);
+      background:
+        linear-gradient(135deg, var(--yellow) 0 9px, transparent 9px) left top / 25px 25px no-repeat,
+        linear-gradient(225deg, var(--yellow) 0 9px, transparent 9px) right top / 25px 25px no-repeat,
+        linear-gradient(45deg, var(--orange) 0 8px, transparent 8px) left bottom / 23px 23px no-repeat,
+        linear-gradient(315deg, var(--orange) 0 8px, transparent 8px) right bottom / 23px 23px no-repeat,
+        linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
+      clip-path: polygon(9% 0, 91% 0, 100% 50%, 91% 100%, 9% 100%, 0 50%);
+      box-shadow:
+        0 0 18px rgba(0, 217, 255, 0.34),
+        0 0 24px rgba(175, 25, 255, 0.25),
+        inset 0 0 13px rgba(0, 217, 255, 0.2);
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.66);
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .stems-button:disabled {
+      color: rgba(157, 167, 215, 0.52);
+      border-color: rgba(0, 217, 255, 0.28);
+      cursor: not-allowed;
+      opacity: 0.62;
+    }
+
+    .stems-button:not(:disabled):hover,
+    .stems-button:not(:disabled):focus-visible {
+      border-color: rgba(248, 255, 19, 0.9);
+      outline: none;
+      box-shadow:
+        0 0 22px rgba(248, 255, 19, 0.22),
+        0 0 30px rgba(0, 217, 255, 0.4),
+        inset 0 0 15px rgba(255, 45, 253, 0.22);
+    }
+
+    .stem-list {
+      display: grid;
+      gap: 9px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .stem-track {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid rgba(0, 217, 255, 0.32);
+      border-radius: 6px;
+      color: rgba(247, 251, 255, 0.86);
+      background: rgba(2, 5, 20, 0.5);
+      text-transform: none;
+    }
+
+    .stem-number {
+      color: var(--yellow);
+      text-shadow: 0 0 9px rgba(248, 255, 19, 0.35);
+    }
+
+    .stem-name {
+      overflow-wrap: anywhere;
+    }
+
+    .stem-state {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stem-track.is-ready .stem-state {
+      color: var(--cyan);
+    }
+
+    .progress-shell {
+      height: 9px;
+      margin-top: 10px;
+      border: 1px solid rgba(0, 217, 255, 0.34);
+      border-radius: 999px;
+      background: rgba(2, 5, 20, 0.62);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--yellow));
+      box-shadow: 0 0 12px rgba(0, 217, 255, 0.48);
+      transition: width 0.2s ease;
+    }
+
+    @media (max-width: 900px) {
+      .stems-stage {
+        padding: 16px 12px;
+      }
+
+      .stems-shell {
+        width: min(100%, 96vw);
+        padding: 12px 14px 46px;
+        clip-path: polygon(3% 0, 97% 0, 100% 48px, 100% calc(100% - 48px), 97% 100%, 3% 100%, 0 calc(100% - 48px), 0 48px);
+      }
+
+      .stems-content {
+        grid-template-columns: 1fr;
+      }
+
+      .stems-title-chip {
+        min-width: 0;
+        width: 100%;
+        white-space: normal;
+      }
+
+      .stem-track {
+        grid-template-columns: 28px minmax(0, 1fr);
+      }
+
+      .stem-state {
+        grid-column: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="stems-stage">
+    <section class="stems-shell">
+      <header class="stems-title">
+        <div class="stems-title-chip">Stems erzeugen</div>
+        <div class="stems-subline">Die Zukunft der Musik: KI trifft Kreativität</div>
+      </header>
+
+      <nav class="site-nav" data-active="stems"></nav>
+
+      <section class="stems-content">
+        <article class="stems-card">
+          <h2>Erläuterungen</h2>
+          <p class="stems-help">Hier kannst du eigene Hinweise oder eine Beschreibung für diesen Editor schreiben.</p>
+          <textarea class="stems-textarea" id="stemsNotes" placeholder="Text hier eingeben..."></textarea>
+          <p class="stems-note">Der Text wird lokal in deinem Browser gespeichert.</p>
+        </article>
+
+        <article class="stems-card">
+          <h2>Suno MP3 zerlegen</h2>
+          <p class="stems-help">MP3 laden, in 8 Frequenzspuren aufteilen und die fertigen Dateien als ZIP herunterladen.</p>
+
+          <div class="stems-upload">
+            <input class="file-input" id="stemFile" type="file" accept="audio/mpeg,.mp3">
+            <div class="stems-actions">
+              <button class="stems-button" id="processButton" type="button" disabled>Stems erzeugen</button>
+              <button class="stems-button" id="downloadButton" type="button" disabled>ZIP herunterladen</button>
+            </div>
+          </div>
+
+          <div class="progress-shell" aria-hidden="true">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+
+          <p class="stems-status" id="stemStatus">Bitte eine Suno MP3 Datei auswählen.</p>
+          <p class="stems-note">Hinweis: Diese Web-Version erzeugt 8 Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.</p>
+
+          <ul class="stem-list" id="stemList"></ul>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const bands = [
+        { label: "Sub Bass", file: "01_Sub_Bass_20-80Hz.wav", high: 80 },
+        { label: "Bass", file: "02_Bass_80-250Hz.wav", low: 80, high: 250 },
+        { label: "Low Mids", file: "03_Low_Mids_250-500Hz.wav", low: 250, high: 500 },
+        { label: "Mids", file: "04_Mids_500-1500Hz.wav", low: 500, high: 1500 },
+        { label: "Presence", file: "05_Presence_1500-3000Hz.wav", low: 1500, high: 3000 },
+        { label: "Brilliance", file: "06_Brilliance_3000-6000Hz.wav", low: 3000, high: 6000 },
+        { label: "Air", file: "07_Air_6000-12000Hz.wav", low: 6000, high: 12000 },
+        { label: "Top", file: "08_Top_12000-16000Hz.wav", low: 12000, high: 16000 },
+      ];
+
+      const notes = document.getElementById("stemsNotes");
+      const fileInput = document.getElementById("stemFile");
+      const processButton = document.getElementById("processButton");
+      const downloadButton = document.getElementById("downloadButton");
+      const status = document.getElementById("stemStatus");
+      const progressBar = document.getElementById("progressBar");
+      const stemList = document.getElementById("stemList");
+      const storageKey = "ak_stems_notes";
+
+      let selectedFile = null;
+      let zipBlob = null;
+      let zipUrl = "";
+
+      const setStatus = (message) => {
+        status.textContent = message;
+      };
+
+      const setProgress = (value) => {
+        progressBar.style.width = Math.max(0, Math.min(100, value)) + "%";
+      };
+
+      const renderStemList = (readyIndex = -1) => {
+        stemList.innerHTML = bands.map((band, index) => (
+          '<li class="stem-track' + (index <= readyIndex ? ' is-ready' : '') + '">' +
+            '<span class="stem-number">' + String(index + 1).padStart(2, "0") + '</span>' +
+            '<span class="stem-name">' + band.label + ' - ' + band.file.replace(/\.wav$/i, "") + '</span>' +
+            '<span class="stem-state">' + (index <= readyIndex ? "bereit" : "wartet") + '</span>' +
+          '</li>'
+        )).join("");
+      };
+
+      const sanitizeName = (name) => (
+        (name || "suno_stems")
+          .replace(/\.[^.]+$/, "")
+          .replace(/[^a-z0-9_-]+/gi, "_")
+          .replace(/^_+|_+$/g, "")
+          .slice(0, 60) || "suno_stems"
+      );
+
+      const createFilter = (context, type, frequency) => {
+        const filter = context.createBiquadFilter();
+        filter.type = type;
+        filter.frequency.value = frequency;
+        filter.Q.value = 0.707;
+        return filter;
+      };
+
+      const renderBand = async (audioBuffer, band) => {
+        const context = new OfflineAudioContext(
+          audioBuffer.numberOfChannels,
+          audioBuffer.length,
+          audioBuffer.sampleRate
+        );
+        const source = context.createBufferSource();
+        source.buffer = audioBuffer;
+
+        let node = source;
+        if (band.low) {
+          const highpass = createFilter(context, "highpass", band.low);
+          node.connect(highpass);
+          node = highpass;
+        }
+        if (band.high) {
+          const lowpass = createFilter(context, "lowpass", band.high);
+          node.connect(lowpass);
+          node = lowpass;
+        }
+
+        node.connect(context.destination);
+        source.start(0);
+        return context.startRendering();
+      };
+
+      const writeString = (view, offset, value) => {
+        for (let i = 0; i < value.length; i += 1) {
+          view.setUint8(offset + i, value.charCodeAt(i));
+        }
+      };
+
+      const audioBufferToWav = (buffer) => {
+        const channels = buffer.numberOfChannels;
+        const sampleRate = buffer.sampleRate;
+        const frameCount = buffer.length;
+        const bytesPerSample = 2;
+        const blockAlign = channels * bytesPerSample;
+        const dataSize = frameCount * blockAlign;
+        const output = new ArrayBuffer(44 + dataSize);
+        const view = new DataView(output);
+
+        writeString(view, 0, "RIFF");
+        view.setUint32(4, 36 + dataSize, true);
+        writeString(view, 8, "WAVE");
+        writeString(view, 12, "fmt ");
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, channels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * blockAlign, true);
+        view.setUint16(32, blockAlign, true);
+        view.setUint16(34, 16, true);
+        writeString(view, 36, "data");
+        view.setUint32(40, dataSize, true);
+
+        const channelData = [];
+        for (let channel = 0; channel < channels; channel += 1) {
+          channelData.push(buffer.getChannelData(channel));
+        }
+
+        let offset = 44;
+        for (let frame = 0; frame < frameCount; frame += 1) {
+          for (let channel = 0; channel < channels; channel += 1) {
+            const sample = Math.max(-1, Math.min(1, channelData[channel][frame]));
+            view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+            offset += 2;
+          }
+        }
+
+        return new Uint8Array(output);
+      };
+
+      const makeCrcTable = () => {
+        const table = new Uint32Array(256);
+        for (let i = 0; i < 256; i += 1) {
+          let c = i;
+          for (let k = 0; k < 8; k += 1) {
+            c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+          }
+          table[i] = c >>> 0;
+        }
+        return table;
+      };
+
+      const crcTable = makeCrcTable();
+
+      const crc32 = (bytes) => {
+        let crc = 0xffffffff;
+        for (let i = 0; i < bytes.length; i += 1) {
+          crc = crcTable[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
+        }
+        return (crc ^ 0xffffffff) >>> 0;
+      };
+
+      const dosDateTime = () => {
+        const now = new Date();
+        const time = (now.getHours() << 11) | (now.getMinutes() << 5) | Math.floor(now.getSeconds() / 2);
+        const date = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+        return { time, date };
+      };
+
+      const concatArrays = (parts) => {
+        const size = parts.reduce((sum, part) => sum + part.length, 0);
+        const output = new Uint8Array(size);
+        let offset = 0;
+        parts.forEach((part) => {
+          output.set(part, offset);
+          offset += part.length;
+        });
+        return output;
+      };
+
+      const createZip = (files) => {
+        const encoder = new TextEncoder();
+        const localParts = [];
+        const centralParts = [];
+        let offset = 0;
+        const stamp = dosDateTime();
+
+        files.forEach((file) => {
+          const nameBytes = encoder.encode(file.name);
+          const data = file.data;
+          const crc = crc32(data);
+
+          const local = new Uint8Array(30 + nameBytes.length);
+          const localView = new DataView(local.buffer);
+          localView.setUint32(0, 0x04034b50, true);
+          localView.setUint16(4, 20, true);
+          localView.setUint16(6, 0, true);
+          localView.setUint16(8, 0, true);
+          localView.setUint16(10, stamp.time, true);
+          localView.setUint16(12, stamp.date, true);
+          localView.setUint32(14, crc, true);
+          localView.setUint32(18, data.length, true);
+          localView.setUint32(22, data.length, true);
+          localView.setUint16(26, nameBytes.length, true);
+          localView.setUint16(28, 0, true);
+          local.set(nameBytes, 30);
+          localParts.push(local, data);
+
+          const central = new Uint8Array(46 + nameBytes.length);
+          const centralView = new DataView(central.buffer);
+          centralView.setUint32(0, 0x02014b50, true);
+          centralView.setUint16(4, 20, true);
+          centralView.setUint16(6, 20, true);
+          centralView.setUint16(8, 0, true);
+          centralView.setUint16(10, 0, true);
+          centralView.setUint16(12, stamp.time, true);
+          centralView.setUint16(14, stamp.date, true);
+          centralView.setUint32(16, crc, true);
+          centralView.setUint32(20, data.length, true);
+          centralView.setUint32(24, data.length, true);
+          centralView.setUint16(28, nameBytes.length, true);
+          centralView.setUint16(30, 0, true);
+          centralView.setUint16(32, 0, true);
+          centralView.setUint16(34, 0, true);
+          centralView.setUint16(36, 0, true);
+          centralView.setUint32(38, 0, true);
+          centralView.setUint32(42, offset, true);
+          central.set(nameBytes, 46);
+          centralParts.push(central);
+
+          offset += local.length + data.length;
+        });
+
+        const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+        const end = new Uint8Array(22);
+        const endView = new DataView(end.buffer);
+        endView.setUint32(0, 0x06054b50, true);
+        endView.setUint16(8, files.length, true);
+        endView.setUint16(10, files.length, true);
+        endView.setUint32(12, centralSize, true);
+        endView.setUint32(16, offset, true);
+
+        return new Blob([concatArrays([...localParts, ...centralParts, end])], { type: "application/zip" });
+      };
+
+      const resetDownload = () => {
+        if (zipUrl) URL.revokeObjectURL(zipUrl);
+        zipBlob = null;
+        zipUrl = "";
+        downloadButton.disabled = true;
+      };
+
+      const processFile = async () => {
+        if (!selectedFile) return;
+        resetDownload();
+        processButton.disabled = true;
+        fileInput.disabled = true;
+        setProgress(0);
+        renderStemList(-1);
+        setStatus("MP3 wird geladen und analysiert...");
+
+        try {
+          const arrayBuffer = await selectedFile.arrayBuffer();
+          const context = new (window.AudioContext || window.webkitAudioContext)();
+          const decoded = await context.decodeAudioData(arrayBuffer.slice(0));
+          if (context.close) context.close();
+
+          const prefix = sanitizeName(selectedFile.name);
+          const files = [];
+          for (let i = 0; i < bands.length; i += 1) {
+            const band = bands[i];
+            setStatus("Spur " + (i + 1) + " von 8 wird erzeugt: " + band.label);
+            const rendered = await renderBand(decoded, band);
+            files.push({ name: prefix + "/" + band.file, data: audioBufferToWav(rendered) });
+            renderStemList(i);
+            setProgress(((i + 1) / bands.length) * 90);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+          }
+
+          setStatus("ZIP Datei wird erstellt...");
+          zipBlob = createZip(files);
+          zipUrl = URL.createObjectURL(zipBlob);
+          downloadButton.disabled = false;
+          setProgress(100);
+          setStatus("Fertig. Die 8 Spuren können als ZIP heruntergeladen werden.");
+        } catch (error) {
+          console.error(error);
+          setStatus("Die Datei konnte nicht verarbeitet werden. Bitte eine gueltige MP3 Datei verwenden.");
+          setProgress(0);
+          renderStemList(-1);
+        } finally {
+          fileInput.disabled = false;
+          processButton.disabled = !selectedFile;
+        }
+      };
+
+      notes.value = localStorage.getItem(storageKey) || "";
+      notes.addEventListener("input", () => {
+        localStorage.setItem(storageKey, notes.value);
+      });
+
+      fileInput.addEventListener("change", () => {
+        selectedFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+        resetDownload();
+        processButton.disabled = !selectedFile;
+        setProgress(0);
+        renderStemList(-1);
+        setStatus(selectedFile ? selectedFile.name + " ist bereit." : "Bitte eine Suno MP3 Datei auswählen.");
+      });
+
+      processButton.addEventListener("click", processFile);
+
+      downloadButton.addEventListener("click", () => {
+        if (!zipBlob || !zipUrl || !selectedFile) return;
+        const link = document.createElement("a");
+        link.href = zipUrl;
+        link.download = sanitizeName(selectedFile.name) + "_8_stems.zip";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      });
+
+      renderStemList(-1);
+    })();
+  </script>
+</body>
+</html>
