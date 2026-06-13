@@ -378,9 +378,70 @@
     }
 
     .stem-player audio {
+      display: none;
+    }
+
+    .stem-audio-controls {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) 74px;
+      gap: 9px;
+      align-items: center;
+      min-height: 48px;
+      padding: 7px 10px;
+      border: 1px solid rgba(0, 217, 255, 0.52);
+      border-radius: 6px;
+      background:
+        linear-gradient(135deg, rgba(248, 255, 19, 0.11), transparent 22%),
+        linear-gradient(225deg, rgba(255, 45, 253, 0.14), transparent 24%),
+        rgba(2, 5, 20, 0.58);
+      box-shadow:
+        inset 0 0 14px rgba(255, 45, 253, 0.12),
+        0 0 14px rgba(0, 217, 255, 0.16);
+    }
+
+    .stem-audio-controls::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(0, 217, 255, 0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.14) 1px, transparent 1px);
+      background-size: 12px 12px;
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .stem-play {
+      position: relative;
+      z-index: 1;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(0, 217, 255, 0.72);
+      color: rgba(247, 251, 255, 0.96);
+      background: linear-gradient(180deg, rgba(255, 45, 253, 0.3), rgba(103, 54, 255, 0.24));
+      clip-path: polygon(18% 0, 82% 0, 100% 50%, 82% 100%, 18% 100%, 0 50%);
+      cursor: pointer;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.72);
+    }
+
+    .stem-progress {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      min-height: 36px;
       accent-color: var(--magenta);
+    }
+
+    .stem-time {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+      text-transform: none;
     }
 
     .volume-control {
@@ -464,6 +525,15 @@
       .stem-player,
       .mix-download-panel {
         grid-template-columns: 1fr;
+      }
+
+      .stem-audio-controls {
+        grid-template-columns: 38px minmax(0, 1fr);
+      }
+
+      .stem-time {
+        grid-column: 1 / -1;
+        text-align: center;
       }
     }
   </style>
@@ -578,13 +648,27 @@
 
           if (result) {
             const player = document.createElement("div");
+            const controls = document.createElement("div");
+            const play = document.createElement("button");
+            const progress = document.createElement("input");
+            const time = document.createElement("span");
             const audio = document.createElement("audio");
             const volumeLabel = document.createElement("label");
             const volumeText = document.createElement("span");
             const volume = document.createElement("input");
 
             player.className = "stem-player";
-            audio.controls = true;
+            controls.className = "stem-audio-controls";
+            play.className = "stem-play";
+            progress.className = "stem-progress";
+            time.className = "stem-time";
+            play.type = "button";
+            play.textContent = "▶";
+            progress.type = "range";
+            progress.min = "0";
+            progress.max = "1000";
+            progress.value = "0";
+            time.textContent = "0:00 / 0:00";
             audio.src = result.url;
             audio.preload = "metadata";
             result.audio = audio;
@@ -602,10 +686,41 @@
               audio.volume = Math.min(1, result.volume);
             });
 
+            play.addEventListener("click", async () => {
+              if (audio.paused) await audio.play();
+              else audio.pause();
+            });
+            audio.addEventListener("play", () => {
+              play.textContent = "II";
+            });
+            audio.addEventListener("pause", () => {
+              play.textContent = "▶";
+            });
+            audio.addEventListener("ended", () => {
+              play.textContent = "▶";
+              progress.value = "0";
+            });
+            audio.addEventListener("loadedmetadata", () => {
+              time.textContent = formatTime(0) + " / " + formatTime(audio.duration || 0);
+            });
+            audio.addEventListener("timeupdate", () => {
+              const duration = audio.duration || 0;
+              progress.value = duration ? String(Math.round((audio.currentTime / duration) * 1000)) : "0";
+              time.textContent = formatTime(audio.currentTime) + " / " + formatTime(duration);
+            });
+            progress.addEventListener("input", () => {
+              if (!audio.duration) return;
+              audio.currentTime = (Number(progress.value) / 1000) * audio.duration;
+            });
+
+            controls.appendChild(play);
+            controls.appendChild(progress);
+            controls.appendChild(time);
             volumeLabel.appendChild(volumeText);
             volumeLabel.appendChild(volume);
-            player.appendChild(audio);
+            player.appendChild(controls);
             player.appendChild(volumeLabel);
+            player.appendChild(audio);
             item.appendChild(player);
           }
 
@@ -620,6 +735,13 @@
           .replace(/^_+|_+$/g, "")
           .slice(0, 60) || "suno_stems"
       );
+
+      const formatTime = (seconds) => {
+        const value = Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
+        const minutes = Math.floor(value / 60);
+        const rest = Math.floor(value % 60);
+        return minutes + ":" + String(rest).padStart(2, "0");
+      };
 
       const createFilter = (context, type, frequency) => {
         const filter = context.createBiquadFilter();
