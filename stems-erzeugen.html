@@ -222,26 +222,30 @@
       color: var(--muted);
     }
 
-    .stems-textarea {
+    .stems-text {
       width: 100%;
       min-height: 190px;
-      resize: vertical;
       padding: 13px 14px;
       border: 1px solid rgba(0, 217, 255, 0.5);
       border-radius: 6px;
       color: var(--text);
       background: rgba(2, 5, 20, 0.62);
       box-shadow: inset 0 0 16px rgba(0, 217, 255, 0.08);
-      outline: none;
       text-transform: none;
       line-height: 1.5;
     }
 
-    .stems-textarea:focus {
-      border-color: rgba(248, 255, 19, 0.82);
-      box-shadow:
-        0 0 16px rgba(248, 255, 19, 0.12),
-        inset 0 0 16px rgba(0, 217, 255, 0.12);
+    .stems-text p {
+      margin: 0 0 12px;
+    }
+
+    .stems-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .stems-text .home-feature-list {
+      margin: 0 0 14px 20px;
+      padding: 0;
     }
 
     .stems-upload {
@@ -410,18 +414,20 @@
   <main class="stems-stage">
     <section class="stems-shell">
       <header class="stems-title">
-        <div class="stems-title-chip">Stems erzeugen</div>
-        <div class="stems-subline">Die Zukunft der Musik: KI trifft Kreativität</div>
+        <div class="stems-title-chip" data-content-key="stems.title">Stems erzeugen</div>
+        <div class="stems-subline" data-content-key="stems.subtitle">Die Zukunft der Musik: KI trifft Kreativität</div>
       </header>
 
       <nav class="site-nav" data-active="stems"></nav>
 
       <section class="stems-content">
         <article class="stems-card">
-          <h2>Erläuterungen</h2>
-          <p class="stems-help">Hier kannst du eigene Hinweise oder eine Beschreibung für diesen Editor schreiben.</p>
-          <textarea class="stems-textarea" id="stemsNotes" placeholder="Text hier eingeben..."></textarea>
-          <p class="stems-note">Der Text wird lokal in deinem Browser gespeichert.</p>
+          <h2 data-content-key="stems.explanation.title">Erläuterungen</h2>
+          <div class="stems-text formatted" data-content-key="stems.explanation.text">
+            <p>Mit diesem Werkzeug kannst du eine Suno MP3 Datei hochladen und im Browser in 8 Frequenzspuren zerlegen.</p>
+            <p>Die erzeugten Spuren werden als WAV Dateien in einer ZIP Datei gespeichert.</p>
+            <p>Hinweis: Diese Version erzeugt Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.</p>
+          </div>
         </article>
 
         <article class="stems-card">
@@ -462,15 +468,12 @@
         { label: "Top", file: "08_Top_12000-16000Hz.wav", low: 12000, high: 16000 },
       ];
 
-      const notes = document.getElementById("stemsNotes");
       const fileInput = document.getElementById("stemFile");
       const processButton = document.getElementById("processButton");
       const downloadButton = document.getElementById("downloadButton");
       const status = document.getElementById("stemStatus");
       const progressBar = document.getElementById("progressBar");
       const stemList = document.getElementById("stemList");
-      const storageKey = "ak_stems_notes";
-
       let selectedFile = null;
       let zipBlob = null;
       let zipUrl = "";
@@ -737,11 +740,6 @@
           processButton.disabled = !selectedFile;
         }
       };
-
-      notes.value = localStorage.getItem(storageKey) || "";
-      notes.addEventListener("input", () => {
-        localStorage.setItem(storageKey, notes.value);
-      });
 
       fileInput.addEventListener("change", () => {
         selectedFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;

@@ -130,6 +130,38 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
 6. Suno öffnet die SUNO Create Seite.`,
     },
     {
+      id: "stems.title",
+      page: "Stems erzeugen",
+      label: "Überschrift",
+      selector: '[data-content-key="stems.title"]',
+      defaultText: "Stems erzeugen",
+    },
+    {
+      id: "stems.subtitle",
+      page: "Stems erzeugen",
+      label: "Untertitel",
+      selector: '[data-content-key="stems.subtitle"]',
+      defaultText: "Die Zukunft der Musik: KI trifft Kreativität",
+    },
+    {
+      id: "stems.explanation.title",
+      page: "Stems erzeugen",
+      label: "Feldtitel Erläuterungen",
+      selector: '[data-content-key="stems.explanation.title"]',
+      defaultText: "Erläuterungen",
+    },
+    {
+      id: "stems.explanation.text",
+      page: "Stems erzeugen",
+      label: "Text Erläuterungen",
+      selector: '[data-content-key="stems.explanation.text"]',
+      defaultText: `Mit diesem Werkzeug kannst du eine Suno MP3 Datei hochladen und im Browser in 8 Frequenzspuren zerlegen.
+
+Die erzeugten Spuren werden als WAV Dateien in einer ZIP Datei gespeichert.
+
+Hinweis: Diese Version erzeugt Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.`,
+    },
+    {
       id: "legal.imprint.title",
       page: "Rechtliches",
       label: "Impressum Titel",
