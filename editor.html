@@ -573,7 +573,7 @@
                 </label>
                 <label class="editor-label">
                   Audiodatei
-                  <input class="editor-input" id="songUploadFile" type="file" accept="audio/*">
+                  <input class="editor-input" id="songUploadFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.oga,.webm">
                 </label>
               </div>
               <div class="action-row">
@@ -1045,6 +1045,26 @@
         visitorLast.textContent = formatLastVisit(stats.lastVisit);
       };
 
+      const audioTypesByExtension = {
+        mp3: "audio/mpeg",
+        mpeg: "audio/mpeg",
+        wav: "audio/wav",
+        wave: "audio/wav",
+        m4a: "audio/mp4",
+        mp4: "audio/mp4",
+        aac: "audio/aac",
+        flac: "audio/flac",
+        ogg: "audio/ogg",
+        oga: "audio/ogg",
+        webm: "audio/webm",
+      };
+
+      const getAudioContentType = (file) => {
+        if (file?.type?.startsWith("audio/")) return file.type;
+        const extension = String(file?.name || "").split(".").pop().toLowerCase();
+        return audioTypesByExtension[extension] || "";
+      };
+
       const uploadSong = async () => {
         const file = songUploadFile.files && songUploadFile.files[0];
         const title = cleanValue(songUploadTitle.value);
@@ -1056,7 +1076,8 @@
           songUploadStatus.textContent = "Bitte eine Audiodatei auswählen.";
           return;
         }
-        if (!file.type.startsWith("audio/")) {
+        const contentType = getAudioContentType(file);
+        if (!contentType) {
           songUploadStatus.textContent = "Bitte nur Audiodateien hochladen.";
           return;
         }
@@ -1067,7 +1088,7 @@
           const result = await window.AKRemoteStore?.uploadAudio?.({
             title,
             filename: file.name,
-            contentType: file.type || "audio/mpeg",
+            contentType,
             file,
           });
 

@@ -23,6 +23,26 @@ const safeKey = (key: string) => key.replace(/[^a-z0-9._-]/gi, "_");
 const statePath = (key: string) => "state/" + safeKey(key) + ".json";
 const audioPath = (id: string) => "audio/" + safeKey(id);
 
+const audioTypesByExtension: Record<string, string> = {
+  mp3: "audio/mpeg",
+  mpeg: "audio/mpeg",
+  wav: "audio/wav",
+  wave: "audio/wav",
+  m4a: "audio/mp4",
+  mp4: "audio/mp4",
+  aac: "audio/aac",
+  flac: "audio/flac",
+  ogg: "audio/ogg",
+  oga: "audio/ogg",
+  webm: "audio/webm",
+};
+
+const inferAudioContentType = (contentType: string, filename: string) => {
+  if (contentType.startsWith("audio/")) return contentType;
+  const extension = filename.split(".").pop()?.toLowerCase() || "";
+  return audioTypesByExtension[extension] || "";
+};
+
 type AudioItem = {
   id: string;
   title: string;
@@ -202,9 +222,9 @@ Deno.serve(async (request) => {
       if (uploadMode === "upload") {
         const title = decodeURIComponent(request.headers.get("x-audio-title") || "").trim();
         const filename = decodeURIComponent(request.headers.get("x-audio-filename") || "audio").trim();
-        const contentType = request.headers.get("content-type") || "";
+        const contentType = inferAudioContentType(request.headers.get("content-type") || "", filename);
         if (!title) return jsonResponse({ error: "Missing title." }, 400);
-        if (!contentType.startsWith("audio/")) return jsonResponse({ error: "Only audio files are allowed." }, 400);
+        if (!contentType) return jsonResponse({ error: "Only audio files are allowed." }, 400);
 
         const bytes = new Uint8Array(await request.arrayBuffer());
         if (!bytes.length) return jsonResponse({ error: "Missing audio data." }, 400);
@@ -233,10 +253,10 @@ Deno.serve(async (request) => {
       if (body.action === "audio-upload") {
         const title = String(body.title || "").trim();
         const filename = String(body.filename || "audio").trim();
-        const contentType = String(body.contentType || "");
+        const contentType = inferAudioContentType(String(body.contentType || ""), filename);
         const base64 = String(body.data || "");
         if (!title) return jsonResponse({ error: "Missing title." }, 400);
-        if (!contentType.startsWith("audio/")) return jsonResponse({ error: "Only audio files are allowed." }, 400);
+        if (!contentType) return jsonResponse({ error: "Only audio files are allowed." }, 400);
         if (!base64) return jsonResponse({ error: "Missing audio data." }, 400);
 
         const binary = atob(base64);
