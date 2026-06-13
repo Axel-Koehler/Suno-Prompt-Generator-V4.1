@@ -219,6 +219,8 @@
     }
 
     .song-player {
+      position: relative;
+      overflow: hidden;
       display: grid;
       grid-template-columns: 42px minmax(0, 1fr);
       gap: 10px;
@@ -231,7 +233,31 @@
       box-shadow: inset 0 0 14px rgba(255, 45, 253, 0.1);
     }
 
+    .song-spectrum {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.72;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+    }
+
+    .song-player::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(2, 5, 20, 0.68), rgba(2, 5, 20, 0.28), rgba(2, 5, 20, 0.68)),
+        linear-gradient(180deg, rgba(2, 5, 20, 0.28), rgba(2, 5, 20, 0.76));
+      pointer-events: none;
+      z-index: 1;
+    }
+
     .song-play {
+      position: relative;
+      z-index: 2;
       width: 38px;
       height: 38px;
       display: grid;
@@ -251,12 +277,16 @@
     }
 
     .song-progress {
+      position: relative;
+      z-index: 2;
       width: 100%;
       accent-color: var(--magenta);
       cursor: pointer;
     }
 
     .song-time {
+      position: relative;
+      z-index: 2;
       grid-column: 1 / -1;
       min-width: 0;
       color: var(--muted);
@@ -266,6 +296,8 @@
     }
 
     .song-load-status {
+      position: relative;
+      z-index: 2;
       grid-column: 1 / -1;
       color: var(--yellow);
       font-size: 12px;
@@ -346,6 +378,14 @@
       const songList = document.getElementById("songList");
       let activeAudio = null;
       const objectUrls = [];
+      let sharedAudioContext = null;
+
+      const getAudioContext = () => {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        if (!sharedAudioContext) sharedAudioContext = new AudioContextClass();
+        return sharedAudioContext;
+      };
 
       const formatDate = (value) => {
         const date = new Date(value);
@@ -402,13 +442,18 @@
         const progress = document.createElement("input");
         const time = document.createElement("div");
         const status = document.createElement("div");
+        const spectrum = document.createElement("canvas");
         const audio = document.createElement("audio");
+        let analyser = null;
+        let frequencyData = null;
+        let animationFrame = 0;
 
         wrapper.className = "song-player";
         playButton.className = "song-play";
         progress.className = "song-progress";
         time.className = "song-time";
         status.className = "song-load-status";
+        spectrum.className = "song-spectrum";
 
         playButton.type = "button";
         playButton.textContent = "▶";
@@ -419,6 +464,96 @@
         time.textContent = "0:00 / 0:00";
         status.textContent = "Bereit";
         audio.preload = "metadata";
+
+        const resizeSpectrum = () => {
+          const rect = wrapper.getBoundingClientRect();
+          const scale = window.devicePixelRatio || 1;
+          const width = Math.max(1, Math.floor(rect.width * scale));
+          const height = Math.max(1, Math.floor(rect.height * scale));
+          if (spectrum.width !== width || spectrum.height !== height) {
+            spectrum.width = width;
+            spectrum.height = height;
+          }
+        };
+
+        const drawIdleSpectrum = () => {
+          resizeSpectrum();
+          const canvas = spectrum.getContext("2d");
+          if (!canvas) return;
+          const width = spectrum.width;
+          const height = spectrum.height;
+          canvas.clearRect(0, 0, width, height);
+          const bars = 28;
+          const gap = width * 0.008;
+          const barWidth = (width - gap * (bars - 1)) / bars;
+          for (let index = 0; index < bars; index += 1) {
+            const barHeight = height * (0.12 + Math.sin((index / bars) * Math.PI) * 0.18);
+            const x = index * (barWidth + gap);
+            const y = (height - barHeight) / 2;
+            const gradient = canvas.createLinearGradient(0, y, 0, y + barHeight);
+            gradient.addColorStop(0, "rgba(248, 255, 19, 0.28)");
+            gradient.addColorStop(0.48, "rgba(255, 45, 253, 0.32)");
+            gradient.addColorStop(1, "rgba(0, 217, 255, 0.32)");
+            canvas.fillStyle = gradient;
+            canvas.fillRect(x, y, Math.max(1, barWidth), barHeight);
+          }
+        };
+
+        const drawSpectrum = () => {
+          resizeSpectrum();
+          const canvas = spectrum.getContext("2d");
+          if (!canvas || !analyser || !frequencyData) return;
+          analyser.getByteFrequencyData(frequencyData);
+
+          const width = spectrum.width;
+          const height = spectrum.height;
+          const bars = 36;
+          const gap = width * 0.006;
+          const barWidth = (width - gap * (bars - 1)) / bars;
+          const step = Math.max(1, Math.floor(frequencyData.length / bars));
+          canvas.clearRect(0, 0, width, height);
+
+          for (let index = 0; index < bars; index += 1) {
+            let value = 0;
+            for (let offset = 0; offset < step; offset += 1) value += frequencyData[index * step + offset] || 0;
+            const intensity = value / step / 255;
+            const barHeight = Math.max(height * 0.08, intensity * height * 0.92);
+            const x = index * (barWidth + gap);
+            const y = (height - barHeight) / 2;
+            const gradient = canvas.createLinearGradient(0, y, 0, y + barHeight);
+            gradient.addColorStop(0, "rgba(248, 255, 19, 0.94)");
+            gradient.addColorStop(0.45, "rgba(255, 45, 253, 0.88)");
+            gradient.addColorStop(1, "rgba(0, 217, 255, 0.92)");
+            canvas.fillStyle = gradient;
+            canvas.shadowColor = "rgba(0, 217, 255, 0.52)";
+            canvas.shadowBlur = 10;
+            canvas.fillRect(x, y, Math.max(1, barWidth), barHeight);
+          }
+
+          animationFrame = requestAnimationFrame(drawSpectrum);
+        };
+
+        const stopSpectrum = () => {
+          if (animationFrame) cancelAnimationFrame(animationFrame);
+          animationFrame = 0;
+          drawIdleSpectrum();
+        };
+
+        const startSpectrum = async () => {
+          const audioContext = getAudioContext();
+          if (!audioContext) return;
+          if (audioContext.state === "suspended") await audioContext.resume();
+          if (!analyser) {
+            const source = audioContext.createMediaElementSource(audio);
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 128;
+            analyser.smoothingTimeConstant = 0.78;
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            frequencyData = new Uint8Array(analyser.frequencyBinCount);
+          }
+          if (!animationFrame) drawSpectrum();
+        };
 
         const ensureAudioLoaded = async () => {
           if (audio.src) return true;
@@ -443,6 +578,7 @@
           if (!loaded) return;
           if (activeAudio && activeAudio !== audio) activeAudio.pause();
           if (audio.paused) {
+            await startSpectrum();
             await audio.play();
             activeAudio = audio;
           } else {
@@ -452,6 +588,7 @@
 
         audio.addEventListener("play", () => {
           playButton.textContent = "II";
+          startSpectrum();
         });
 
         audio.addEventListener("pause", () => {
@@ -462,6 +599,9 @@
           playButton.textContent = "▶";
           progress.value = "0";
         });
+
+        audio.addEventListener("pause", stopSpectrum);
+        audio.addEventListener("ended", stopSpectrum);
 
         audio.addEventListener("timeupdate", () => {
           const duration = audio.duration || 0;
@@ -478,6 +618,10 @@
           audio.currentTime = (Number(progress.value) / 1000) * audio.duration;
         });
 
+        drawIdleSpectrum();
+        window.addEventListener("resize", drawIdleSpectrum);
+
+        wrapper.appendChild(spectrum);
         wrapper.appendChild(playButton);
         wrapper.appendChild(progress);
         wrapper.appendChild(time);
