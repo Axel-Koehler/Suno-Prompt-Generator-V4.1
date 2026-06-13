@@ -544,6 +544,8 @@
       let zipUrl = "";
       let stemResults = [];
       let stemObjectUrls = [];
+      const targetSampleRate = 44100;
+      const defaultStemVolume = 0.5;
 
       const setStatus = (message) => {
         status.textContent = message;
@@ -628,10 +630,11 @@
       };
 
       const renderBand = async (audioBuffer, band) => {
+        const targetLength = Math.ceil(audioBuffer.duration * targetSampleRate);
         const context = new OfflineAudioContext(
           audioBuffer.numberOfChannels,
-          audioBuffer.length,
-          audioBuffer.sampleRate
+          targetLength,
+          targetSampleRate
         );
         const source = context.createBufferSource();
         source.buffer = audioBuffer;
@@ -895,7 +898,7 @@
             const wav = audioBufferToWav(rendered);
             const url = URL.createObjectURL(new Blob([wav], { type: "audio/wav" }));
             stemObjectUrls.push(url);
-            nextStemResults.push({ band, buffer: rendered, wav, url, volume: 1 });
+            nextStemResults.push({ band, buffer: rendered, wav, url, volume: defaultStemVolume });
             stemResults = nextStemResults;
             files.push({ name: prefix + "/" + band.file, data: wav });
             renderStemList(i);
