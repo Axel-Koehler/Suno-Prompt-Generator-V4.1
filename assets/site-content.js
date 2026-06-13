@@ -162,6 +162,34 @@ Die erzeugten Spuren werden als WAV Dateien in einer ZIP Datei gespeichert.
 Hinweis: Diese Version erzeugt Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.`,
     },
     {
+      id: "stems.processing.title",
+      page: "Stems erzeugen",
+      label: "Feldtitel Suno MP3 zerlegen",
+      selector: '[data-content-key="stems.processing.title"]',
+      defaultText: "Suno MP3 zerlegen",
+    },
+    {
+      id: "stems.processing.help",
+      page: "Stems erzeugen",
+      label: "Text Suno MP3 zerlegen",
+      selector: '[data-content-key="stems.processing.help"]',
+      defaultText: "MP3 laden, in 8 Frequenzspuren aufteilen und die fertigen Dateien als ZIP herunterladen.",
+    },
+    {
+      id: "stems.processing.note",
+      page: "Stems erzeugen",
+      label: "Hinweis Frequenzspuren",
+      selector: '[data-content-key="stems.processing.note"]',
+      defaultText: "Hinweis: Diese Web-Version erzeugt 8 Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.",
+    },
+    {
+      id: "stems.mix.help",
+      page: "Stems erzeugen",
+      label: "Text Einzelmix Download",
+      selector: '[data-content-key="stems.mix.help"]',
+      defaultText: "Mit den Lautstärkereglern kannst du einzelne Spuren lauter oder leiser stellen. Der Button erstellt daraus eine neue WAV-Datei mit genau diesen Einstellungen.",
+    },
+    {
       id: "legal.imprint.title",
       page: "Rechtliches",
       label: "Impressum Titel",
@@ -318,6 +346,46 @@ Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung.
     element.style.whiteSpace = "";
   };
 
+  const fieldExists = (id) => fields.some((field) => field.id === id);
+
+  const textFromElement = (element) => {
+    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) return element.value.trim();
+    return (element.textContent || "").trim().replace(/\n{3,}/g, "\n\n");
+  };
+
+  const labelFromKey = (key) => key
+    .split(".")
+    .slice(1)
+    .join(" ")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toLocaleUpperCase("de")) || key;
+
+  const discoverFields = async () => {
+    const pages = Array.isArray(window.SitePages) ? window.SitePages : [];
+    for (const page of pages) {
+      try {
+        const response = await fetch(page.path, { cache: "no-store" });
+        if (!response.ok) continue;
+        const html = await response.text();
+        const documentFragment = new DOMParser().parseFromString(html, "text/html");
+        documentFragment.querySelectorAll("[data-content-key]").forEach((element) => {
+          const id = element.getAttribute("data-content-key");
+          if (!id || fieldExists(id)) return;
+          fields.push({
+            id,
+            page: element.getAttribute("data-content-page") || page.label || "Seite",
+            label: element.getAttribute("data-content-label") || labelFromKey(id),
+            selector: '[data-content-key="' + id.replace(/"/g, '\\"') + '"]',
+            defaultText: textFromElement(element),
+          });
+        });
+      } catch (error) {
+        // Offline/local file previews may block fetch; registered fields still remain available.
+      }
+    }
+    return fields;
+  };
+
   const applyContent = () => {
     const content = readJson(STORAGE_KEY);
     const styles = readJson(STYLE_KEY);
@@ -368,6 +436,7 @@ Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung.
     applyContent,
     loadRemoteContent,
     saveRemoteContent,
+    discoverFields,
   };
 
   if (document.readyState === "loading") {

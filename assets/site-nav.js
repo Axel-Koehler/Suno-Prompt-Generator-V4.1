@@ -10,6 +10,7 @@
     { id: "stems", label: "Stems erzeugen", path: "stems-erzeugen.html" },
     { id: "editor", label: "Editor", path: "editor.html" }
   ];
+  window.SitePages = pages;
 
   const currentPath = decodeURIComponent(window.location.pathname || "").replace(/\\/g, "/");
   const inferredActive = currentPath.endsWith("/outputs/suno_auswahlmenue.html")

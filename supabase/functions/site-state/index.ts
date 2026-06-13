@@ -285,6 +285,22 @@ Deno.serve(async (request) => {
         return jsonResponse({ ok: true, value: nextItem });
       }
 
+      if (body.action === "audio-delete") {
+        const id = safeKey(String(body.id || ""));
+        if (!id) return jsonResponse({ error: "Missing audio id." }, 400);
+        const items = await readState(audioListKey, []) as AudioItem[];
+        const list = Array.isArray(items) ? items : [];
+        const item = list.find((entry) => entry.id === id);
+        if (!item) return jsonResponse({ error: "Audio not found." }, 404);
+
+        const { error } = await supabase.storage.from(bucket).remove([audioPath(id)]);
+        if (error) return jsonResponse({ error: error.message }, 500);
+
+        const nextItems = list.filter((entry) => entry.id !== id);
+        await writeState(audioListKey, nextItems);
+        return jsonResponse({ ok: true, value: nextItems });
+      }
+
       if (body.action === "generate-lyrics") {
         return await createLyrics(body);
       }

@@ -582,6 +582,12 @@
               <div class="status" id="songUploadStatus"></div>
             </section>
 
+            <section class="record-entry-panel" aria-label="Songs verwalten">
+              <h2 class="record-entry-title">Songs verwalten</h2>
+              <div class="record-manager-list" id="songManagerList"></div>
+              <div class="status" id="songManagerStatus"></div>
+            </section>
+
             <section class="record-entry-panel" aria-label="Neuer Datensatz Projekt 1">
               <h2 class="record-entry-title">Neuen Datensatz für Projekt 1 hinzufügen</h2>
               <div class="record-entry-grid">
@@ -689,6 +695,8 @@
       const songUploadFile = document.getElementById("songUploadFile");
       const songUploadButton = document.getElementById("songUploadButton");
       const songUploadStatus = document.getElementById("songUploadStatus");
+      const songManagerList = document.getElementById("songManagerList");
+      const songManagerStatus = document.getElementById("songManagerStatus");
       const presetColors = Array.from(colorPreset.options).map((option) => option.value).filter(Boolean);
       const projectRecordStorageKey = "suno-prompt-menu-records-xlsx-txt-v1";
       const projectCustomRecordStorageKey = "suno-prompt-menu-custom-records-v1";
@@ -1096,6 +1104,7 @@
             songUploadTitle.value = "";
             songUploadFile.value = "";
             songUploadStatus.textContent = "Song hochgeladen. Er ist auf der Seite Meine Song`s sichtbar.";
+            await refreshSongManagerList();
             return;
           }
           songUploadStatus.textContent = result?.error ? "Upload fehlgeschlagen: " + result.error : "Upload fehlgeschlagen.";
@@ -1104,6 +1113,54 @@
         } finally {
           songUploadButton.disabled = false;
         }
+      };
+
+      const formatSongDate = (value) => {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+        return date.toLocaleDateString("de-DE");
+      };
+
+      const renderSongManagerList = (songs) => {
+        songManagerList.replaceChildren();
+        if (!songs.length) {
+          const empty = document.createElement("p");
+          empty.className = "record-manager-empty";
+          empty.textContent = "Noch keine Audiodateien vorhanden.";
+          songManagerList.appendChild(empty);
+          return;
+        }
+
+        songs.forEach((song) => {
+          const button = document.createElement("button");
+          const meta = document.createElement("span");
+          button.type = "button";
+          button.textContent = song.title || song.filename || "Ohne Titel";
+          meta.className = "record-manager-meta";
+          meta.textContent = [song.filename, formatSongDate(song.uploadedAt)].filter(Boolean).join(" · ");
+          button.appendChild(meta);
+          button.addEventListener("click", () => deleteSong(song));
+          songManagerList.appendChild(button);
+        });
+      };
+
+      const refreshSongManagerList = async () => {
+        songManagerStatus.textContent = "";
+        const songs = await window.AKRemoteStore?.listAudio?.([]) || [];
+        renderSongManagerList(songs);
+      };
+
+      const deleteSong = async (song) => {
+        const title = song.title || song.filename || "Ohne Titel";
+        if (!window.confirm('Audiodatei "' + title + '" wirklich löschen?')) return;
+        songManagerStatus.textContent = "Audiodatei wird gelöscht...";
+        const result = await window.AKRemoteStore?.deleteAudio?.(song.id);
+        if (result?.ok) {
+          songManagerStatus.textContent = "Audiodatei gelöscht.";
+          await refreshSongManagerList();
+          return;
+        }
+        songManagerStatus.textContent = result?.error ? "Löschen fehlgeschlagen: " + result.error : "Löschen fehlgeschlagen.";
       };
 
       const getContent = () => readJson(contentKey());
@@ -1218,7 +1275,9 @@
         localStorage.setItem(AUTH_KEY, "true");
         setEditorOpen(true);
         await window.SiteContent.loadRemoteContent();
+        await window.SiteContent.discoverFields?.();
         await refreshProjectRecordList();
+        await refreshSongManagerList();
         await loadVisitorCounter();
         renderFieldList();
       };

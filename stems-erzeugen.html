@@ -48,6 +48,7 @@
 
     button,
     input,
+    audio,
     textarea {
       font: inherit;
     }
@@ -344,6 +345,11 @@
       text-transform: none;
     }
 
+    .stem-track.has-player {
+      grid-template-columns: 32px minmax(0, 1fr);
+      align-items: start;
+    }
+
     .stem-number {
       color: var(--yellow);
       text-shadow: 0 0 9px rgba(248, 255, 19, 0.35);
@@ -360,6 +366,53 @@
 
     .stem-track.is-ready .stem-state {
       color: var(--cyan);
+    }
+
+    .stem-player {
+      grid-column: 2 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 150px;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .stem-player audio {
+      width: 100%;
+      min-height: 36px;
+      accent-color: var(--magenta);
+    }
+
+    .volume-control {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .volume-control input {
+      width: 100%;
+      accent-color: var(--cyan);
+    }
+
+    .mix-download-panel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      margin-top: 12px;
+    }
+
+    .mix-help {
+      min-height: 42px;
+      padding: 11px 13px;
+      border: 1px solid rgba(0, 217, 255, 0.34);
+      border-radius: 6px;
+      color: rgba(247, 251, 255, 0.82);
+      background: rgba(2, 5, 20, 0.5);
+      line-height: 1.45;
+      text-transform: none;
     }
 
     .progress-shell {
@@ -407,6 +460,11 @@
       .stem-state {
         grid-column: 2;
       }
+
+      .stem-player,
+      .mix-download-panel {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -431,8 +489,8 @@
         </article>
 
         <article class="stems-card">
-          <h2>Suno MP3 zerlegen</h2>
-          <p class="stems-help">MP3 laden, in 8 Frequenzspuren aufteilen und die fertigen Dateien als ZIP herunterladen.</p>
+          <h2 data-content-key="stems.processing.title">Suno MP3 zerlegen</h2>
+          <p class="stems-help" data-content-key="stems.processing.help">MP3 laden, in 8 Frequenzspuren aufteilen und die fertigen Dateien als ZIP herunterladen.</p>
 
           <div class="stems-upload">
             <input class="file-input" id="stemFile" type="file" accept="audio/mpeg,.mp3">
@@ -447,9 +505,13 @@
           </div>
 
           <p class="stems-status" id="stemStatus">Bitte eine Suno MP3 Datei auswählen.</p>
-          <p class="stems-note">Hinweis: Diese Web-Version erzeugt 8 Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.</p>
+          <p class="stems-note" data-content-key="stems.processing.note">Hinweis: Diese Web-Version erzeugt 8 Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.</p>
 
           <ul class="stem-list" id="stemList"></ul>
+          <div class="mix-download-panel">
+            <button class="stems-button" id="mixDownloadButton" type="button" disabled>Einzelmix herunterladen</button>
+            <div class="mix-help" data-content-key="stems.mix.help">Mit den Lautstärkereglern kannst du einzelne Spuren lauter oder leiser stellen. Der Button erstellt daraus eine neue WAV-Datei mit genau diesen Einstellungen.</div>
+          </div>
         </article>
       </section>
     </section>
@@ -471,12 +533,15 @@
       const fileInput = document.getElementById("stemFile");
       const processButton = document.getElementById("processButton");
       const downloadButton = document.getElementById("downloadButton");
+      const mixDownloadButton = document.getElementById("mixDownloadButton");
       const status = document.getElementById("stemStatus");
       const progressBar = document.getElementById("progressBar");
       const stemList = document.getElementById("stemList");
       let selectedFile = null;
       let zipBlob = null;
       let zipUrl = "";
+      let stemResults = [];
+      let stemObjectUrls = [];
 
       const setStatus = (message) => {
         status.textContent = message;
@@ -487,13 +552,60 @@
       };
 
       const renderStemList = (readyIndex = -1) => {
-        stemList.innerHTML = bands.map((band, index) => (
-          '<li class="stem-track' + (index <= readyIndex ? ' is-ready' : '') + '">' +
-            '<span class="stem-number">' + String(index + 1).padStart(2, "0") + '</span>' +
-            '<span class="stem-name">' + band.label + ' - ' + band.file.replace(/\.wav$/i, "") + '</span>' +
-            '<span class="stem-state">' + (index <= readyIndex ? "bereit" : "wartet") + '</span>' +
-          '</li>'
-        )).join("");
+        stemList.replaceChildren();
+        bands.forEach((band, index) => {
+          const result = stemResults[index];
+          const item = document.createElement("li");
+          const number = document.createElement("span");
+          const name = document.createElement("span");
+          const state = document.createElement("span");
+
+          item.className = "stem-track" + (index <= readyIndex ? " is-ready" : "") + (result ? " has-player" : "");
+          number.className = "stem-number";
+          name.className = "stem-name";
+          state.className = "stem-state";
+          number.textContent = String(index + 1).padStart(2, "0");
+          name.textContent = band.label + " - " + band.file.replace(/\.wav$/i, "");
+          state.textContent = result ? "abspielbar" : (index <= readyIndex ? "bereit" : "wartet");
+
+          item.appendChild(number);
+          item.appendChild(name);
+          item.appendChild(state);
+
+          if (result) {
+            const player = document.createElement("div");
+            const audio = document.createElement("audio");
+            const volumeLabel = document.createElement("label");
+            const volumeText = document.createElement("span");
+            const volume = document.createElement("input");
+
+            player.className = "stem-player";
+            audio.controls = true;
+            audio.src = result.url;
+            audio.preload = "metadata";
+
+            volumeLabel.className = "volume-control";
+            volumeText.textContent = "Lautstärke";
+            volume.type = "range";
+            volume.min = "0";
+            volume.max = "1";
+            volume.step = "0.01";
+            volume.value = String(result.volume);
+            audio.volume = Math.min(1, result.volume);
+            volume.addEventListener("input", () => {
+              result.volume = Number(volume.value) || 0;
+              audio.volume = Math.min(1, result.volume);
+            });
+
+            volumeLabel.appendChild(volumeText);
+            volumeLabel.appendChild(volume);
+            player.appendChild(audio);
+            player.appendChild(volumeLabel);
+            item.appendChild(player);
+          }
+
+          stemList.appendChild(item);
+        });
       };
 
       const sanitizeName = (name) => (
@@ -692,9 +804,66 @@
 
       const resetDownload = () => {
         if (zipUrl) URL.revokeObjectURL(zipUrl);
+        stemObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+        stemObjectUrls = [];
+        stemResults = [];
         zipBlob = null;
         zipUrl = "";
         downloadButton.disabled = true;
+        mixDownloadButton.disabled = true;
+      };
+
+      const createAudioBufferFromChannels = (channels, sampleRate) => {
+        const context = new OfflineAudioContext(channels.length, channels[0].length, sampleRate);
+        const buffer = context.createBuffer(channels.length, channels[0].length, sampleRate);
+        channels.forEach((channelData, index) => buffer.copyToChannel(channelData, index));
+        return buffer;
+      };
+
+      const createMixBuffer = () => {
+        if (!stemResults.length) return null;
+        const first = stemResults[0].buffer;
+        const channelCount = first.numberOfChannels;
+        const length = first.length;
+        const sampleRate = first.sampleRate;
+        const channels = Array.from({ length: channelCount }, () => new Float32Array(length));
+
+        stemResults.forEach((stem) => {
+          for (let channel = 0; channel < channelCount; channel += 1) {
+            const source = stem.buffer.getChannelData(Math.min(channel, stem.buffer.numberOfChannels - 1));
+            const target = channels[channel];
+            const gain = Number(stem.volume) || 0;
+            for (let index = 0; index < length; index += 1) {
+              target[index] += source[index] * gain;
+            }
+          }
+        });
+
+        let peak = 0;
+        channels.forEach((channel) => {
+          for (let index = 0; index < channel.length; index += 1) {
+            peak = Math.max(peak, Math.abs(channel[index]));
+          }
+        });
+        if (peak > 0.98) {
+          const scale = 0.98 / peak;
+          channels.forEach((channel) => {
+            for (let index = 0; index < channel.length; index += 1) channel[index] *= scale;
+          });
+        }
+
+        return createAudioBufferFromChannels(channels, sampleRate);
+      };
+
+      const downloadBlob = (blob, filename) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       };
 
       const processFile = async () => {
@@ -714,11 +883,17 @@
 
           const prefix = sanitizeName(selectedFile.name);
           const files = [];
+          const nextStemResults = [];
           for (let i = 0; i < bands.length; i += 1) {
             const band = bands[i];
             setStatus("Spur " + (i + 1) + " von 8 wird erzeugt: " + band.label);
             const rendered = await renderBand(decoded, band);
-            files.push({ name: prefix + "/" + band.file, data: audioBufferToWav(rendered) });
+            const wav = audioBufferToWav(rendered);
+            const url = URL.createObjectURL(new Blob([wav], { type: "audio/wav" }));
+            stemObjectUrls.push(url);
+            nextStemResults.push({ band, buffer: rendered, wav, url, volume: 1 });
+            stemResults = nextStemResults;
+            files.push({ name: prefix + "/" + band.file, data: wav });
             renderStemList(i);
             setProgress(((i + 1) / bands.length) * 90);
             await new Promise((resolve) => setTimeout(resolve, 0));
@@ -728,6 +903,7 @@
           zipBlob = createZip(files);
           zipUrl = URL.createObjectURL(zipBlob);
           downloadButton.disabled = false;
+          mixDownloadButton.disabled = false;
           setProgress(100);
           setStatus("Fertig. Die 8 Spuren können als ZIP heruntergeladen werden.");
         } catch (error) {
@@ -760,6 +936,14 @@
         document.body.appendChild(link);
         link.click();
         link.remove();
+      });
+
+      mixDownloadButton.addEventListener("click", () => {
+        if (!selectedFile || !stemResults.length) return;
+        const mixBuffer = createMixBuffer();
+        if (!mixBuffer) return;
+        const wav = audioBufferToWav(mixBuffer);
+        downloadBlob(new Blob([wav], { type: "audio/wav" }), sanitizeName(selectedFile.name) + "_lautstaerke_mix.wav");
       });
 
       renderStemList(-1);

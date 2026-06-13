@@ -161,6 +161,21 @@
     }
   };
 
+  const deleteAudio = async (id) => {
+    if (!isConfigured || mode !== "function") return { ok: false };
+    try {
+      const response = await fetch(functionEndpoint, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ action: "audio-delete", id }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      return Object.assign({ ok: response.ok }, payload);
+    } catch (error) {
+      return { ok: false };
+    }
+  };
+
   const generateLyrics = async (payload) => {
     if (!isConfigured || mode !== "function") return { ok: false, error: "Online-Speicher ist nicht konfiguriert." };
     try {
@@ -207,6 +222,7 @@
     audioUrl,
     fetchAudioBlob,
     uploadAudio,
+    deleteAudio,
     generateLyrics,
   };
 
