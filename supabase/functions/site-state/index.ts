@@ -79,7 +79,7 @@ const instructionItems = (value: unknown) => {
 
 const createLyrics = async (body: Record<string, unknown>) => {
   const openAiKey = Deno.env.get("OPENAI_API_KEY");
-  const model = Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
+  const model = Deno.env.get("OPENAI_MODEL") || "gpt-5.4-mini";
   if (!openAiKey) {
     return jsonResponse({ error: "OPENAI_API_KEY ist in Supabase noch nicht gesetzt." }, 500);
   }
@@ -93,28 +93,50 @@ const createLyrics = async (body: Record<string, unknown>) => {
   const messages = instructionItems(body.messages);
   const metaphors = instructionItems(body.metaphors);
 
-  const prompt = [
-    "Write complete original song lyrics.",
-    "Language: " + language + ".",
-    "Underlying theme: " + topic + ".",
-    "Creative variation seed: " + creativeSeed + ".",
-    "First interpret the underlying theme internally. Build the song around the situation, conflict, emotional consequences, and sensory images implied by that theme.",
-    "The listener should clearly feel what the theme is about without seeing the exact theme wording.",
-    "Do not use the exact theme wording in the lyrics. Treat it only as creative context and express it indirectly through emotions, situations, images, and consequences.",
-    "If the theme is a single word or short phrase, that exact word or phrase must not appear in the final lyrics.",
-    "Avoid generic filler. Use specific scenes, objects, actions, places, and emotional turns connected to the theme.",
-    "Rhyme scheme: " + rhyme + ".",
-    rhymeQuality ? "Rhyme quality: " + rhymeQuality + "." : "",
-    messages.length ? "MANDATORY core messages: " + messages.join("; ") + "." : "",
-    messages.length ? "Every selected core message must visibly influence the lyrics, especially the chorus and emotional arc." : "",
-    metaphors.length ? "MANDATORY metaphor fields: " + metaphors.join("; ") + "." : "",
-    metaphors.length ? "Use concrete imagery from every selected metaphor field across different song sections. Do not ignore any selected metaphor." : "",
-    "Use this structure exactly: [Verse 1], [Pre-Chorus], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro].",
-    "Make it emotional, singable, catchy, and suitable for AI music generation.",
-    "Output only the lyrics. Do not add explanations.",
+  const instructions = [
+    "You are a professional multilingual songwriter for modern AI music production.",
+    "Write complete, original, singable lyrics with a clear emotional arc.",
+    "Respect the requested output language exactly.",
+    "Never explain your choices. Output only the lyrics.",
+    "Avoid generic filler, repeated stock phrases, and predictable template lines.",
+    "Use vivid scenes, concrete objects, actions, places, and emotional consequences.",
+  ].join("\n");
+
+  const input = [
+    "Create a new song lyric from these settings:",
+    "",
+    "Output language: " + language,
+    "Underlying theme: " + topic,
+    "Creative variation seed: " + creativeSeed,
+    "Rhyme scheme: " + rhyme,
+    rhymeQuality ? "Rhyme quality: " + rhymeQuality : "",
+    messages.length ? "Required core messages: " + messages.join("; ") : "Required core messages: none selected",
+    metaphors.length ? "Required metaphor fields: " + metaphors.join("; ") : "Required metaphor fields: none selected",
+    "",
+    "Theme handling:",
+    "- First understand the theme internally: who is affected, what changed, what is at stake, and what sensory world belongs to it.",
+    "- Do not copy the exact theme wording into the lyrics.",
+    "- If the theme is a single word or short phrase, that exact word or phrase must not appear in the final lyrics.",
+    "- The listener should still clearly feel the theme through situations, images, conflict, and emotional consequences.",
+    "",
+    "Mandatory content rules:",
+    "- Every selected core message must visibly shape the chorus or the emotional turn of the song.",
+    "- Every selected metaphor field must appear through concrete imagery in at least one different song section.",
+    "- Make each generation feel fresh by using the creative seed to vary scenes, line endings, and perspective.",
+    "- Keep the language natural and suitable for singing, not like an essay.",
+    "",
+    "Use this structure exactly:",
+    "[Verse 1]",
+    "[Pre-Chorus]",
+    "[Chorus]",
+    "[Verse 2]",
+    "[Chorus]",
+    "[Bridge]",
+    "[Chorus]",
+    "[Outro]",
   ].filter(Boolean).join("\n");
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       Authorization: "Bearer " + openAiKey,
@@ -122,17 +144,11 @@ const createLyrics = async (body: Record<string, unknown>) => {
     },
     body: JSON.stringify({
       model,
-      temperature: 1.05,
-      presence_penalty: 0.45,
-      frequency_penalty: 0.35,
-      max_tokens: 1400,
-      messages: [
-        {
-          role: "system",
-          content: "You are a professional multilingual songwriter. Write polished, original lyrics with clear song sections.",
-        },
-        { role: "user", content: prompt },
-      ],
+      instructions,
+      input,
+      reasoning: { effort: "low" },
+      max_output_tokens: 1800,
+      store: false,
     }),
   });
 
@@ -142,7 +158,14 @@ const createLyrics = async (body: Record<string, unknown>) => {
     return jsonResponse({ error: message }, response.status);
   }
 
-  const text = payload?.choices?.[0]?.message?.content;
+  const text = payload?.output_text
+    || (Array.isArray(payload?.output)
+      ? payload.output
+          .flatMap((item: Record<string, unknown>) => Array.isArray(item.content) ? item.content : [])
+          .map((part: Record<string, unknown>) => part.text)
+          .filter(Boolean)
+          .join("\n")
+      : "");
   if (!text) return jsonResponse({ error: "Keine KI-Antwort erhalten." }, 500);
   return jsonResponse({ ok: true, value: String(text).trim(), model });
 };
