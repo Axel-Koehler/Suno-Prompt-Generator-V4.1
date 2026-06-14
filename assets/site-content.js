@@ -162,6 +162,20 @@ Die erzeugten Spuren werden als WAV Dateien in einer ZIP Datei gespeichert.
 Hinweis: Diese Version erzeugt Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.`,
     },
     {
+      id: "stems.notice.title",
+      page: "Stems erzeugen",
+      label: "Feldtitel Hinweis",
+      selector: '[data-content-key="stems.notice.title"]',
+      defaultText: "Hinweis",
+    },
+    {
+      id: "stems.notice.text",
+      page: "Stems erzeugen",
+      label: "Text Hinweis",
+      selector: '[data-content-key="stems.notice.text"]',
+      defaultText: "Die 8 Spuren werden im Browser berechnet. Bei sehr langen Dateien kann die Verarbeitung je nach Gerät etwas dauern.",
+    },
+    {
       id: "stems.processing.title",
       page: "Stems erzeugen",
       label: "Feldtitel Suno MP3 zerlegen",

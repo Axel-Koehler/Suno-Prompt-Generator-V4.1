@@ -564,6 +564,10 @@
             <p>Die erzeugten Spuren werden als WAV Dateien in einer ZIP Datei gespeichert.</p>
             <p>Hinweis: Diese Version erzeugt Frequenzspuren. Eine echte KI-Trennung nach Gesang, Drums, Bass und Instrumenten benötigt einen zusätzlichen Serverdienst.</p>
           </div>
+          <h2 data-content-key="stems.notice.title">Hinweis</h2>
+          <div class="stems-text formatted" data-content-key="stems.notice.text">
+            <p>Die 8 Spuren werden im Browser berechnet. Bei sehr langen Dateien kann die Verarbeitung je nach Gerät etwas dauern.</p>
+          </div>
         </article>
 
         <article class="stems-card">
@@ -628,8 +632,13 @@
       let zipUrl = "";
       let stemResults = [];
       let stemObjectUrls = [];
-      let masterMixAudio = null;
-      let masterMixUrl = "";
+      let liveAudioContext = null;
+      let liveSources = [];
+      let liveGains = [];
+      let liveStartedAt = 0;
+      let liveOffset = 0;
+      let liveDuration = 0;
+      let livePlaying = false;
       const targetSampleRate = 44100;
       const defaultStemVolume = 0.5;
 
@@ -700,6 +709,10 @@
             volume.addEventListener("input", () => {
               result.volume = Number(volume.value) || 0;
               audio.volume = Math.min(1, result.volume);
+              const gain = liveGains[index];
+              if (gain && liveAudioContext) {
+                gain.gain.setTargetAtTime(result.volume, liveAudioContext.currentTime, 0.015);
+              }
             });
 
             play.addEventListener("click", async () => {
@@ -949,7 +962,7 @@
       const resetDownload = () => {
         if (zipUrl) URL.revokeObjectURL(zipUrl);
         stemObjectUrls.forEach((url) => URL.revokeObjectURL(url));
-        resetMasterMixAudio();
+        stopLiveTransport(true);
         stemObjectUrls = [];
         stemResults = [];
         zipBlob = null;
@@ -961,16 +974,28 @@
         mixDownloadButton.disabled = true;
       };
 
-      const resetMasterMixAudio = () => {
-        if (masterMixAudio) {
-          masterMixAudio.pause();
-          masterMixAudio.src = "";
-        }
-        if (masterMixUrl) URL.revokeObjectURL(masterMixUrl);
-        masterMixAudio = null;
-        masterMixUrl = "";
+      const stopLiveTransport = (resetOffset = false) => {
+        liveSources.forEach((source) => {
+          try {
+            source.stop();
+          } catch (error) {
+            // Sources may already be stopped.
+          }
+        });
+        liveSources = [];
+        liveGains = [];
+        livePlaying = false;
+        if (resetOffset) liveOffset = 0;
         pauseAllButton.disabled = true;
         stopAllButton.disabled = true;
+      };
+
+      const getLiveAudioContext = async () => {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        if (!liveAudioContext) liveAudioContext = new AudioContextClass({ sampleRate: targetSampleRate });
+        if (liveAudioContext.state === "suspended") await liveAudioContext.resume();
+        return liveAudioContext;
       };
 
       const createAudioBufferFromChannels = (channels, sampleRate) => {
@@ -1026,20 +1051,43 @@
         window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       };
 
-      const createMasterMixAudio = () => {
-        resetMasterMixAudio();
-        const mixBuffer = createMixBuffer();
-        if (!mixBuffer) return null;
-        const wav = audioBufferToWav(mixBuffer);
-        masterMixUrl = URL.createObjectURL(new Blob([wav], { type: "audio/wav" }));
-        masterMixAudio = new Audio(masterMixUrl);
-        masterMixAudio.preload = "auto";
-        masterMixAudio.addEventListener("ended", () => {
-          masterMixAudio.currentTime = 0;
-          pauseAllButton.disabled = true;
-          stopAllButton.disabled = true;
+      const startLiveTransport = async (fromStart = false) => {
+        if (stemResults.length !== bands.length) return;
+        const context = await getLiveAudioContext();
+        if (!context) return;
+        if (fromStart) liveOffset = 0;
+        stopLiveTransport(false);
+
+        liveDuration = stemResults[0]?.buffer?.duration || 0;
+        const offset = Math.min(liveOffset, Math.max(0, liveDuration - 0.01));
+        liveStartedAt = context.currentTime - offset;
+        liveSources = [];
+        liveGains = [];
+
+        stemResults.forEach((stem) => {
+          const source = context.createBufferSource();
+          const gain = context.createGain();
+          source.buffer = stem.buffer;
+          gain.gain.value = Number(stem.volume) || 0;
+          source.connect(gain).connect(context.destination);
+          source.addEventListener("ended", () => {
+            if (!livePlaying) return;
+            const elapsed = context.currentTime - liveStartedAt;
+            if (elapsed >= liveDuration - 0.05) {
+              liveOffset = 0;
+              livePlaying = false;
+              pauseAllButton.disabled = true;
+              stopAllButton.disabled = true;
+            }
+          });
+          source.start(0, offset);
+          liveSources.push(source);
+          liveGains.push(gain);
         });
-        return masterMixAudio;
+
+        livePlaying = true;
+        pauseAllButton.disabled = false;
+        stopAllButton.disabled = false;
       };
 
       const processFile = async () => {
@@ -1114,23 +1162,17 @@
           stem.audio.pause();
           stem.audio.currentTime = 0;
         });
-        const audio = createMasterMixAudio();
-        if (!audio) return;
-        audio.currentTime = 0;
-        pauseAllButton.disabled = false;
-        stopAllButton.disabled = false;
-        await audio.play();
+        await startLiveTransport(liveOffset === 0);
       });
 
       pauseAllButton.addEventListener("click", () => {
-        if (!masterMixAudio) return;
-        masterMixAudio.pause();
+        if (!liveAudioContext || !livePlaying) return;
+        liveOffset = Math.min(liveAudioContext.currentTime - liveStartedAt, liveDuration || 0);
+        stopLiveTransport(false);
       });
 
       stopAllButton.addEventListener("click", () => {
-        if (!masterMixAudio) return;
-        masterMixAudio.pause();
-        masterMixAudio.currentTime = 0;
+        stopLiveTransport(true);
       });
 
       downloadButton.addEventListener("click", () => {
