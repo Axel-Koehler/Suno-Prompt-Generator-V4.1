@@ -557,6 +557,7 @@
 
             <div class="action-row">
               <button class="button" id="bulletButton" type="button">Aufzählung</button>
+              <button class="button" id="linkButton" type="button">Link</button>
               <button class="button" id="saveButton" type="button">Speichern</button>
               <button class="button" id="resetButton" type="button">Feld zurücksetzen</button>
               <button class="button" id="resetAllButton" type="button">Alles zurücksetzen</button>
@@ -1250,6 +1251,30 @@
         editorStatus.textContent = hasBullets ? "Aufzählung entfernt." : "Aufzählung eingefügt.";
       };
 
+      const addExternalLink = () => {
+        const start = fieldText.selectionStart;
+        const end = fieldText.selectionEnd;
+        if (start === end) {
+          editorStatus.textContent = "Bitte zuerst Text markieren.";
+          fieldText.focus();
+          return;
+        }
+        const selectedText = fieldText.value.slice(start, end);
+        const rawUrl = window.prompt("Externen Link eingeben:", "https://");
+        if (!rawUrl) return;
+        const url = rawUrl.trim();
+        if (!/^https?:\/\//i.test(url)) {
+          editorStatus.textContent = "Bitte einen Link mit http:// oder https:// eingeben.";
+          fieldText.focus();
+          return;
+        }
+        const replacement = "[" + selectedText.replace(/\]/g, "") + "](" + url.replace(/\)/g, "") + ")";
+        fieldText.value = fieldText.value.slice(0, start) + replacement + fieldText.value.slice(end);
+        fieldText.focus();
+        fieldText.setSelectionRange(start, start + replacement.length);
+        editorStatus.textContent = "Link eingefügt. Danach speichern.";
+      };
+
       const resetField = () => {
         if (!activeField) return;
         const content = getContent();
@@ -1295,6 +1320,7 @@
 
       document.getElementById("saveButton").addEventListener("click", saveField);
       document.getElementById("bulletButton").addEventListener("click", toggleBullets);
+      document.getElementById("linkButton").addEventListener("click", addExternalLink);
       document.getElementById("resetButton").addEventListener("click", resetField);
       document.getElementById("resetAllButton").addEventListener("click", resetAll);
       document.getElementById("recordSaveButton").addEventListener("click", saveProjectRecord);

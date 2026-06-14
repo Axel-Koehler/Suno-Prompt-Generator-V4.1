@@ -465,6 +465,14 @@
       margin-top: 12px;
     }
 
+    .stem-transport {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
     .mix-help {
       min-height: 42px;
       padding: 11px 13px;
@@ -566,7 +574,6 @@
             <input class="file-input" id="stemFile" type="file" accept="audio/mpeg,.mp3">
             <div class="stems-actions">
               <button class="stems-button" id="processButton" type="button" disabled>Stems erzeugen</button>
-              <button class="stems-button" id="playAllButton" type="button" disabled>Alle 8 abspielen</button>
               <button class="stems-button" id="downloadButton" type="button" disabled>ZIP herunterladen</button>
             </div>
           </div>
@@ -580,6 +587,11 @@
 
           <ul class="stem-list" id="stemList"></ul>
           <div class="mix-download-panel">
+            <div class="stem-transport">
+              <button class="stems-button" id="playAllButton" type="button" disabled>Alle 8 abspielen</button>
+              <button class="stems-button" id="pauseAllButton" type="button" disabled>Pause</button>
+              <button class="stems-button" id="stopAllButton" type="button" disabled>Stop</button>
+            </div>
             <button class="stems-button" id="mixDownloadButton" type="button" disabled>Einzelmix herunterladen</button>
             <div class="mix-help" data-content-key="stems.mix.help">Mit den Lautstärkereglern kannst du einzelne Spuren lauter oder leiser stellen. Der Button erstellt daraus eine neue WAV-Datei mit genau diesen Einstellungen.</div>
           </div>
@@ -604,6 +616,8 @@
       const fileInput = document.getElementById("stemFile");
       const processButton = document.getElementById("processButton");
       const playAllButton = document.getElementById("playAllButton");
+      const pauseAllButton = document.getElementById("pauseAllButton");
+      const stopAllButton = document.getElementById("stopAllButton");
       const downloadButton = document.getElementById("downloadButton");
       const mixDownloadButton = document.getElementById("mixDownloadButton");
       const status = document.getElementById("stemStatus");
@@ -614,6 +628,8 @@
       let zipUrl = "";
       let stemResults = [];
       let stemObjectUrls = [];
+      let masterMixAudio = null;
+      let masterMixUrl = "";
       const targetSampleRate = 44100;
       const defaultStemVolume = 0.5;
 
@@ -684,6 +700,7 @@
             volume.addEventListener("input", () => {
               result.volume = Number(volume.value) || 0;
               audio.volume = Math.min(1, result.volume);
+              resetMasterMixAudio();
             });
 
             play.addEventListener("click", async () => {
@@ -933,13 +950,28 @@
       const resetDownload = () => {
         if (zipUrl) URL.revokeObjectURL(zipUrl);
         stemObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+        resetMasterMixAudio();
         stemObjectUrls = [];
         stemResults = [];
         zipBlob = null;
         zipUrl = "";
         downloadButton.disabled = true;
         playAllButton.disabled = true;
+        pauseAllButton.disabled = true;
+        stopAllButton.disabled = true;
         mixDownloadButton.disabled = true;
+      };
+
+      const resetMasterMixAudio = () => {
+        if (masterMixAudio) {
+          masterMixAudio.pause();
+          masterMixAudio.src = "";
+        }
+        if (masterMixUrl) URL.revokeObjectURL(masterMixUrl);
+        masterMixAudio = null;
+        masterMixUrl = "";
+        pauseAllButton.disabled = true;
+        stopAllButton.disabled = true;
       };
 
       const createAudioBufferFromChannels = (channels, sampleRate) => {
@@ -995,6 +1027,22 @@
         window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       };
 
+      const createMasterMixAudio = () => {
+        resetMasterMixAudio();
+        const mixBuffer = createMixBuffer();
+        if (!mixBuffer) return null;
+        const wav = audioBufferToWav(mixBuffer);
+        masterMixUrl = URL.createObjectURL(new Blob([wav], { type: "audio/wav" }));
+        masterMixAudio = new Audio(masterMixUrl);
+        masterMixAudio.preload = "auto";
+        masterMixAudio.addEventListener("ended", () => {
+          masterMixAudio.currentTime = 0;
+          pauseAllButton.disabled = true;
+          stopAllButton.disabled = true;
+        });
+        return masterMixAudio;
+      };
+
       const processFile = async () => {
         if (!selectedFile) return;
         resetDownload();
@@ -1033,6 +1081,8 @@
           zipUrl = URL.createObjectURL(zipBlob);
           downloadButton.disabled = false;
           playAllButton.disabled = false;
+          pauseAllButton.disabled = true;
+          stopAllButton.disabled = true;
           mixDownloadButton.disabled = false;
           setProgress(100);
           setStatus("Fertig. Die 8 Spuren können als ZIP heruntergeladen werden.");
@@ -1060,14 +1110,28 @@
 
       playAllButton.addEventListener("click", async () => {
         if (stemResults.length !== bands.length) return;
-        const audios = stemResults.map((stem) => stem.audio).filter(Boolean);
-        if (audios.length !== bands.length) return;
-        audios.forEach((audio, index) => {
-          audio.pause();
-          audio.currentTime = 0;
-          audio.volume = Math.min(1, stemResults[index].volume);
+        stemResults.forEach((stem) => {
+          if (!stem.audio) return;
+          stem.audio.pause();
+          stem.audio.currentTime = 0;
         });
-        await Promise.allSettled(audios.map((audio) => audio.play()));
+        const audio = createMasterMixAudio();
+        if (!audio) return;
+        audio.currentTime = 0;
+        pauseAllButton.disabled = false;
+        stopAllButton.disabled = false;
+        await audio.play();
+      });
+
+      pauseAllButton.addEventListener("click", () => {
+        if (!masterMixAudio) return;
+        masterMixAudio.pause();
+      });
+
+      stopAllButton.addEventListener("click", () => {
+        if (!masterMixAudio) return;
+        masterMixAudio.pause();
+        masterMixAudio.currentTime = 0;
       });
 
       downloadButton.addEventListener("click", () => {

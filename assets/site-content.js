@@ -284,10 +284,31 @@ Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung.
     localStorage.setItem(key, JSON.stringify(value));
   };
 
+  const appendInlineContent = (target, text) => {
+    const linkPattern = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
+    let lastIndex = 0;
+    let match;
+    while ((match = linkPattern.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        target.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+      }
+      const link = document.createElement("a");
+      link.href = match[2];
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = match[1];
+      target.appendChild(link);
+      lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < text.length) {
+      target.appendChild(document.createTextNode(text.slice(lastIndex)));
+    }
+  };
+
   const appendTextWithLineBreaks = (target, text) => {
     text.split("\n").forEach((line, index) => {
       if (index > 0) target.appendChild(document.createElement("br"));
-      target.appendChild(document.createTextNode(line));
+      appendInlineContent(target, line);
     });
   };
 
@@ -338,7 +359,7 @@ Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung.
       element.value = text;
       return;
     }
-    if (text.includes("\n")) {
+    if (text.includes("\n") || /\[[^\]]+\]\(https?:\/\/[^)\s]+\)/.test(text)) {
       writeFormattedText(element, text);
       return;
     }

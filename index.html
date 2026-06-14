@@ -196,6 +196,7 @@
       display: grid;
       gap: 0;
       min-width: 0;
+      align-content: start;
     }
 
     .home-column .home-field + .home-field {
@@ -399,16 +400,12 @@ Mein Ziel ist es, Menschen, Unternehmen und Kreative dabei zu unterstützen, die
 
         <div class="home-column">
           <label class="home-field">
-            <span data-content-key="home.inspiration.title">Inspiration</span>
-          </label>
-
-          <label class="home-field">
             <span data-content-key="home.vision.title">Meine Vision</span>
             <div class="home-image">
               <img src="assets/vision-prompt-studio.png" alt="KI-Prompt-Studio für Musikproduktion">
             </div>
             <div class="home-video">
-              <video src="assets/ak-ai-music-studio.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="assets/ak-ai-music-studio.mp4" autoplay loop playsinline controls preload="metadata"></video>
             </div>
           </label>
         </div>
