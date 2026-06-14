@@ -248,7 +248,7 @@
       position: relative;
       overflow: hidden;
       display: grid;
-      grid-template-columns: 42px minmax(0, 1fr);
+      grid-template-columns: 42px 76px minmax(0, 1fr);
       gap: 10px;
       align-self: end;
       align-items: center;
@@ -324,6 +324,14 @@
       opacity: 0.62;
     }
 
+    .song-volume {
+      position: relative;
+      z-index: 3;
+      width: 76px;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
     .song-progress {
       position: relative;
       z-index: 3;
@@ -396,7 +404,7 @@
       }
 
       .song-player {
-        grid-template-columns: 46px minmax(0, 1fr);
+        grid-template-columns: 46px 76px minmax(0, 1fr);
       }
 
       .song-time {
@@ -497,6 +505,7 @@
       function createSongPlayer(song) {
         const wrapper = document.createElement("div");
         const playButton = document.createElement("button");
+        const volume = document.createElement("input");
         const progress = document.createElement("input");
         const time = document.createElement("div");
         const status = document.createElement("div");
@@ -505,9 +514,11 @@
         let analyser = null;
         let frequencyData = null;
         let animationFrame = 0;
+        let previewData = null;
 
         wrapper.className = "song-player";
         playButton.className = "song-play";
+        volume.className = "song-volume";
         progress.className = "song-progress";
         time.className = "song-time";
         status.className = "song-load-status";
@@ -515,6 +526,11 @@
 
         playButton.type = "button";
         playButton.textContent = "▶";
+        volume.type = "range";
+        volume.min = "0";
+        volume.max = "1";
+        volume.step = "0.01";
+        volume.value = "0.75";
         progress.type = "range";
         progress.min = "0";
         progress.max = "1000";
@@ -522,6 +538,7 @@
         time.textContent = "0:00 / 0:00";
         status.textContent = "Bereit";
         audio.preload = "metadata";
+        audio.volume = Number(volume.value);
 
         const resizeSpectrum = () => {
           const rect = wrapper.getBoundingClientRect();
@@ -542,7 +559,7 @@
           const height = spectrum.height;
           canvas.clearRect(0, 0, width, height);
           const center = height * 0.82;
-          const points = 72;
+          const points = previewData?.length ? previewData.length - 1 : 72;
           canvas.lineWidth = Math.max(1, width * 0.006);
           canvas.strokeStyle = "rgba(0, 217, 255, 0.42)";
           canvas.shadowColor = "rgba(0, 217, 255, 0.4)";
@@ -551,11 +568,40 @@
           for (let index = 0; index <= points; index += 1) {
             const ratio = index / points;
             const x = ratio * width;
-            const y = center + Math.sin(ratio * Math.PI * 6) * height * 0.08 + Math.sin(ratio * Math.PI * 13) * height * 0.025;
+            const value = previewData?.[index] ?? (0.22 + Math.sin(ratio * Math.PI * 6) * 0.12 + Math.sin(ratio * Math.PI * 13) * 0.04);
+            const y = center - value * height * 0.42 + Math.sin(ratio * Math.PI * 18) * height * 0.018;
             if (index === 0) canvas.moveTo(x, y);
             else canvas.lineTo(x, y);
           }
           canvas.stroke();
+        };
+
+        const buildPreviewData = async (blob) => {
+          const audioContext = getAudioContext();
+          if (!audioContext) return;
+          try {
+            const buffer = await blob.arrayBuffer();
+            const decoded = await audioContext.decodeAudioData(buffer.slice(0));
+            const channel = decoded.getChannelData(0);
+            const points = 96;
+            const blockSize = Math.max(1, Math.floor(channel.length / points));
+            previewData = Array.from({ length: points }, (_, index) => {
+              let sum = 0;
+              let peak = 0;
+              const start = index * blockSize;
+              const end = Math.min(channel.length, start + blockSize);
+              for (let sampleIndex = start; sampleIndex < end; sampleIndex += 1) {
+                const sample = Math.abs(channel[sampleIndex]);
+                sum += sample * sample;
+                if (sample > peak) peak = sample;
+              }
+              const rms = Math.sqrt(sum / Math.max(1, end - start));
+              return Math.min(1, rms * 3.2 + peak * 0.35);
+            });
+            drawIdleSpectrum();
+          } catch (error) {
+            console.warn("Spektrum-Vorschau konnte nicht erstellt werden.", error);
+          }
         };
 
         const drawSpectrum = () => {
@@ -655,6 +701,7 @@
           const objectUrl = URL.createObjectURL(blob);
           objectUrls.push(objectUrl);
           audio.src = objectUrl;
+          buildPreviewData(blob);
           status.textContent = "";
           playButton.disabled = false;
           return true;
@@ -716,11 +763,16 @@
           audio.currentTime = (Number(progress.value) / 1000) * audio.duration;
         });
 
+        volume.addEventListener("input", () => {
+          audio.volume = Number(volume.value);
+        });
+
         drawIdleSpectrum();
         window.addEventListener("resize", drawIdleSpectrum);
 
         wrapper.appendChild(spectrum);
         wrapper.appendChild(playButton);
+        wrapper.appendChild(volume);
         wrapper.appendChild(progress);
         wrapper.appendChild(time);
         wrapper.appendChild(status);

@@ -307,6 +307,12 @@
       outline: none;
     }
 
+    .prompt-button.suno-button {
+      border-color: rgba(0, 217, 255, 0.72);
+      background: linear-gradient(180deg, rgba(0, 217, 255, 0.28), rgba(255, 45, 253, 0.2));
+      box-shadow: inset 0 0 14px rgba(0, 217, 255, 0.14), 0 0 14px rgba(0, 217, 255, 0.16);
+    }
+
     .prompt-status {
       min-height: 18px;
       color: var(--yellow);
@@ -372,7 +378,7 @@
           </label>
           <div class="button-row">
             <button class="prompt-button" data-copy="detailOutput" type="button">Details kopieren</button>
-            <a class="prompt-button" href="https://suno.com/create" target="_blank" rel="noopener noreferrer">Suno</a>
+            <a class="prompt-button suno-button" href="https://suno.com/create" target="_blank" rel="noopener noreferrer">Suno</a>
           </div>
           <div class="prompt-status" id="copyStatus"></div>
         </section>
