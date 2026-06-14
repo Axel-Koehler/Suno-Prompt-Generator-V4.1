@@ -255,6 +255,13 @@
       overflow-wrap: anywhere;
     }
 
+    .song-analysis {
+      display: inline;
+      color: rgba(248, 255, 19, 0.92);
+      font-size: 12px;
+      text-shadow: 0 0 9px rgba(248, 255, 19, 0.22);
+    }
+
     .song-meta {
       color: var(--muted);
       font-size: 12px;
@@ -492,22 +499,38 @@
         songs.forEach((song) => {
           const card = document.createElement("article");
           const title = document.createElement("div");
+          const titleText = document.createElement("span");
+          const analysis = document.createElement("span");
           const meta = document.createElement("div");
           const player = createSongPlayer(song);
 
           card.className = "song-card";
           title.className = "song-title";
+          analysis.className = "song-analysis";
           meta.className = "song-meta";
 
-          title.textContent = song.title || song.filename || "Ohne Titel";
+          titleText.textContent = song.title || song.filename || "Ohne Titel";
+          analysis.textContent = formatAnalysis(song.analysis);
           meta.textContent = formatDate(song.uploadedAt);
+          title.appendChild(titleText);
+          title.appendChild(analysis);
 
           card.appendChild(title);
           if (meta.textContent) card.appendChild(meta);
           card.appendChild(player);
           songList.appendChild(card);
           if (player.songPlayerApi) songPlayers.push(player.songPlayerApi);
+          if (!hasAnalysis(song.analysis)) analyzeAndStoreSong(song, analysis);
         });
+      };
+
+      const hasAnalysis = (analysis) => Boolean(
+        analysis && analysis.genre && analysis.subgenre && analysis.style
+      );
+
+      const formatAnalysis = (analysis) => {
+        if (!hasAnalysis(analysis)) return " - Analyse läuft...";
+        return " - " + [analysis.genre, analysis.subgenre, analysis.style].filter(Boolean).join(" / ");
       };
 
       const formatTime = (seconds) => {
@@ -515,6 +538,117 @@
         const minutes = Math.floor(seconds / 60);
         const rest = Math.floor(seconds % 60).toString().padStart(2, "0");
         return minutes + ":" + rest;
+      };
+
+      const analyzeAndStoreSong = async (song, analysisNode) => {
+        if (!window.AKRemoteStore?.fetchAudioBlob || !window.AKRemoteStore?.updateAudioAnalysis) return;
+        try {
+          const blob = await window.AKRemoteStore.fetchAudioBlob(song.id);
+          if (!blob) throw new Error("Audio konnte nicht geladen werden.");
+          const analysis = await analyzeAudio(song, blob);
+          song.analysis = analysis;
+          analysisNode.textContent = formatAnalysis(analysis);
+          await window.AKRemoteStore.updateAudioAnalysis(song.id, analysis);
+        } catch (error) {
+          analysisNode.textContent = " - Analyse nicht möglich";
+        }
+      };
+
+      const analyzeAudio = async (song, blob) => {
+        const audioContext = getAudioContext();
+        if (!audioContext) {
+          return inferAnalysisFromText(song, {});
+        }
+
+        const buffer = await blob.arrayBuffer();
+        const decoded = await audioContext.decodeAudioData(buffer.slice(0));
+        const channel = decoded.getChannelData(0);
+        const duration = decoded.duration || 0;
+        const sampleRate = decoded.sampleRate || 44100;
+        const maxSamples = Math.min(channel.length, sampleRate * 90);
+        const step = Math.max(1, Math.floor(maxSamples / 9000));
+        let sum = 0;
+        let peak = 0;
+        let crossings = 0;
+        let previous = channel[0] || 0;
+        const envelope = [];
+        const bucketSize = Math.max(1, Math.floor(sampleRate * 0.12));
+        let bucketSum = 0;
+        let bucketCount = 0;
+
+        for (let index = 0; index < maxSamples; index += step) {
+          const sample = channel[index] || 0;
+          const abs = Math.abs(sample);
+          sum += sample * sample;
+          if (abs > peak) peak = abs;
+          if ((sample >= 0 && previous < 0) || (sample < 0 && previous >= 0)) crossings += 1;
+          previous = sample;
+          bucketSum += abs;
+          bucketCount += 1;
+          if (index % bucketSize < step) {
+            envelope.push(bucketSum / Math.max(1, bucketCount));
+            bucketSum = 0;
+            bucketCount = 0;
+          }
+        }
+
+        const rms = Math.sqrt(sum / Math.max(1, Math.ceil(maxSamples / step)));
+        const zcr = crossings / Math.max(1, Math.ceil(maxSamples / step));
+        const tempo = estimateTempo(envelope);
+        const dynamics = peak / Math.max(0.0001, rms);
+        return inferAnalysisFromText(song, { rms, zcr, tempo, dynamics, duration });
+      };
+
+      const estimateTempo = (envelope) => {
+        if (!envelope.length) return 0;
+        const mean = envelope.reduce((sum, value) => sum + value, 0) / envelope.length;
+        const peaks = [];
+        envelope.forEach((value, index) => {
+          if (index === 0 || index === envelope.length - 1) return;
+          if (value > mean * 1.22 && value > envelope[index - 1] && value >= envelope[index + 1]) {
+            peaks.push(index);
+          }
+        });
+        if (peaks.length < 2) return 0;
+        const gaps = [];
+        for (let index = 1; index < peaks.length; index += 1) {
+          const gap = peaks[index] - peaks[index - 1];
+          if (gap > 1) gaps.push(gap);
+        }
+        if (!gaps.length) return 0;
+        gaps.sort((a, b) => a - b);
+        const medianGap = gaps[Math.floor(gaps.length / 2)];
+        let bpm = 60 / (medianGap * 0.12);
+        while (bpm < 70) bpm *= 2;
+        while (bpm > 170) bpm /= 2;
+        return bpm;
+      };
+
+      const inferAnalysisFromText = (song, features) => {
+        const text = ((song.title || "") + " " + (song.filename || "")).toLocaleLowerCase("de");
+        const bpm = Number(features.tempo) || 0;
+        const zcr = Number(features.zcr) || 0;
+        const rms = Number(features.rms) || 0;
+        const dynamics = Number(features.dynamics) || 0;
+
+        const rules = [
+          [/rock|guitar|metal|punk|grunge|band/i, ["Rock", "Alternative Rock", "guitar-driven, energetic, live-band feel"]],
+          [/hip.?hop|rap|trap|drill|boom.?bap/i, ["Hip-Hop", "Rap", "beat-focused, spoken flow, bass-heavy"]],
+          [/dance|club|house|techno|edm|trance|electro/i, ["Electronic", "Dance", "club-ready, synthetic, pulse-driven"]],
+          [/pop|summer|heart|love/i, ["Pop", "Modern Pop", "melodic, polished, radio-friendly"]],
+          [/country|folk|acoustic/i, ["Folk", "Acoustic Folk", "organic, warm, storytelling"]],
+          [/jazz|swing|blues|soul/i, ["Jazz/Soul", "Soulful Groove", "warm, expressive, vintage-tinted"]],
+          [/cinema|score|ambient|dream|space/i, ["Cinematic", "Ambient Score", "atmospheric, spacious, visual"]],
+        ];
+        const match = rules.find(([pattern]) => pattern.test(text));
+        if (match) return { genre: match[1][0], subgenre: match[1][1], style: match[1][2] };
+
+        if (bpm >= 122 && zcr > 0.055) return { genre: "Electronic", subgenre: "Dance Pop", style: "bright, driving, rhythm-forward" };
+        if (bpm >= 105 && rms > 0.08) return { genre: "Pop", subgenre: "Upbeat Pop", style: "energetic, polished, hook-focused" };
+        if (zcr > 0.075) return { genre: "Rock", subgenre: "Indie Rock", style: "edgy, textured, guitar-like transients" };
+        if (dynamics > 8 && rms < 0.07) return { genre: "Cinematic", subgenre: "Atmospheric Ballad", style: "wide dynamics, emotional, spacious" };
+        if (bpm && bpm < 92) return { genre: "R&B/Soul", subgenre: "Slow Groove", style: "warm, relaxed, intimate" };
+        return { genre: "Pop", subgenre: "AI Music", style: "melodic, modern, balanced mix" };
       };
 
       function createSongPlayer(song) {

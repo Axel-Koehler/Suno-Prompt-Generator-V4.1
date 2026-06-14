@@ -176,6 +176,21 @@
     }
   };
 
+  const updateAudioAnalysis = async (id, analysis) => {
+    if (!isConfigured || mode !== "function") return { ok: false };
+    try {
+      const response = await fetch(functionEndpoint, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ action: "audio-analysis", id, analysis }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      return Object.assign({ ok: response.ok }, payload);
+    } catch (error) {
+      return { ok: false };
+    }
+  };
+
   const generateLyrics = async (payload) => {
     if (!isConfigured || mode !== "function") return { ok: false, error: "Online-Speicher ist nicht konfiguriert." };
     try {
@@ -223,6 +238,7 @@
     fetchAudioBlob,
     uploadAudio,
     deleteAudio,
+    updateAudioAnalysis,
     generateLyrics,
   };
 

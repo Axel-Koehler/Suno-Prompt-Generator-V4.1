@@ -49,6 +49,11 @@ type AudioItem = {
   filename: string;
   contentType: string;
   uploadedAt: string;
+  analysis?: {
+    genre: string;
+    subgenre: string;
+    style: string;
+  };
 };
 
 const languageNames: Record<string, string> = {
@@ -299,6 +304,31 @@ Deno.serve(async (request) => {
         const nextItems = list.filter((entry) => entry.id !== id);
         await writeState(audioListKey, nextItems);
         return jsonResponse({ ok: true, value: nextItems });
+      }
+
+      if (body.action === "audio-analysis") {
+        const id = safeKey(String(body.id || ""));
+        const analysis = body.analysis && typeof body.analysis === "object"
+          ? body.analysis as Record<string, unknown>
+          : null;
+        if (!id) return jsonResponse({ error: "Missing audio id." }, 400);
+        if (!analysis) return jsonResponse({ error: "Missing analysis." }, 400);
+
+        const items = await readState(audioListKey, []) as AudioItem[];
+        const list = Array.isArray(items) ? items : [];
+        const nextItems = list.map((entry) => entry.id === id
+          ? {
+              ...entry,
+              analysis: {
+                genre: String(analysis.genre || "").trim(),
+                subgenre: String(analysis.subgenre || "").trim(),
+                style: String(analysis.style || "").trim(),
+              },
+            }
+          : entry
+        );
+        await writeState(audioListKey, nextItems);
+        return jsonResponse({ ok: true, value: nextItems.find((entry) => entry.id === id) || null });
       }
 
       if (body.action === "generate-lyrics") {
