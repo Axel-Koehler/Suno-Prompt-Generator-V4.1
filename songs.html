@@ -166,7 +166,10 @@
 
     .songs-actions {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
+      align-items: center;
+      gap: 14px;
       margin: 0 0 12px;
     }
 
@@ -188,6 +191,20 @@
     .song-action-button:disabled {
       cursor: default;
       opacity: 0.55;
+    }
+
+    .songs-master-volume {
+      display: grid;
+      gap: 5px;
+      min-width: min(260px, 100%);
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .songs-master-volume input {
+      width: 100%;
+      accent-color: var(--cyan);
     }
 
     .song-list {
@@ -248,7 +265,7 @@
       position: relative;
       overflow: hidden;
       display: grid;
-      grid-template-columns: 42px 76px minmax(0, 1fr);
+      grid-template-columns: 42px minmax(0, 1fr);
       gap: 10px;
       align-self: end;
       align-items: center;
@@ -324,14 +341,6 @@
       opacity: 0.62;
     }
 
-    .song-volume {
-      position: relative;
-      z-index: 3;
-      width: 76px;
-      accent-color: var(--cyan);
-      cursor: pointer;
-    }
-
     .song-progress {
       position: relative;
       z-index: 3;
@@ -404,7 +413,7 @@
       }
 
       .song-player {
-        grid-template-columns: 46px 76px minmax(0, 1fr);
+        grid-template-columns: 46px minmax(0, 1fr);
       }
 
       .song-time {
@@ -427,6 +436,10 @@
       <div class="songs-content">
         <div class="songs-actions">
           <button class="song-action-button" id="playAllSongsButton" type="button" disabled>Alle Songs abspielen</button>
+          <label class="songs-master-volume">
+            Lautstärke alle Songs
+            <input id="masterVolume" type="range" min="0" max="1" step="0.01" value="0.75">
+          </label>
         </div>
         <div class="song-list" id="songList"></div>
       </div>
@@ -437,11 +450,13 @@
     (() => {
       const songList = document.getElementById("songList");
       const playAllSongsButton = document.getElementById("playAllSongsButton");
+      const masterVolume = document.getElementById("masterVolume");
       let activeAudio = null;
       const objectUrls = [];
       let sharedAudioContext = null;
       let songPlayers = [];
       let playAllSongsRunning = false;
+      let masterVolumeValue = Number(masterVolume?.value || 0.75);
 
       const getAudioContext = () => {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -505,7 +520,6 @@
       function createSongPlayer(song) {
         const wrapper = document.createElement("div");
         const playButton = document.createElement("button");
-        const volume = document.createElement("input");
         const progress = document.createElement("input");
         const time = document.createElement("div");
         const status = document.createElement("div");
@@ -518,7 +532,6 @@
 
         wrapper.className = "song-player";
         playButton.className = "song-play";
-        volume.className = "song-volume";
         progress.className = "song-progress";
         time.className = "song-time";
         status.className = "song-load-status";
@@ -526,11 +539,6 @@
 
         playButton.type = "button";
         playButton.textContent = "▶";
-        volume.type = "range";
-        volume.min = "0";
-        volume.max = "1";
-        volume.step = "0.01";
-        volume.value = "0.75";
         progress.type = "range";
         progress.min = "0";
         progress.max = "1000";
@@ -538,7 +546,7 @@
         time.textContent = "0:00 / 0:00";
         status.textContent = "Bereit";
         audio.preload = "metadata";
-        audio.volume = Number(volume.value);
+        audio.volume = masterVolumeValue;
 
         const resizeSpectrum = () => {
           const rect = wrapper.getBoundingClientRect();
@@ -763,16 +771,11 @@
           audio.currentTime = (Number(progress.value) / 1000) * audio.duration;
         });
 
-        volume.addEventListener("input", () => {
-          audio.volume = Number(volume.value);
-        });
-
         drawIdleSpectrum();
         window.addEventListener("resize", drawIdleSpectrum);
 
         wrapper.appendChild(spectrum);
         wrapper.appendChild(playButton);
-        wrapper.appendChild(volume);
         wrapper.appendChild(progress);
         wrapper.appendChild(time);
         wrapper.appendChild(status);
@@ -780,6 +783,13 @@
         wrapper.songPlayerApi = { audio, playFromStart };
         return wrapper;
       }
+
+      masterVolume?.addEventListener("input", () => {
+        masterVolumeValue = Number(masterVolume.value);
+        songPlayers.forEach((player) => {
+          player.audio.volume = masterVolumeValue;
+        });
+      });
 
       const waitForSongEnd = (audio) => new Promise((resolve) => {
         const done = () => {
