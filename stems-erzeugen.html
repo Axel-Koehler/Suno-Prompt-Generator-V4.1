@@ -700,7 +700,6 @@
             volume.addEventListener("input", () => {
               result.volume = Number(volume.value) || 0;
               audio.volume = Math.min(1, result.volume);
-              resetMasterMixAudio();
             });
 
             play.addEventListener("click", async () => {
