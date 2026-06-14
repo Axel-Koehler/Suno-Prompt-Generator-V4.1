@@ -164,6 +164,32 @@
       margin: 0 auto;
     }
 
+    .songs-actions {
+      display: flex;
+      justify-content: center;
+      margin: 0 0 12px;
+    }
+
+    .song-action-button {
+      min-height: 42px;
+      padding: 10px 18px;
+      border: 1px solid rgba(0, 217, 255, 0.72);
+      color: rgba(247, 251, 255, 0.96);
+      text-transform: uppercase;
+      background:
+        linear-gradient(135deg, var(--yellow) 0 9px, transparent 9px) left top / 24px 24px no-repeat,
+        linear-gradient(225deg, var(--yellow) 0 9px, transparent 9px) right top / 24px 24px no-repeat,
+        linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.82), rgba(9, 14, 42, 0.96));
+      clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0 50%);
+      box-shadow: 0 0 18px rgba(0, 217, 255, 0.28), inset 0 0 14px rgba(255, 45, 253, 0.14);
+      cursor: pointer;
+    }
+
+    .song-action-button:disabled {
+      cursor: default;
+      opacity: 0.55;
+    }
+
     .song-list {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -391,6 +417,9 @@
       <nav class="site-nav" data-active="songs" aria-label="Hauptnavigation"></nav>
 
       <div class="songs-content">
+        <div class="songs-actions">
+          <button class="song-action-button" id="playAllSongsButton" type="button" disabled>Alle Songs abspielen</button>
+        </div>
         <div class="song-list" id="songList"></div>
       </div>
     </section>
@@ -399,9 +428,12 @@
   <script>
     (() => {
       const songList = document.getElementById("songList");
+      const playAllSongsButton = document.getElementById("playAllSongsButton");
       let activeAudio = null;
       const objectUrls = [];
       let sharedAudioContext = null;
+      let songPlayers = [];
+      let playAllSongsRunning = false;
 
       const getAudioContext = () => {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -423,6 +455,8 @@
       const renderSongs = async () => {
         const songs = await window.AKRemoteStore?.listAudio?.([]) || [];
         songList.replaceChildren();
+        songPlayers = [];
+        playAllSongsButton.disabled = !songs.length;
 
         if (!songs.length) {
           const empty = document.createElement("p");
@@ -449,6 +483,7 @@
           if (meta.textContent) card.appendChild(meta);
           card.appendChild(player);
           songList.appendChild(card);
+          if (player.songPlayerApi) songPlayers.push(player.songPlayerApi);
         });
       };
 
@@ -625,6 +660,17 @@
           return true;
         };
 
+        const playFromStart = async () => {
+          const loaded = await ensureAudioLoaded();
+          if (!loaded) return false;
+          if (activeAudio && activeAudio !== audio) activeAudio.pause();
+          audio.currentTime = 0;
+          await startSpectrum();
+          await audio.play();
+          activeAudio = audio;
+          return true;
+        };
+
         playButton.addEventListener("click", async () => {
           const loaded = await ensureAudioLoaded();
           if (!loaded) return;
@@ -679,8 +725,45 @@
         wrapper.appendChild(time);
         wrapper.appendChild(status);
         wrapper.appendChild(audio);
+        wrapper.songPlayerApi = { audio, playFromStart };
         return wrapper;
       }
+
+      const waitForSongEnd = (audio) => new Promise((resolve) => {
+        const done = () => {
+          audio.removeEventListener("ended", done);
+          audio.removeEventListener("pause", onPause);
+          resolve();
+        };
+        const onPause = () => {
+          if (playAllSongsRunning && audio.currentTime < (audio.duration || 0) - 0.2) return;
+          done();
+        };
+        audio.addEventListener("ended", done, { once: true });
+        audio.addEventListener("pause", onPause);
+      });
+
+      const playSongsSequentially = async () => {
+        if (playAllSongsRunning) {
+          playAllSongsRunning = false;
+          if (activeAudio) activeAudio.pause();
+          playAllSongsButton.textContent = "Alle Songs abspielen";
+          return;
+        }
+
+        playAllSongsRunning = true;
+        playAllSongsButton.textContent = "Wiedergabe stoppen";
+        for (const player of songPlayers) {
+          if (!playAllSongsRunning) break;
+          const started = await player.playFromStart();
+          if (!started) continue;
+          await waitForSongEnd(player.audio);
+        }
+        playAllSongsRunning = false;
+        playAllSongsButton.textContent = "Alle Songs abspielen";
+      };
+
+      playAllSongsButton.addEventListener("click", playSongsSequentially);
 
       window.addEventListener("beforeunload", () => {
         objectUrls.forEach((url) => URL.revokeObjectURL(url));

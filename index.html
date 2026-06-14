@@ -3,14 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AK AI Music Studio von Axel Koehler verbindet KI, Musikproduktion, Suno Prompt Generatoren, Songtexte, Audio-Tools und kreative Musikprojekte.">
+  <meta name="keywords" content="AK AI Music Studio, Axel Koehler, KI Musik, AI Music, Suno Prompt Generator, Suno AI, KI Songtext Generator, Musikproduktion, AI Songwriting">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://www.ak-ai-music.studio/">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:title" content="AK AI Music Studio">
+  <meta property="og:description" content="KI trifft Kreativität: Musik, Suno Prompt Generatoren, Songtexte und Audio-Tools von Axel Koehler.">
+  <meta property="og:url" content="https://www.ak-ai-music.studio/">
+  <meta property="og:image" content="https://www.ak-ai-music.studio/favicon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AK AI Music Studio">
+  <meta name="twitter:description" content="KI trifft Kreativität: Musik, Suno Prompt Generatoren, Songtexte und Audio-Tools.">
   <link rel="stylesheet" href="assets/site-nav.css">
   <script src="assets/remote-config.js"></script>
   <script src="assets/remote-store.js"></script>
   <script src="assets/site-nav.js" defer></script>
   <script src="assets/site-content.js" defer></script>
   <title>AK AI Music Studio</title>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "AK AI Music Studio",
+      "url": "https://www.ak-ai-music.studio/",
+      "description": "KI-Musikproduktion, Suno Prompt Generatoren, Songtext-Tools und kreative Audio-Projekte von Axel Koehler.",
+      "inLanguage": "de",
+      "publisher": {
+        "@type": "Organization",
+        "name": "AK AI Music Studio",
+        "founder": {
+          "@type": "Person",
+          "name": "Axel Koehler"
+        }
+      }
+    }
+  </script>
   <style>
     :root {
       --bg: #070812;
@@ -110,19 +141,6 @@
       z-index: -1;
     }
 
-    .home-shell::after {
-      content: "";
-      position: absolute;
-      left: 9%;
-      right: 9%;
-      top: 50%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--yellow), #ff64ff 50%, var(--cyan), transparent);
-      box-shadow: 0 0 16px rgba(255, 45, 253, 0.9), 0 0 32px rgba(0, 217, 255, 0.5);
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
     .home-title {
       position: relative;
       z-index: 2;
@@ -209,6 +227,10 @@
       min-width: 0;
     }
 
+    .home-field-wide {
+      grid-column: 1 / -1;
+    }
+
     .home-field span {
       color: var(--cyan);
       font-size: 13px;
@@ -283,6 +305,9 @@
     }
 
     .home-video {
+      position: relative;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
       width: 100%;
       aspect-ratio: 16 / 9;
       min-height: 220px;
@@ -294,36 +319,52 @@
       overflow: hidden;
     }
 
-    .home-video iframe,
     .home-video video {
       display: block;
       width: 100%;
       height: 100%;
+      min-height: 0;
       border: 0;
       object-fit: cover;
     }
 
-    .home-image {
-      width: 100%;
-      min-height: 220px;
-      margin-bottom: 12px;
-      border: 1px solid rgba(0, 217, 255, 0.42);
+    .home-video-player {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 58px;
+      padding: 10px;
+      border-top: 1px solid rgba(0, 217, 255, 0.3);
+      background:
+        linear-gradient(135deg, rgba(248, 255, 19, 0.14), transparent 22%),
+        linear-gradient(225deg, rgba(255, 45, 253, 0.18), transparent 26%),
+        rgba(2, 5, 20, 0.84);
+      box-shadow: inset 0 0 18px rgba(0, 217, 255, 0.1);
+    }
+
+    .home-video-play {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(0, 217, 255, 0.55);
       border-radius: 6px;
-      background: rgba(2, 5, 20, 0.62);
-      box-shadow: inset 0 0 18px rgba(0, 217, 255, 0.07);
-      overflow: hidden;
+      color: rgba(247, 251, 255, 0.95);
+      background: linear-gradient(135deg, rgba(0, 217, 255, 0.26), rgba(255, 45, 253, 0.18));
+      box-shadow: 0 0 16px rgba(0, 217, 255, 0.22);
+      cursor: pointer;
     }
 
-    .home-image img {
-      display: block;
+    .home-video-progress {
       width: 100%;
-      height: 100%;
-      min-height: 220px;
-      object-fit: cover;
+      accent-color: var(--cyan);
     }
 
-    .home-image:last-child {
-      margin-bottom: 0;
+    .home-video-time {
+      min-width: 86px;
+      color: rgba(247, 251, 255, 0.82);
+      font-size: 12px;
+      text-align: right;
+      white-space: nowrap;
     }
 
     @media (max-width: 820px) {
@@ -346,6 +387,19 @@
       .home-fields {
         grid-template-columns: 1fr;
       }
+
+      .home-field-wide {
+        grid-column: auto;
+      }
+
+      .home-video-player {
+        grid-template-columns: 40px minmax(0, 1fr);
+      }
+
+      .home-video-time {
+        grid-column: 1 / -1;
+        text-align: left;
+      }
     }
   </style>
 </head>
@@ -361,6 +415,18 @@
 
       <div class="home-fields">
         <div class="home-column">
+          <label class="home-field">
+            <span data-content-key="home.vision.title">Meine Vision</span>
+            <div class="home-video">
+              <video id="homeStudioVideo" src="assets/ak-ai-music-studio.mp4" loop playsinline preload="metadata"></video>
+              <div class="home-video-player" aria-label="Videoplayer">
+                <button class="home-video-play" id="homeVideoPlay" type="button">▶</button>
+                <input class="home-video-progress" id="homeVideoProgress" type="range" min="0" max="1000" value="0">
+                <span class="home-video-time" id="homeVideoTime">0:00 / 0:00</span>
+              </div>
+            </div>
+          </label>
+
           <label class="home-field">
             <span data-content-key="home.about.title">Über mich</span>
             <div class="home-text" data-content-key="home.about.text">Hallo, ich bin Axel Köhler – Gründer von AK AI Music Studio und leidenschaftlicher Experte für die Verbindung von Musik, Technologie und künstlicher Intelligenz.
@@ -398,19 +464,55 @@ Mein Ziel ist es, Menschen, Unternehmen und Kreative dabei zu unterstützen, die
           </label>
         </div>
 
-        <div class="home-column">
-          <label class="home-field">
-            <span data-content-key="home.vision.title">Meine Vision</span>
-            <div class="home-image">
-              <img src="assets/vision-prompt-studio.png" alt="KI-Prompt-Studio für Musikproduktion">
-            </div>
-            <div class="home-video">
-              <video src="assets/ak-ai-music-studio.mp4" autoplay loop playsinline controls preload="metadata"></video>
-            </div>
-          </label>
-        </div>
+        <div class="home-column"></div>
+        <label class="home-field home-field-wide">
+          <span data-content-key="home.planned.title">Projekte in Planung</span>
+          <div class="home-text formatted" data-content-key="home.planned.text">Hier kannst du geplante Projekte eintragen.</div>
+        </label>
       </div>
     </section>
   </main>
+  <script>
+    (() => {
+      const columns = document.querySelectorAll(".home-column");
+      const ideaTitle = document.querySelector('[data-content-key="home.idea.title"]');
+      const ideaField = ideaTitle ? ideaTitle.closest(".home-field") : null;
+      if (columns[1] && ideaField) columns[1].appendChild(ideaField);
+
+      const video = document.getElementById("homeStudioVideo");
+      const play = document.getElementById("homeVideoPlay");
+      const progress = document.getElementById("homeVideoProgress");
+      const time = document.getElementById("homeVideoTime");
+      if (!video || !play || !progress || !time) return;
+
+      const formatTime = (seconds) => {
+        const value = Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
+        const minutes = Math.floor(value / 60);
+        const rest = String(Math.floor(value % 60)).padStart(2, "0");
+        return minutes + ":" + rest;
+      };
+
+      const update = () => {
+        const duration = video.duration || 0;
+        progress.value = duration ? String(Math.round((video.currentTime / duration) * 1000)) : "0";
+        time.textContent = formatTime(video.currentTime) + " / " + formatTime(duration);
+      };
+
+      play.addEventListener("click", async () => {
+        if (video.paused) await video.play();
+        else video.pause();
+      });
+      progress.addEventListener("input", () => {
+        if (!video.duration) return;
+        video.currentTime = (Number(progress.value) / 1000) * video.duration;
+      });
+      video.addEventListener("loadedmetadata", update);
+      video.addEventListener("timeupdate", update);
+      video.addEventListener("play", () => { play.textContent = "II"; });
+      video.addEventListener("pause", () => { play.textContent = "▶"; });
+      video.play().catch(() => {});
+      update();
+    })();
+  </script>
 </body>
 </html>

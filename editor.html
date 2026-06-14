@@ -608,6 +608,10 @@
                   Mood
                   <input class="editor-input" id="recordMood" type="text">
                 </label>
+                <label class="editor-label">
+                  Datenfeld
+                  <input class="editor-input" id="recordDataField" type="text">
+                </label>
                 <label class="editor-label wide">
                   Style
                   <textarea class="editor-textarea" id="recordStyle" spellcheck="false"></textarea>
@@ -645,6 +649,10 @@
                   <label class="editor-label">
                     Mood
                     <input class="editor-input" id="editRecordMood" type="text">
+                  </label>
+                  <label class="editor-label">
+                    Datenfeld
+                    <input class="editor-input" id="editRecordDataField" type="text">
                   </label>
                   <label class="editor-label wide">
                     Style
@@ -728,12 +736,12 @@
 
       const cleanValue = (value) => String(value || "").trim().replace(/\s+/g, " ");
 
-      const recordKey = (record) => ["Jahr", "Interpret", "Genre", "Mood", "Style"]
+      const recordKey = (record) => ["Jahr", "Interpret", "Genre", "Mood", "Datenfeld", "Style"]
         .map((column) => cleanValue(record[column]).toLocaleLowerCase("de"))
         .join("|");
 
       const clearRecordForm = () => {
-        ["recordYear", "recordInterpreter", "recordGenre", "recordMood", "recordStyle"].forEach((id) => {
+        ["recordYear", "recordInterpreter", "recordGenre", "recordMood", "recordDataField", "recordStyle"].forEach((id) => {
           document.getElementById(id).value = "";
         });
       };
@@ -831,12 +839,13 @@
         Interpret: cleanValue(document.getElementById("editRecordInterpreter").value),
         Genre: cleanValue(document.getElementById("editRecordGenre").value),
         Mood: cleanValue(document.getElementById("editRecordMood").value),
+        Datenfeld: cleanValue(document.getElementById("editRecordDataField").value),
         Style: cleanValue(document.getElementById("editRecordStyle").value),
       });
 
       const clearProjectRecordEditor = () => {
         activeProjectRecordId = "";
-        ["editRecordYear", "editRecordInterpreter", "editRecordGenre", "editRecordMood", "editRecordStyle"].forEach((id) => {
+        ["editRecordYear", "editRecordInterpreter", "editRecordGenre", "editRecordMood", "editRecordDataField", "editRecordStyle"].forEach((id) => {
           document.getElementById(id).value = "";
         });
         recordUpdateButton.disabled = true;
@@ -860,13 +869,13 @@
 
       const projectRecordLabel = (record) => {
         const title = [record.Interpret, record.Jahr].filter(Boolean).join(" - ");
-        const meta = [record.Genre, record.Mood].filter(Boolean).join(" · ");
+        const meta = [record.Genre, record.Mood, record.Datenfeld].filter(Boolean).join(" · ");
         return { title: title || "Ohne Titel", meta };
       };
 
       const recordMatchesSearch = (record, query) => {
         if (!query) return true;
-        const searchable = ["Jahr", "Interpret", "Genre", "Mood", "Style"]
+        const searchable = ["Jahr", "Interpret", "Genre", "Mood", "Datenfeld", "Style"]
           .map((column) => cleanValue(record[column]))
           .join(" ")
           .toLocaleLowerCase("de");
@@ -881,6 +890,7 @@
         document.getElementById("editRecordInterpreter").value = record.Interpret || "";
         document.getElementById("editRecordGenre").value = record.Genre || "";
         document.getElementById("editRecordMood").value = record.Mood || "";
+        document.getElementById("editRecordDataField").value = record.Datenfeld || "";
         document.getElementById("editRecordStyle").value = record.Style || "";
         recordUpdateButton.disabled = false;
         recordDeleteButton.disabled = false;
@@ -999,6 +1009,7 @@
           Interpret: cleanValue(document.getElementById("recordInterpreter").value),
           Genre: cleanValue(document.getElementById("recordGenre").value),
           Mood: cleanValue(document.getElementById("recordMood").value),
+          Datenfeld: cleanValue(document.getElementById("recordDataField").value),
           Style: cleanValue(document.getElementById("recordStyle").value),
         };
 

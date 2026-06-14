@@ -452,6 +452,15 @@
       text-transform: uppercase;
     }
 
+    .stem-band-spectrum {
+      width: 100%;
+      height: 38px;
+      border: 1px solid rgba(0, 217, 255, 0.34);
+      border-radius: 5px;
+      background: rgba(2, 5, 20, 0.54);
+      box-shadow: inset 0 0 12px rgba(0, 217, 255, 0.08);
+    }
+
     .volume-control input {
       width: 100%;
       accent-color: var(--cyan);
@@ -482,6 +491,10 @@
       background: rgba(2, 5, 20, 0.5);
       line-height: 1.45;
       text-transform: none;
+    }
+
+    .stems-text + h2 {
+      margin-top: 24px;
     }
 
     .progress-shell {
@@ -595,6 +608,7 @@
               <button class="stems-button" id="playAllButton" type="button" disabled>Alle 8 abspielen</button>
               <button class="stems-button" id="pauseAllButton" type="button" disabled>Pause</button>
               <button class="stems-button" id="stopAllButton" type="button" disabled>Stop</button>
+              <button class="stems-button" id="resetVolumesButton" type="button" disabled>Reset Lautstärke</button>
             </div>
             <button class="stems-button" id="mixDownloadButton" type="button" disabled>Einzelmix herunterladen</button>
             <div class="mix-help" data-content-key="stems.mix.help">Mit den Lautstärkereglern kannst du einzelne Spuren lauter oder leiser stellen. Der Button erstellt daraus eine neue WAV-Datei mit genau diesen Einstellungen.</div>
@@ -622,6 +636,7 @@
       const playAllButton = document.getElementById("playAllButton");
       const pauseAllButton = document.getElementById("pauseAllButton");
       const stopAllButton = document.getElementById("stopAllButton");
+      const resetVolumesButton = document.getElementById("resetVolumesButton");
       const downloadButton = document.getElementById("downloadButton");
       const mixDownloadButton = document.getElementById("mixDownloadButton");
       const status = document.getElementById("stemStatus");
@@ -639,6 +654,7 @@
       let liveOffset = 0;
       let liveDuration = 0;
       let livePlaying = false;
+      let liveProgressFrame = 0;
       const targetSampleRate = 44100;
       const defaultStemVolume = 0.5;
 
@@ -680,6 +696,7 @@
             const audio = document.createElement("audio");
             const volumeLabel = document.createElement("label");
             const volumeText = document.createElement("span");
+            const spectrum = document.createElement("canvas");
             const volume = document.createElement("input");
 
             player.className = "stem-player";
@@ -697,14 +714,19 @@
             audio.src = result.url;
             audio.preload = "metadata";
             result.audio = audio;
+            result.progress = progress;
+            result.time = time;
+            result.spectrum = spectrum;
 
             volumeLabel.className = "volume-control";
+            spectrum.className = "stem-band-spectrum";
             volumeText.textContent = "Lautstärke";
             volume.type = "range";
             volume.min = "0";
             volume.max = "1";
             volume.step = "0.01";
             volume.value = String(result.volume);
+            result.volumeInput = volume;
             audio.volume = Math.min(1, result.volume);
             volume.addEventListener("input", () => {
               result.volume = Number(volume.value) || 0;
@@ -745,12 +767,14 @@
             controls.appendChild(play);
             controls.appendChild(progress);
             controls.appendChild(time);
+            volumeLabel.appendChild(spectrum);
             volumeLabel.appendChild(volumeText);
             volumeLabel.appendChild(volume);
             player.appendChild(controls);
             player.appendChild(volumeLabel);
             player.appendChild(audio);
             item.appendChild(player);
+            requestAnimationFrame(() => drawBandSpectrum(result, index, 0, false));
           }
 
           stemList.appendChild(item);
@@ -770,6 +794,59 @@
         const minutes = Math.floor(value / 60);
         const rest = Math.floor(value % 60);
         return minutes + ":" + String(rest).padStart(2, "0");
+      };
+
+      const drawBandSpectrum = (stem, index, currentTime = 0, active = false) => {
+        const canvas = stem?.spectrum;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const scale = window.devicePixelRatio || 1;
+        const width = Math.max(1, Math.floor(rect.width * scale));
+        const height = Math.max(1, Math.floor(rect.height * scale));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        const context = canvas.getContext("2d");
+        if (!context) return;
+        context.clearRect(0, 0, width, height);
+
+        context.strokeStyle = "rgba(0, 217, 255, 0.3)";
+        context.lineWidth = Math.max(1, scale);
+        for (let x = 0; x <= width; x += 24 * scale) {
+          context.beginPath();
+          context.moveTo(x, 0);
+          context.lineTo(x, height);
+          context.stroke();
+        }
+        for (let y = 0; y <= height; y += 12 * scale) {
+          context.beginPath();
+          context.moveTo(0, y);
+          context.lineTo(width, y);
+          context.stroke();
+        }
+
+        const points = 72;
+        const volume = Number(stem.volume) || defaultStemVolume;
+        const bandEnergy = 0.2 + (index + 1) / bands.length * 0.38;
+        const center = height * 0.68;
+        context.beginPath();
+        for (let point = 0; point <= points; point += 1) {
+          const ratio = point / points;
+          const x = ratio * width;
+          const sweep = active ? currentTime * (1.8 + index * 0.16) : index;
+          const wave = Math.sin(ratio * Math.PI * (6 + index) + sweep) * height * 0.12;
+          const fine = Math.sin(ratio * Math.PI * (18 + index * 2) + sweep * 1.7) * height * 0.045;
+          const y = center - (active ? bandEnergy * volume * height * 0.34 : 0) + wave + fine;
+          if (point === 0) context.moveTo(x, y);
+          else context.lineTo(x, y);
+        }
+        context.strokeStyle = "rgba(0, 217, 255, 0.95)";
+        context.shadowColor = "rgba(255, 45, 253, 0.75)";
+        context.shadowBlur = 10 * scale;
+        context.lineWidth = Math.max(1.5, width * 0.004);
+        context.stroke();
+        context.shadowBlur = 0;
       };
 
       const createFilter = (context, type, frequency) => {
@@ -971,6 +1048,7 @@
         playAllButton.disabled = true;
         pauseAllButton.disabled = true;
         stopAllButton.disabled = true;
+        resetVolumesButton.disabled = true;
         mixDownloadButton.disabled = true;
       };
 
@@ -988,6 +1066,43 @@
         if (resetOffset) liveOffset = 0;
         pauseAllButton.disabled = true;
         stopAllButton.disabled = true;
+        cancelLiveProgress();
+        updateStemProgress(liveOffset);
+      };
+
+      const cancelLiveProgress = () => {
+        if (liveProgressFrame) cancelAnimationFrame(liveProgressFrame);
+        liveProgressFrame = 0;
+      };
+
+      const updateStemProgress = (currentTime) => {
+        const duration = liveDuration || stemResults[0]?.buffer?.duration || 0;
+        const value = duration ? String(Math.round((Math.min(currentTime, duration) / duration) * 1000)) : "0";
+        stemResults.forEach((stem, index) => {
+          if (stem.progress) stem.progress.value = value;
+          if (stem.time) stem.time.textContent = formatTime(Math.min(currentTime, duration)) + " / " + formatTime(duration);
+          drawBandSpectrum(stem, index, currentTime, livePlaying);
+        });
+      };
+
+      const tickLiveProgress = () => {
+        if (!livePlaying || !liveAudioContext) return;
+        const currentTime = Math.min(liveAudioContext.currentTime - liveStartedAt, liveDuration || 0);
+        updateStemProgress(currentTime);
+        liveProgressFrame = requestAnimationFrame(tickLiveProgress);
+      };
+
+      const resetStemVolumes = () => {
+        stemResults.forEach((stem, index) => {
+          stem.volume = defaultStemVolume;
+          if (stem.audio) stem.audio.volume = defaultStemVolume;
+          if (stem.volumeInput) stem.volumeInput.value = String(defaultStemVolume);
+          const gain = liveGains[index];
+          if (gain && liveAudioContext) {
+            gain.gain.setTargetAtTime(defaultStemVolume, liveAudioContext.currentTime, 0.015);
+          }
+          drawBandSpectrum(stem, index, liveOffset, livePlaying);
+        });
       };
 
       const getLiveAudioContext = async () => {
@@ -1078,6 +1193,8 @@
               livePlaying = false;
               pauseAllButton.disabled = true;
               stopAllButton.disabled = true;
+              cancelLiveProgress();
+              updateStemProgress(0);
             }
           });
           source.start(0, offset);
@@ -1088,6 +1205,8 @@
         livePlaying = true;
         pauseAllButton.disabled = false;
         stopAllButton.disabled = false;
+        cancelLiveProgress();
+        tickLiveProgress();
       };
 
       const processFile = async () => {
@@ -1130,6 +1249,7 @@
           playAllButton.disabled = false;
           pauseAllButton.disabled = true;
           stopAllButton.disabled = true;
+          resetVolumesButton.disabled = false;
           mixDownloadButton.disabled = false;
           setProgress(100);
           setStatus("Fertig. Die 8 Spuren können als ZIP heruntergeladen werden.");
@@ -1174,6 +1294,8 @@
       stopAllButton.addEventListener("click", () => {
         stopLiveTransport(true);
       });
+
+      resetVolumesButton.addEventListener("click", resetStemVolumes);
 
       downloadButton.addEventListener("click", () => {
         if (!zipBlob || !zipUrl || !selectedFile) return;

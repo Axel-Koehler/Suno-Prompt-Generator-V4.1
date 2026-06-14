@@ -90,6 +90,20 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
       defaultText: "Meine Vision",
     },
     {
+      id: "home.planned.title",
+      page: "Home",
+      label: "Feldtitel Projekte in Planung",
+      selector: '[data-content-key="home.planned.title"]',
+      defaultText: "Projekte in Planung",
+    },
+    {
+      id: "home.planned.text",
+      page: "Home",
+      label: "Text Projekte in Planung",
+      selector: '[data-content-key="home.planned.text"]',
+      defaultText: "Hier kannst du geplante Projekte eintragen.",
+    },
+    {
       id: "project.title",
       page: "SUNO Prompt Generator V4.1",
       label: "Überschrift",
