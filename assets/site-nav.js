@@ -50,7 +50,7 @@
     { id: "privacy", button: "Datenschutz", titleKey: "legal.privacy.title", textKey: "legal.privacy.text" }
   ];
 
-  const legalHost = document.querySelector(".home-shell, .holo-shell, .prompt-shell, .songs-shell, .stems-shell, .editor-shell");
+  const legalHost = document.querySelector(".home-shell, .holo-shell, .prompt-shell, .style-shell, .songs-shell, .stems-shell, .editor-shell");
   if (legalHost && !document.querySelector(".legal-footer")) {
     const footer = document.createElement("div");
     footer.className = "legal-footer";

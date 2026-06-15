@@ -204,6 +204,53 @@
       text-shadow: 0 0 10px rgba(0, 217, 255, 0.52);
     }
 
+    .category-card {
+      overflow: hidden;
+    }
+
+    .category-card summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 42px;
+      margin: -12px -12px 0;
+      padding: 12px;
+      color: var(--cyan);
+      cursor: pointer;
+      text-transform: uppercase;
+      background:
+        linear-gradient(135deg, rgba(248, 255, 19, 0.1), transparent 22%),
+        linear-gradient(90deg, rgba(9, 14, 42, 0.94), rgba(64, 12, 137, 0.74), rgba(9, 14, 42, 0.94));
+      border-bottom: 1px solid rgba(0, 217, 255, 0.28);
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.52);
+      list-style: none;
+    }
+
+    .category-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .category-card summary::after {
+      content: "+";
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      color: var(--yellow);
+      border: 1px solid rgba(248, 255, 19, 0.5);
+      border-radius: 4px;
+      box-shadow: inset 0 0 10px rgba(248, 255, 19, 0.08);
+    }
+
+    .category-card[open] summary::after {
+      content: "-";
+    }
+
+    .category-card[open] .term-grid {
+      padding-top: 12px;
+    }
+
     .term-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -252,19 +299,64 @@
       gap: 10px;
     }
 
+    .output-editor {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr);
+      min-height: 520px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      border-radius: 6px;
+      background: rgba(2, 5, 20, 0.72);
+      box-shadow: inset 0 0 16px rgba(0, 217, 255, 0.06);
+    }
+
+    .line-numbers {
+      min-height: 520px;
+      padding: 12px 10px;
+      overflow: hidden;
+      color: rgba(248, 255, 19, 0.72);
+      background: rgba(7, 11, 30, 0.88);
+      border-right: 1px solid rgba(0, 217, 255, 0.28);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: right;
+      user-select: none;
+      white-space: pre;
+    }
+
     .style-output {
       width: 100%;
-      min-height: 250px;
+      min-height: 520px;
       padding: 12px;
       color: rgba(247, 251, 255, 0.94);
       text-transform: none;
       resize: vertical;
       line-height: 1.5;
-      background: rgba(2, 5, 20, 0.72);
-      border: 1px solid rgba(0, 217, 255, 0.42);
-      border-radius: 6px;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
       outline: none;
-      box-shadow: inset 0 0 16px rgba(0, 217, 255, 0.06);
+      box-shadow: none;
+      scrollbar-color: rgba(0, 217, 255, 0.78) rgba(2, 5, 20, 0.62);
+      scrollbar-width: thin;
+    }
+
+    .style-output::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .style-output::-webkit-scrollbar-track {
+      background: rgba(2, 5, 20, 0.72);
+      border-left: 1px solid rgba(0, 217, 255, 0.18);
+    }
+
+    .style-output::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(248, 255, 19, 0.9), rgba(255, 45, 253, 0.78), rgba(0, 217, 255, 0.82));
+      border: 2px solid rgba(2, 5, 20, 0.78);
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(0, 217, 255, 0.42);
     }
 
     .button-row {
@@ -350,7 +442,10 @@
 
         <aside class="output-card" aria-label="Fertiger Code">
           <h2 class="output-title">Fertiger Code zum Kopieren</h2>
-          <textarea class="style-output" id="styleOutput" spellcheck="false"></textarea>
+          <div class="output-editor">
+            <div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div>
+            <textarea class="style-output" id="styleOutput" spellcheck="false"></textarea>
+          </div>
           <div class="button-row">
             <button class="style-button" id="copyButton" type="button">Copy</button>
             <button class="style-button" id="clearButton" type="button">Reset</button>
@@ -367,16 +462,22 @@
 
     const categoryGrid = document.getElementById("categoryGrid");
     const styleOutput = document.getElementById("styleOutput");
+    const lineNumbers = document.getElementById("lineNumbers");
     const copyStatus = document.getElementById("copyStatus");
     const selected = new Map();
+
+    const updateLineNumbers = () => {
+      const count = Math.max(1, styleOutput.value.split("\n").length);
+      lineNumbers.textContent = Array.from({ length: count }, (_, index) => String(index + 1)).join("\n");
+    };
 
     const buildOutput = () => {
       const lines = lyricStyleCategories.flatMap((category) => {
         const terms = selected.get(category) || [];
-        if (!terms.length) return [];
-        return [category + ": " + terms.map((entry) => entry.term).join(", ")];
+        return terms.map((entry) => entry.term);
       });
       styleOutput.value = lines.join("\n");
+      updateLineNumbers();
       window.autoGrowTextareas?.();
     };
 
@@ -393,16 +494,17 @@
 
     const renderCategories = () => {
       categoryGrid.replaceChildren();
-      lyricStyleCategories.forEach((category) => {
-        const card = document.createElement("article");
-        const title = document.createElement("h2");
+      lyricStyleCategories.forEach((category, index) => {
+        const card = document.createElement("details");
+        const title = document.createElement("summary");
         const grid = document.createElement("div");
         const terms = lyricStyleTerms.filter((entry) => entry.category === category);
 
         card.className = "category-card";
         title.className = "category-title";
         grid.className = "term-grid";
-        title.textContent = category;
+        if (index === 0) card.open = true;
+        title.textContent = String(index + 1) + ". " + category;
 
         terms.forEach((entry) => {
           const button = document.createElement("button");
@@ -442,6 +544,11 @@
       window.setTimeout(() => {
         copyStatus.textContent = "";
       }, 1600);
+    });
+
+    styleOutput.addEventListener("input", updateLineNumbers);
+    styleOutput.addEventListener("scroll", () => {
+      lineNumbers.scrollTop = styleOutput.scrollTop;
     });
 
     renderCategories();

@@ -1,12 +1,388 @@
 export const lyricStyleCategories = [
+  "Struktur",
+  "Stimmung",
   "Gesang",
   "Instrumental",
-  "Musikalische Leitung",
-  "Produktion & Struktur",
-  "Stimmung & Stil"
+  "Produktion",
+  "Musikalische Leitung"
 ];
 
 export const lyricStyleTerms = [
+  {
+    "category": "Struktur",
+    "term": "[Breakdown]",
+    "description": "Verringert vorübergehend die Intensität."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Bridge]",
+    "description": "Das bringt Abwechslung und Interesse."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Build-Up]",
+    "description": "Erhöht die Spannung."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Chorus]",
+    "description": "Hauptaufhänger / Thema."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Drop]",
+    "description": "Höhepunkt mit plötzlicher Energiefreisetzung."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Hook]",
+    "description": "Eingängiger wiederholter Teil."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Interlude]",
+    "description": "Kurze musikalische Pause."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Intro]",
+    "description": "Setzt die Stimmung und bereitet die Zuhörer vor."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Outro]",
+    "description": "Beendet das Lied."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Pre-Chorus]",
+    "description": "Steigert Vorfreude."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Solo]",
+    "description": "Zeigt instrumentale Virtuosität."
+  },
+  {
+    "category": "Struktur",
+    "term": "[Verse]",
+    "description": "Hauptsächlich lyrischer Inhalt."
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Abbandonatamente]",
+    "description": "Frei fließend und leidenschaftlich"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Affettuoso]",
+    "description": "Mit Emotion"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Agitato]",
+    "description": "Unruhig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Amabile]",
+    "description": "Angenehm"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Amoroso]",
+    "description": "Liebevoll"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Angry]",
+    "description": "Aggressiv"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Animato]",
+    "description": "Animiert"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Appassionato]",
+    "description": "Leidenschaftlich"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Barbaro]",
+    "description": "Barbarisch"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Bellicoso]",
+    "description": "Kriegerisch"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Brillante]",
+    "description": "Brillant"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Brioso]",
+    "description": "Temperamentvoll"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Cantabile]",
+    "description": "Singfähig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Capriccioso]",
+    "description": "Launisch"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Con Brio]",
+    "description": "Mit Geist"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Con Fuoco]",
+    "description": "Mit Feuer"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Con Moto]",
+    "description": "Mit Bewegung"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Con Spirito]",
+    "description": "Mit Geist"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Dark]",
+    "description": "Unheilvoll"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Dolce]",
+    "description": "Süß"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Dolente]",
+    "description": "Traurig, schmerzhaft"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Drammatico]",
+    "description": "Dramatisch"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Energico]",
+    "description": "Energetisch"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Eroica]",
+    "description": "Heroisch"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Espressivo]",
+    "description": "Ausdrucksstark"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Furioso]",
+    "description": "Wütend"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Giocoso]",
+    "description": "Verspielt"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Grandioso]",
+    "description": "Großartig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Grazioso]",
+    "description": "Anmutig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Happy]",
+    "description": "Freudig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Imperioso]",
+    "description": "Imperious"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Lacrimoso]",
+    "description": "Tränenreich"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Lamentoso]",
+    "description": "Klagen"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Leggiero]",
+    "description": "Licht"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Maestoso]",
+    "description": "Majestätisch"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Malinconico]",
+    "description": "Melancholisch"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Marcato]",
+    "description": "Markiert"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Marziale]",
+    "description": "Martial"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Mesto]",
+    "description": "Traurig, traurig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Misterioso]",
+    "description": "Mysteriös"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Pastorale]",
+    "description": "Pastoral"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Patetico]",
+    "description": "Erbärmlich, bewegend"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Pesante]",
+    "description": "Schwer"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Placido]",
+    "description": "Ruhig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Pomposo]",
+    "description": "Pompös"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Religioso]",
+    "description": "Religiös"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Risoluto]",
+    "description": "Entschlossen"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Romantic]",
+    "description": "Liebesfokussiert"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Rustico]",
+    "description": "Rustikal"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Sad]",
+    "description": "Traurig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Scary]",
+    "description": "Horror"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Scherzando]",
+    "description": "Verspielt"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Semplice]",
+    "description": "Ganz einfach"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Serioso]",
+    "description": "Ernst"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Soave]",
+    "description": "Sanft"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Solenne]",
+    "description": "Feierlich"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Sospirando]",
+    "description": "Seufzt"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Spiritoso]",
+    "description": "Temperamentvoll"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Tenerezza]",
+    "description": "Zärtlichkeit"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Tranquillo]",
+    "description": "Ruhig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Triste]",
+    "description": "Traurig"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Vigoroso]",
+    "description": "Kraftvoll"
+  },
+  {
+    "category": "Stimmung",
+    "term": "[Zeloso]",
+    "description": "Eifer"
+  },
   {
     "category": "Gesang",
     "term": "[A Capella]",
@@ -328,6 +704,101 @@ export const lyricStyleTerms = [
     "description": "Saiteninstrument"
   },
   {
+    "category": "Produktion",
+    "term": "[Clean]",
+    "description": "Klarer Klang"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Complex]",
+    "description": "Instrumente und Gesang verweben sich"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Composition]",
+    "description": "Polierte und verfeinerte Produktion. Gut für symphonische Lieder"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Delay]",
+    "description": "Wiederholende Echos"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Distortion]",
+    "description": "Knusprig/Fuzzy"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Dolby Atmos]",
+    "description": "Erhöhte Stereophonie"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Echo]",
+    "description": "Deutliche Wiederholungen"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Fade to End]",
+    "description": "Blendet zum Ende der Generation aus"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Fade]",
+    "description": "Erzeugt ein Fade"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Glitch]",
+    "description": "Stotternder digitaler Fehler"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Lo-Fi]",
+    "description": "Niedrige Treue, körnig"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Muted]",
+    "description": "Gedämpfter Klang"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Radio Filter]",
+    "description": "Dünnes, fernes Geräusch"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Reverb]",
+    "description": "Echo-Raum"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Reverse]",
+    "description": "Rückwärts-Audio"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Telephone Effect]",
+    "description": "Band-übergebene Stimme"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Underwater]",
+    "description": "Gedämpfter Tiefpass"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Vinyl Crackle]",
+    "description": "Plattenspieler-Lärm"
+  },
+  {
+    "category": "Produktion",
+    "term": "[Wall of Sound]",
+    "description": "Blended-Instrumente mit deutlichem Panning"
+  },
+  {
     "category": "Musikalische Leitung",
     "term": "[A Tempo]",
     "description": "Rückkehr zum ursprünglichen Tempo"
@@ -621,510 +1092,5 @@ export const lyricStyleTerms = [
     "category": "Musikalische Leitung",
     "term": "[Vivace]",
     "description": "Lebhaft, zügig"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Breakdown]",
-    "description": "Verringert vorübergehend die Intensität."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Bridge]",
-    "description": "Das bringt Abwechslung und Interesse."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Build-Up]",
-    "description": "Erhöht die Spannung."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Chorus]",
-    "description": "Hauptaufhänger / Thema."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Clean]",
-    "description": "Klarer Klang"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Complex]",
-    "description": "Instrumente und Gesang verweben sich"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Composition]",
-    "description": "Polierte und verfeinerte Produktion. Gut für symphonische Lieder"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Delay]",
-    "description": "Wiederholende Echos"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Distortion]",
-    "description": "Knusprig/Fuzzy"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Dolby Atmos]",
-    "description": "Erhöhte Stereophonie"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Drop]",
-    "description": "Höhepunkt mit plötzlicher Energiefreisetzung."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Echo]",
-    "description": "Deutliche Wiederholungen"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Fade to End]",
-    "description": "Blendet zum Ende der Generation aus"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Fade]",
-    "description": "Erzeugt ein Fade"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Glitch]",
-    "description": "Stotternder digitaler Fehler"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Hook]",
-    "description": "Eingängiger wiederholter Teil."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Interlude]",
-    "description": "Kurze musikalische Pause."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Intro]",
-    "description": "Setzt die Stimmung und bereitet die Zuhörer vor."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Lo-Fi]",
-    "description": "Niedrige Treue, körnig"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Muted]",
-    "description": "Gedämpfter Klang"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Outro]",
-    "description": "Beendet das Lied."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Pre-Chorus]",
-    "description": "Steigert Vorfreude."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Radio Filter]",
-    "description": "Dünnes, fernes Geräusch"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Reverb]",
-    "description": "Echo-Raum"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Reverse]",
-    "description": "Rückwärts-Audio"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Solo]",
-    "description": "Zeigt instrumentale Virtuosität."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Telephone Effect]",
-    "description": "Band-übergebene Stimme"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Underwater]",
-    "description": "Gedämpfter Tiefpass"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Verse]",
-    "description": "Hauptsächlich lyrischer Inhalt."
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Vinyl Crackle]",
-    "description": "Plattenspieler-Lärm"
-  },
-  {
-    "category": "Produktion & Struktur",
-    "term": "[Wall of Sound]",
-    "description": "Blended-Instrumente mit deutlichem Panning"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Abbandonatamente]",
-    "description": "Frei fließend und leidenschaftlich"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Affettuoso]",
-    "description": "Mit Emotion"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Agitato]",
-    "description": "Unruhig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Amabile]",
-    "description": "Angenehm"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Amoroso]",
-    "description": "Liebevoll"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Angry]",
-    "description": "Aggressiv"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Animato]",
-    "description": "Animiert"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Appassionato]",
-    "description": "Leidenschaftlich"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Barbaro]",
-    "description": "Barbarisch"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Bellicoso]",
-    "description": "Kriegerisch"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Brillante]",
-    "description": "Brillant"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Brioso]",
-    "description": "Temperamentvoll"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Cantabile]",
-    "description": "Singfähig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Capriccioso]",
-    "description": "Launisch"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Con Brio]",
-    "description": "Mit Geist"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Con Fuoco]",
-    "description": "Mit Feuer"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Con Moto]",
-    "description": "Mit Bewegung"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Con Spirito]",
-    "description": "Mit Geist"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Dark]",
-    "description": "Unheilvoll"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Dolce]",
-    "description": "Süß"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Dolente]",
-    "description": "Traurig, schmerzhaft"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Drammatico]",
-    "description": "Dramatisch"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Energico]",
-    "description": "Energetisch"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Eroica]",
-    "description": "Heroisch"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Espressivo]",
-    "description": "Ausdrucksstark"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Furioso]",
-    "description": "Wütend"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Giocoso]",
-    "description": "Verspielt"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Grandioso]",
-    "description": "Großartig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Grazioso]",
-    "description": "Anmutig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Happy]",
-    "description": "Freudig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Imperioso]",
-    "description": "Imperious"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Lacrimoso]",
-    "description": "Tränenreich"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Lamentoso]",
-    "description": "Klagen"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Leggiero]",
-    "description": "Licht"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Maestoso]",
-    "description": "Majestätisch"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Malinconico]",
-    "description": "Melancholisch"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Marcato]",
-    "description": "Markiert"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Marziale]",
-    "description": "Martial"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Mesto]",
-    "description": "Traurig, traurig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Misterioso]",
-    "description": "Mysteriös"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Pastorale]",
-    "description": "Pastoral"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Patetico]",
-    "description": "Erbärmlich, bewegend"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Pesante]",
-    "description": "Schwer"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Placido]",
-    "description": "Ruhig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Pomposo]",
-    "description": "Pompös"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Religioso]",
-    "description": "Religiös"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Risoluto]",
-    "description": "Entschlossen"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Romantic]",
-    "description": "Liebesfokussiert"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Rustico]",
-    "description": "Rustikal"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Sad]",
-    "description": "Traurig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Scary]",
-    "description": "Horror"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Scherzando]",
-    "description": "Verspielt"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Semplice]",
-    "description": "Ganz einfach"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Serioso]",
-    "description": "Ernst"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Soave]",
-    "description": "Sanft"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Solenne]",
-    "description": "Feierlich"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Sospirando]",
-    "description": "Seufzt"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Spiritoso]",
-    "description": "Temperamentvoll"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Tenerezza]",
-    "description": "Zärtlichkeit"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Tranquillo]",
-    "description": "Ruhig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Triste]",
-    "description": "Traurig"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Vigoroso]",
-    "description": "Kraftvoll"
-  },
-  {
-    "category": "Stimmung & Stil",
-    "term": "[Zeloso]",
-    "description": "Eifer"
-  },
-  {
-    "category": "Übersicht",
-    "term": "Gesamt",
-    "description": "217"
-  },
-  {
-    "category": "Übersicht",
-    "term": "Gesang",
-    "description": "37"
-  },
-  {
-    "category": "Übersicht",
-    "term": "Instrumental",
-    "description": "27"
-  },
-  {
-    "category": "Übersicht",
-    "term": "Musikalische Leitung",
-    "description": "59"
-  },
-  {
-    "category": "Übersicht",
-    "term": "Produktion / FX",
-    "description": "19"
-  },
-  {
-    "category": "Übersicht",
-    "term": "Stimmung / Stil",
-    "description": "63"
-  },
-  {
-    "category": "Übersicht",
-    "term": "Struktur",
-    "description": "12"
   }
 ];
