@@ -158,6 +158,20 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
       defaultText: "Die Zukunft der Musik: KI trifft Kreativität",
     },
     {
+      id: "lyric-style.info.title",
+      page: "Lyric Stil Generator",
+      label: "Feldtitel Informationen",
+      selector: '[data-content-key="lyric-style.info.title"]',
+      defaultText: "Informationen",
+    },
+    {
+      id: "lyric-style.info.text",
+      page: "Lyric Stil Generator",
+      label: "Text Informationen",
+      selector: '[data-content-key="lyric-style.info.text"]',
+      defaultText: "Bitte Word-Datei bereitstellen, damit der Text hier eingefuegt werden kann.",
+    },
+    {
       id: "stems.title",
       page: "Stems erzeugen",
       label: "Überschrift",

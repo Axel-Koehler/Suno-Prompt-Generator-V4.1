@@ -466,6 +466,12 @@
       let sequentialSongIndex = -1;
       let masterVolumeValue = Number(masterVolume?.value || 0.75);
 
+      const applyMasterVolumeToPlayer = (player) => {
+        if (!player) return;
+        if (player.audio) player.audio.volume = masterVolumeValue;
+        if (player.gainNode) player.gainNode.gain.setTargetAtTime(masterVolumeValue, sharedAudioContext?.currentTime || 0, 0.015);
+      };
+
       const getAudioContext = () => {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) return null;
@@ -661,6 +667,7 @@
         const spectrum = document.createElement("canvas");
         const audio = document.createElement("audio");
         let analyser = null;
+        let gainNode = null;
         let frequencyData = null;
         let animationFrame = 0;
         let previewData = null;
@@ -822,10 +829,13 @@
           if (!analyser) {
             const source = audioContext.createMediaElementSource(audio);
             analyser = audioContext.createAnalyser();
+            gainNode = audioContext.createGain();
             analyser.fftSize = 2048;
             analyser.smoothingTimeConstant = 0.78;
+            gainNode.gain.value = masterVolumeValue;
             source.connect(analyser);
-            analyser.connect(audioContext.destination);
+            analyser.connect(gainNode);
+            gainNode.connect(audioContext.destination);
             frequencyData = new Uint8Array(analyser.frequencyBinCount);
           }
           if (!animationFrame) drawSpectrum();
@@ -928,16 +938,25 @@
         wrapper.appendChild(time);
         wrapper.appendChild(status);
         wrapper.appendChild(audio);
-        wrapper.songPlayerApi = { audio, ensureAudioLoaded, playFromStart };
+        wrapper.songPlayerApi = {
+          audio,
+          ensureAudioLoaded,
+          playFromStart,
+          get gainNode() {
+            return gainNode;
+          }
+        };
         return wrapper;
       }
 
-      masterVolume?.addEventListener("input", () => {
+      const handleMasterVolumeChange = () => {
         masterVolumeValue = Number(masterVolume.value);
-        songPlayers.forEach((player) => {
-          player.audio.volume = masterVolumeValue;
-        });
-      });
+        songPlayers.forEach(applyMasterVolumeToPlayer);
+      };
+
+      masterVolume?.addEventListener("input", handleMasterVolumeChange);
+      masterVolume?.addEventListener("change", handleMasterVolumeChange);
+      masterVolume?.addEventListener("touchmove", handleMasterVolumeChange, { passive: true });
 
       const stopSequentialPlayback = () => {
         playAllSongsRunning = false;

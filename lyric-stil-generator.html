@@ -187,7 +187,8 @@
     }
 
     .category-card,
-    .output-card {
+    .output-card,
+    .lyric-info-card {
       border: 1px solid rgba(0, 217, 255, 0.42);
       border-radius: 6px;
       background: rgba(2, 5, 20, 0.62);
@@ -196,12 +197,27 @@
     }
 
     .category-title,
-    .output-title {
+    .output-title,
+    .lyric-info-title {
       margin: 0 0 10px;
       color: var(--cyan);
       font-size: 13px;
       text-transform: uppercase;
       text-shadow: 0 0 10px rgba(0, 217, 255, 0.52);
+    }
+
+    .lyric-info-card {
+      position: relative;
+      z-index: 2;
+      margin-top: 16px;
+    }
+
+    .lyric-info-text {
+      min-height: 160px;
+      color: rgba(247, 251, 255, 0.9);
+      line-height: 1.55;
+      text-transform: none;
+      white-space: pre-wrap;
     }
 
     .category-card {
@@ -444,7 +460,7 @@
           <h2 class="output-title">Fertiger Code zum Kopieren</h2>
           <div class="output-editor">
             <div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div>
-            <textarea class="style-output" id="styleOutput" spellcheck="false"></textarea>
+            <textarea class="style-output" id="styleOutput" spellcheck="true" lang="de" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
           </div>
           <div class="button-row">
             <button class="style-button" id="copyButton" type="button">Copy</button>
@@ -453,6 +469,11 @@
           </div>
           <div class="copy-status" id="copyStatus"></div>
         </aside>
+      </section>
+
+      <section class="lyric-info-card" aria-label="Informationen Lyric Stil Generator">
+        <h2 class="lyric-info-title" data-content-key="lyric-style.info.title">Informationen</h2>
+        <div class="lyric-info-text" data-content-key="lyric-style.info.text" spellcheck="true" lang="de" autocomplete="off" autocorrect="off" autocapitalize="off">Bitte Word-Datei bereitstellen, damit der Text hier eingefügt werden kann.</div>
       </section>
     </section>
   </main>
