@@ -473,7 +473,169 @@
 
       <section class="lyric-info-card" aria-label="Informationen Lyric Stil Generator">
         <h2 class="lyric-info-title" data-content-key="lyric-style.info.title">Informationen</h2>
-        <div class="lyric-info-text" data-content-key="lyric-style.info.text" spellcheck="true" lang="de" autocomplete="off" autocorrect="off" autocapitalize="off">Bitte Word-Datei bereitstellen, damit der Text hier eingefügt werden kann.</div>
+        <div class="lyric-info-text" data-content-key="lyric-style.info.text" spellcheck="true" lang="de" autocomplete="off" autocorrect="off" autocapitalize="off">1. Eckige Klammern [ ] – Der Regiestuhl
+
+Alles, was in eckigen Klammern steht, singt die KI nicht, sondern liest es als musikalische Anweisung (Metatag). Sie steuern den kompletten Songaufbau.
+
+Befehl / Zeichen
+
+Auswirkung in Suno
+
+[Verse] / [Chorus]
+
+Teilt den Song in Strophen (eher ruhig) und Refrain (energiegeladen) ein.
+
+[Pre-Chorus]
+
+Baut Spannung auf, bevor der Refrain einschlägt.
+
+[Bridge]
+
+Ändert oft Melodie, Rhythmus oder Tonart, um Abwechslung zu schaffen.
+
+[Instrumental] / [Solo]
+
+Unterdrückt den Gesang komplett für eine Passage (z.B. [Guitar Solo]).
+
+[Drop] / [Beat Drop]
+
+Erzeugt den plötzlichen, harten Einsatz des Beats (wichtig für EDM/Hip-Hop).
+
+[A Capella]
+
+Stoppt die Instrumente, sodass die Stimme kurzzeitig alleine singt.
+
+[Outro] / [End]
+
+Leitet das Ende des Songs ein (häufig verbunden mit einem Fade-out).
+
+2. Runde Klammern ( ) – Die zweite Reihe
+
+Runde Klammern steuern Hintergrundgesang (Backing Vocals) und Echos. Die KI interpretiert diesen Text als Ebene hinter der Hauptstimme.
+
+Echos / Ad-libs: Wenn du den Haupttext doppelst.
+
+Prompt: I am flying high (flying high)
+
+Ergebnis: Die Hauptstimme singt den ganzen Satz, eine zweite Stimme oder ein Chor flüstert/ruft das "flying high" im Hintergrund.
+
+Antwort-Gesang (Call &amp; Response):
+
+Prompt: We want it all! (Yeah we do!)
+
+3. Sternchen * * – Geräusche und Aktionen
+
+Sternchen werden genutzt, um nicht-musikalische Vokalisationen oder Geräusche zu erzwingen. (Hinweis: Die KI setzt das nicht immer zu 100 % um, aber es erhöht die Wahrscheinlichkeit enorm).
+
+*sigh* (Seufzen)
+
+*laugh* (Lachen)
+
+*cough* (Husten)
+
+*whispers* (Wechselt für das nächste Wort oft in ein Flüstern)
+
+4. Anführungszeichen " " – Gesprochenes Wort
+
+Wenn du möchtest, dass ein bestimmter Satz gesprochen statt gesungen wird, kannst du ihn in Anführungszeichen setzen oder mit einem Metatag kombinieren.
+
+Prompt: [Spoken Word] "This is the end of the line."
+
+Auswirkung: Die KI bricht aus der Melodie aus und spricht den Text (oft im Stil eines Radio-DJs oder eines dramatischen Monologs).
+
+5. Satzzeichen – Timing, Atmung und Rhythmus
+
+Suno nimmt Interpunktion sehr ernst. Satzzeichen sind deine Werkzeuge, um den Flow und die Pausen der Stimme zu dirigieren.
+
+Zeichen
+
+Auswirkung auf Gesang und Rhythmus
+
+Komma ,
+
+Kurze Atempause. Der Rhythmus läuft weiter, der Sänger schnappt kurz Luft.
+
+Punkt .
+
+Längere Pause. Beendet eine musikalische Phrase ("Zeile abgeschlossen").
+
+Ausrufezeichen !
+
+Erhöht die Energie. Der Sänger singt lauter, drückender oder "schreit" das Wort.
+
+Fragezeichen ?
+
+Verändert die Intonation. Die Stimme geht am Ende des Satzes oft nach oben.
+
+Auslassungspunkte ...
+
+Die Stimme "fadet" oft aus oder zieht das letzte Wort dramatisch in die Länge.
+
+Bindestrich -
+
+Erzeugt Stottern oder Stakkato (z.B. W-w-w-wait a minute).
+
+6. Großbuchstaben (ALL CAPS) – Lautstärke
+
+Kein klassisches Sonderzeichen, aber essenziell: Wenn du Wörter komplett großschreibst (z.B. I will NEVER surrender), interpretiert Suno das oft als starken Akzent (Belting/Shouting). Die KI legt auf dieses Wort besonders viel Kraft.
+
+Experten-Tipp zur Formatierung: Suno liest deinen Prompt von oben nach unten wie ein Skript. Absätze (Leerzeilen) sind extrem wichtig. Eine leere Zeile zwischen einem [Verse] und einem [Chorus] gibt der KI den nötigen "Denkraum", um das Instrumentalmuster zu wechseln. Klebt der Text ohne Absätze aneinander, verschwimmen die Songteile oft zu einem musikalischen Brei.
+
+Befehle zwischen zwei Sternchen (* *) sind in Suno deine Regieanweisungen für Soundeffekte, nonverbale Laute und emotionale Ausbrüche. Alles, was in diesen Sternchen steht, versucht die KI nicht zu singen, sondern als hörbares Geräusch in die Audiospur einzubauen.
+
+Da Suno auf englischsprachigen Datensätzen trainiert wurde, funktionieren ausschließlich englische Begriffe zuverlässig.
+
+Hier sind die Befehle, die von der KI am besten erkannt werden:
+
+1. Emotionale Laute
+
+Diese Befehle bringen Menschlichkeit und Gefühl in die Stimme, ohne dass ein Wort gesungen wird.
+
+*laugh* oder *chuckle*: Ein hörbares Lachen oder kurzes Kichern. Perfekt für fröhliche oder verrückte Songs.
+
+*sigh*: Ein tiefes, oft melancholisches Seufzen. Gut vor einer traurigen Strophe.
+
+*cry* oder *sobs*: Weinen oder Schluchzen.
+
+*giggle*: Ein verspieltes Kichern.
+
+2. Atmung und körperliche Geräusche
+
+Hiermit steuerst du die Physis des "Sängers" und schaffst Pausen, die sehr natürlich wirken.
+
+*breath* oder *deep breath*: Ein deutliches, hörbares Einatmen. Sehr effektiv vor einem langen, gehaltenen Ton oder nach einem schnellen Rap-Part.
+
+*gasp*: Ein erschrockenes, plötzliches Schnappen nach Luft.
+
+*cough*: Ein Husten.
+
+*clears throat* oder *ahem*: Ein Räuspern. Stark am Anfang eines Songs, bevor der eigentliche Text beginnt.
+
+*yawn*: Ein Gähnen (oft genutzt in Schlafliedern oder ruhigen Lo-Fi-Tracks).
+
+3. Stimmliche Effekte
+
+*scream*: Ein plötzlicher Schrei. (Hinweis: Wenn du möchtest, dass Text geschrien wird, nutze Großbuchstaben oder [Scream]. Die Sternchen erzeugen eher einen textlosen Schrei).
+
+*whispers*: Zwingt die KI oft dazu, in den Flüstermodus zu wechseln.
+
+*mumbles*: Die Stimme fängt an, unverständlich vor sich hin zu murmeln.
+
+*beatbox*: Die KI versucht, für einen kurzen Moment den Rhythmus mit dem Mund zu machen.
+
+So wendest du sie richtig an
+
+Damit Suno die Sternchen-Befehle nicht aus Versehen als Text mitsingt, kommt es auf die richtige Platzierung an.
+
+Variante A: Alleinstehend für volle Wirkung Setze den Befehl in eine eigene Zeile, damit die KI Platz hat, das Geräusch zu generieren.
+
+[Verse] I walked for miles in the rain *cough* My lungs are burning today
+
+Variante B: Mitten im Satz für Dynamik Du kannst sie direkt vor ein Wort setzen, um die Betonung dieses Wortes zu ändern.
+
+I just can't believe it *laugh* you must be joking!
+
+Wichtiges Detail: Suno ist eine kreative KI. Diese Befehle sind "weiche" Anweisungen. Wenn ein *laugh* in einem extrem traurigen Opern-Song steht, wird die KI es wahrscheinlich ignorieren, weil es musikalisch nicht passt. In passenden Genres (Pop, Musical, Rap, Theater) ist die Erfolgsquote deutlich höher.</div>
       </section>
     </section>
   </main>
