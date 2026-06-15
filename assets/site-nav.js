@@ -57,8 +57,10 @@
     footer.innerHTML = legalItems.map((item) => (
       '<button class="legal-link" type="button" data-legal-open="' + item.id + '">' + item.button + '</button>'
     )).join("");
+    const legalSlot = document.querySelector("[data-legal-slot]");
     const stageHost = legalHost.closest("main") || legalHost.parentElement;
-    if (stageHost) stageHost.appendChild(footer);
+    if (legalSlot) legalSlot.appendChild(footer);
+    else if (stageHost) stageHost.appendChild(footer);
     else legalHost.insertAdjacentElement("afterend", footer);
 
     const modal = document.createElement("div");
