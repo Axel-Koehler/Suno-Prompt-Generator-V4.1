@@ -463,6 +463,7 @@
       let sharedAudioContext = null;
       let songPlayers = [];
       let playAllSongsRunning = false;
+      let sequentialSongIndex = -1;
       let masterVolumeValue = Number(masterVolume?.value || 0.75);
 
       const getAudioContext = () => {
@@ -855,9 +856,14 @@
           if (activeAudio && activeAudio !== audio) activeAudio.pause();
           audio.currentTime = 0;
           await startSpectrum();
-          await audio.play();
-          activeAudio = audio;
-          return true;
+          try {
+            await audio.play();
+            activeAudio = audio;
+            return true;
+          } catch (error) {
+            status.textContent = "Wiedergabe bitte antippen.";
+            return false;
+          }
         };
 
         playButton.addEventListener("click", async () => {
@@ -866,8 +872,12 @@
           if (activeAudio && activeAudio !== audio) activeAudio.pause();
           if (audio.paused) {
             await startSpectrum();
-            await audio.play();
-            activeAudio = audio;
+            try {
+              await audio.play();
+              activeAudio = audio;
+            } catch (error) {
+              status.textContent = "Wiedergabe bitte antippen.";
+            }
           } else {
             audio.pause();
           }
@@ -885,6 +895,10 @@
         audio.addEventListener("ended", () => {
           playButton.textContent = "▶";
           progress.value = "0";
+          if (playAllSongsRunning) {
+            const currentIndex = songPlayers.findIndex((player) => player.audio === audio);
+            if (currentIndex === sequentialSongIndex) playSequentialAt(currentIndex + 1);
+          }
         });
 
         audio.addEventListener("pause", stopSpectrum);
@@ -914,7 +928,7 @@
         wrapper.appendChild(time);
         wrapper.appendChild(status);
         wrapper.appendChild(audio);
-        wrapper.songPlayerApi = { audio, playFromStart };
+        wrapper.songPlayerApi = { audio, ensureAudioLoaded, playFromStart };
         return wrapper;
       }
 
@@ -925,38 +939,35 @@
         });
       });
 
-      const waitForSongEnd = (audio) => new Promise((resolve) => {
-        const done = () => {
-          audio.removeEventListener("ended", done);
-          audio.removeEventListener("pause", onPause);
-          resolve();
-        };
-        const onPause = () => {
-          if (playAllSongsRunning && audio.currentTime < (audio.duration || 0) - 0.2) return;
-          done();
-        };
-        audio.addEventListener("ended", done, { once: true });
-        audio.addEventListener("pause", onPause);
-      });
+      const stopSequentialPlayback = () => {
+        playAllSongsRunning = false;
+        sequentialSongIndex = -1;
+        if (activeAudio) activeAudio.pause();
+        playAllSongsButton.textContent = "Alle Songs abspielen";
+      };
+
+      async function playSequentialAt(index) {
+        if (!playAllSongsRunning) return;
+        if (index >= songPlayers.length) {
+          stopSequentialPlayback();
+          return;
+        }
+        sequentialSongIndex = index;
+        const player = songPlayers[index];
+        const started = await player.playFromStart();
+        if (!started && playAllSongsRunning) playSequentialAt(index + 1);
+      }
 
       const playSongsSequentially = async () => {
         if (playAllSongsRunning) {
-          playAllSongsRunning = false;
-          if (activeAudio) activeAudio.pause();
-          playAllSongsButton.textContent = "Alle Songs abspielen";
+          stopSequentialPlayback();
           return;
         }
 
         playAllSongsRunning = true;
         playAllSongsButton.textContent = "Wiedergabe stoppen";
-        for (const player of songPlayers) {
-          if (!playAllSongsRunning) break;
-          const started = await player.playFromStart();
-          if (!started) continue;
-          await waitForSongEnd(player.audio);
-        }
-        playAllSongsRunning = false;
-        playAllSongsButton.textContent = "Alle Songs abspielen";
+        songPlayers.slice(1).forEach((player) => player.ensureAudioLoaded?.());
+        await playSequentialAt(0);
       };
 
       playAllSongsButton.addEventListener("click", playSongsSequentially);

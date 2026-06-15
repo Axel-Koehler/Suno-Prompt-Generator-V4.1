@@ -811,42 +811,53 @@
         if (!context) return;
         context.clearRect(0, 0, width, height);
 
-        context.strokeStyle = "rgba(0, 217, 255, 0.3)";
-        context.lineWidth = Math.max(1, scale);
-        for (let x = 0; x <= width; x += 24 * scale) {
-          context.beginPath();
-          context.moveTo(x, 0);
-          context.lineTo(x, height);
-          context.stroke();
-        }
-        for (let y = 0; y <= height; y += 12 * scale) {
-          context.beginPath();
-          context.moveTo(0, y);
-          context.lineTo(width, y);
-          context.stroke();
-        }
-
-        const points = 72;
+        const points = 96;
         const volume = Number(stem.volume) || defaultStemVolume;
-        const bandEnergy = 0.2 + (index + 1) / bands.length * 0.38;
-        const center = height * 0.68;
-        context.beginPath();
-        for (let point = 0; point <= points; point += 1) {
+        const bandEnergy = 0.18 + (index + 1) / bands.length * 0.42;
+        const center = height * 0.82;
+        const stemValueAtPoint = (point) => {
           const ratio = point / points;
-          const x = ratio * width;
           const sweep = active ? currentTime * (1.8 + index * 0.16) : index;
-          const wave = Math.sin(ratio * Math.PI * (6 + index) + sweep) * height * 0.12;
-          const fine = Math.sin(ratio * Math.PI * (18 + index * 2) + sweep * 1.7) * height * 0.045;
-          const y = center - (active ? bandEnergy * volume * height * 0.34 : 0) + wave + fine;
-          if (point === 0) context.moveTo(x, y);
-          else context.lineTo(x, y);
-        }
-        context.strokeStyle = "rgba(0, 217, 255, 0.95)";
-        context.shadowColor = "rgba(255, 45, 253, 0.75)";
-        context.shadowBlur = 10 * scale;
-        context.lineWidth = Math.max(1.5, width * 0.004);
-        context.stroke();
+          const wide = Math.sin(ratio * Math.PI * (5 + index * 0.35) + sweep) * 0.34;
+          const fine = Math.sin(ratio * Math.PI * (17 + index * 1.7) + sweep * 1.7) * 0.13;
+          const pulse = active ? 0.18 + Math.sin(currentTime * 3 + index) * 0.08 : 0.08;
+          return Math.max(0.02, Math.min(1, (bandEnergy + wide + fine + pulse) * volume));
+        };
+
+        const strokeLine = (offset, color, blur, widthMultiplier) => {
+          context.beginPath();
+          context.strokeStyle = color;
+          context.lineWidth = Math.max(1, width * widthMultiplier);
+          context.shadowColor = color;
+          context.shadowBlur = blur * scale;
+          for (let point = 0; point <= points; point += 1) {
+            const ratio = point / points;
+            const x = ratio * width;
+            const intensity = stemValueAtPoint(point);
+            const wave = Math.sin(ratio * Math.PI * 8 + currentTime * 5 + index) * height * 0.035;
+            const y = center + offset - intensity * height * 0.32 + wave;
+            if (point === 0) context.moveTo(x, y);
+            else context.lineTo(x, y);
+          }
+          context.stroke();
+        };
+
+        strokeLine(0, "rgba(0, 217, 255, 0.94)", 14, 0.007);
+        strokeLine(height * 0.025, "rgba(255, 45, 253, 0.68)", 10, 0.004);
+        strokeLine(-height * 0.12, "rgba(248, 255, 19, 0.5)", 8, 0.003);
+
+        context.fillStyle = "rgba(0, 217, 255, 0.13)";
         context.shadowBlur = 0;
+        context.beginPath();
+        context.moveTo(0, center);
+        for (let point = 0; point <= points; point += 1) {
+          const x = (point / points) * width;
+          const y = center - stemValueAtPoint(point) * height * 0.24;
+          context.lineTo(x, y);
+        }
+        context.lineTo(width, center);
+        context.closePath();
+        context.fill();
       };
 
       const createFilter = (context, type, frequency) => {

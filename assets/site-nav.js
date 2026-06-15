@@ -6,6 +6,7 @@
     { id: "suno-v31", label: "SUNO Prompt Generator V3.1", path: "suno-prompt-generator-v31.html" },
     { id: "project-1", label: "SUNO Prompt Generator V4.1", path: "outputs/suno_auswahlmenue.html" },
     { id: "ki-song-text", label: "KI Song Text Generator", path: "ki-song-text-generator.html" },
+    { id: "lyric-style", label: "Lyric Stil Generator", path: "lyric-stil-generator.html" },
     { id: "songs", label: "Meine Song`s", path: "songs.html" },
     { id: "stems", label: "Stems erzeugen", path: "stems-erzeugen.html" },
     { id: "editor", label: "Editor", path: "editor.html" }
@@ -23,6 +24,8 @@
       ? "suno-v31"
     : currentPath.endsWith("/ki-song-text-generator.html")
       ? "ki-song-text"
+    : currentPath.endsWith("/lyric-stil-generator.html")
+      ? "lyric-style"
     : currentPath.endsWith("/songs.html")
       ? "songs"
     : currentPath.endsWith("/stems-erzeugen.html")
@@ -54,7 +57,9 @@
     footer.innerHTML = legalItems.map((item) => (
       '<button class="legal-link" type="button" data-legal-open="' + item.id + '">' + item.button + '</button>'
     )).join("");
-    legalHost.insertAdjacentElement("afterend", footer);
+    const stageHost = legalHost.closest("main") || legalHost.parentElement;
+    if (stageHost) stageHost.appendChild(footer);
+    else legalHost.insertAdjacentElement("afterend", footer);
 
     const modal = document.createElement("div");
     modal.className = "legal-modal";

@@ -219,6 +219,8 @@
         ? "suno-v31"
       : path.endsWith("/ki-song-text-generator.html")
         ? "ki-song-text"
+      : path.endsWith("/lyric-stil-generator.html")
+        ? "lyric-style"
       : path.endsWith("/songs.html")
         ? "songs"
       : path.endsWith("/stems-erzeugen.html")

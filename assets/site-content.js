@@ -144,6 +144,20 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
 6. Suno öffnet die SUNO Create Seite.`,
     },
     {
+      id: "lyric-style.title",
+      page: "Lyric Stil Generator",
+      label: "Überschrift",
+      selector: '[data-content-key="lyric-style.title"]',
+      defaultText: "Lyric Stil Generator",
+    },
+    {
+      id: "lyric-style.subtitle",
+      page: "Lyric Stil Generator",
+      label: "Untertitel",
+      selector: '[data-content-key="lyric-style.subtitle"]',
+      defaultText: "Die Zukunft der Musik: KI trifft Kreativität",
+    },
+    {
       id: "stems.title",
       page: "Stems erzeugen",
       label: "Überschrift",

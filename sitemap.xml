@@ -25,6 +25,10 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.ak-ai-music.studio/lyric-stil-generator.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.ak-ai-music.studio/songs.html</loc>
     <priority>0.7</priority>
   </url>
