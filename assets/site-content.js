@@ -144,6 +144,13 @@ Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erwe
 6. Suno öffnet die SUNO Create Seite.`,
     },
     {
+      id: "prompt-designer.notice.text",
+      page: "Suno Prompt Generator V2.1",
+      label: "Hinweistext",
+      selector: '[data-content-key="prompt-designer.notice.text"]',
+      defaultText: "**ACHTUNG:** Durch diese extrem detaillierten Prompts reizt du das Verstehens-Limit der KI voll aus. Die JS-Engine dieses Generators verschiebt automatisch die Atmosphäre, das Tempo, die Skala und den Bass als unsichtbare Metadaten `[Style: ...]` in die Lyrics-Box. Die restlichen Begriffe füllen deine Style-Box bis auf den letzten Buchstaben. So schummelst du über 700 Zeichen an Anweisungen in Suno!",
+    },
+    {
       id: "lyric-style.title",
       page: "Lyric Stil Generator",
       label: "Überschrift",
