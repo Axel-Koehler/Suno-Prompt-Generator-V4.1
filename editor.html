@@ -524,6 +524,7 @@
           <div>
             <label class="editor-label">
               Textfelder
+              <select class="editor-input" id="fieldPageSelect" aria-label="Seite auswählen"></select>
               <div class="field-list" id="fieldList"></div>
             </label>
           </div>
@@ -712,6 +713,7 @@
       const visitorTotal = document.getElementById("visitorTotal");
       const visitorToday = document.getElementById("visitorToday");
       const visitorLast = document.getElementById("visitorLast");
+      const fieldPageSelect = document.getElementById("fieldPageSelect");
       const fieldList = document.getElementById("fieldList");
       const fieldName = document.getElementById("fieldName");
       const fieldText = document.getElementById("fieldText");
@@ -1213,6 +1215,7 @@
         const styles = getStyles();
         const style = styles[field.id] || {};
 
+        if (fieldPageSelect.value !== field.page) fieldPageSelect.value = field.page;
         fieldName.value = field.page + " - " + field.label;
         fieldText.value = typeof content[field.id] === "string" ? content[field.id] : field.defaultText;
         fontSize.value = style.fontSize || "";
@@ -1226,17 +1229,33 @@
         });
       };
 
-      const renderFieldList = () => {
+      const renderFieldButtons = (page, preferredFieldId = "") => {
         fieldList.innerHTML = "";
-        window.SiteContent.fields.forEach((field) => {
+        const fields = window.SiteContent.fields.filter((field) => field.page === page);
+        fields.forEach((field) => {
           const button = document.createElement("button");
           button.type = "button";
           button.dataset.fieldId = field.id;
-          button.innerHTML = '<span class="field-page">' + field.page + '</span>' + field.label;
+          button.textContent = field.label;
           button.addEventListener("click", () => selectField(field));
           fieldList.appendChild(button);
         });
-        selectField(window.SiteContent.fields[0]);
+        const selectedField = fields.find((field) => field.id === preferredFieldId) || fields[0];
+        if (selectedField) selectField(selectedField);
+      };
+
+      const renderFieldList = () => {
+        const pages = Array.from(new Set(window.SiteContent.fields.map((field) => field.page)));
+        const preferredPage = activeField?.page || fieldPageSelect.value || pages[0] || "";
+        fieldPageSelect.innerHTML = "";
+        pages.forEach((page) => {
+          const option = document.createElement("option");
+          option.value = page;
+          option.textContent = page;
+          fieldPageSelect.appendChild(option);
+        });
+        fieldPageSelect.value = pages.includes(preferredPage) ? preferredPage : pages[0] || "";
+        renderFieldButtons(fieldPageSelect.value, activeField?.id || "");
       };
 
       const saveField = async () => {
@@ -1265,6 +1284,10 @@
       fontColor.addEventListener("input", () => {
         const color = fontColor.value.toLowerCase();
         colorPreset.value = presetColors.includes(color) ? color : "";
+      });
+
+      fieldPageSelect.addEventListener("change", () => {
+        renderFieldButtons(fieldPageSelect.value);
       });
 
       const toggleBullets = () => {
