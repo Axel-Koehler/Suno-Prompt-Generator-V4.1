@@ -541,7 +541,7 @@
           const titleText = document.createElement("span");
           const analysis = document.createElement("span");
           const meta = document.createElement("div");
-          const player = createSongPlayer(song);
+          const player = createSongPlayer(song, analysis);
 
           card.className = "song-card";
           title.className = "song-title";
@@ -559,7 +559,6 @@
           card.appendChild(player);
           songList.appendChild(card);
           if (player.songPlayerApi) songPlayers.push(player.songPlayerApi);
-          if (!hasAnalysis(song.analysis)) analyzeAndStoreSong(song, analysis);
         });
       };
 
@@ -579,10 +578,10 @@
         return minutes + ":" + rest;
       };
 
-      const analyzeAndStoreSong = async (song, analysisNode) => {
+      const analyzeAndStoreSong = async (song, analysisNode, existingBlob = null) => {
         if (!window.AKRemoteStore?.fetchAudioBlob || !window.AKRemoteStore?.updateAudioAnalysis) return;
         try {
-          const blob = await window.AKRemoteStore.fetchAudioBlob(song.id);
+          const blob = existingBlob || await window.AKRemoteStore.fetchAudioBlob(song.id);
           if (!blob) throw new Error("Audio konnte nicht geladen werden.");
           const analysis = await analyzeAudio(song, blob);
           song.analysis = analysis;
@@ -690,7 +689,7 @@
         return { genre: "Pop", subgenre: "AI Music", style: "melodic, modern, balanced mix" };
       };
 
-      function createSongPlayer(song) {
+      function createSongPlayer(song, analysisNode) {
         const wrapper = document.createElement("div");
         const playButton = document.createElement("button");
         const progress = document.createElement("input");
@@ -719,7 +718,7 @@
         progress.value = "0";
         time.textContent = "0:00 / 0:00";
         status.textContent = "Bereit";
-        audio.preload = isAppleMobilePlayback ? "auto" : "metadata";
+        audio.preload = "none";
         audio.setAttribute("playsinline", "");
         audio.setAttribute("webkit-playsinline", "");
         audio.volume = masterVolumeValue;
@@ -893,6 +892,9 @@
           objectUrls.push(objectUrl);
           audio.src = objectUrl;
           buildPreviewData(blob);
+          if (analysisNode && !hasAnalysis(song.analysis)) {
+            analyzeAndStoreSong(song, analysisNode, blob);
+          }
           status.textContent = "";
           playButton.disabled = false;
           return true;
@@ -1026,7 +1028,6 @@
 
         playAllSongsRunning = true;
         playAllSongsButton.textContent = "Wiedergabe stoppen";
-        songPlayers.slice(1).forEach((player) => player.ensureAudioLoaded?.());
         await playSequentialAt(0);
       };
 
