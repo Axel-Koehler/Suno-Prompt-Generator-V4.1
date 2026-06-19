@@ -562,13 +562,15 @@
         });
       };
 
+      const analysisVersion = 2;
       const hasAnalysis = (analysis) => Boolean(
-        analysis && analysis.genre && analysis.subgenre && analysis.style
+        analysis && analysis.version === analysisVersion && analysis.genre && analysis.subgenre && analysis.style
       );
 
       const formatAnalysis = (analysis) => {
         if (!hasAnalysis(analysis)) return " - Analyse läuft...";
-        return " - " + [analysis.genre, analysis.subgenre, analysis.style].filter(Boolean).join(" / ");
+        const bpm = analysis.bpm ? " / " + analysis.bpm + " BPM" : "";
+        return " - " + [analysis.genre, analysis.subgenre, analysis.style].filter(Boolean).join(" / ") + bpm;
       };
 
       const formatTime = (seconds) => {
@@ -606,9 +608,12 @@
         const maxSamples = Math.min(channel.length, sampleRate * 90);
         const step = Math.max(1, Math.floor(maxSamples / 9000));
         let sum = 0;
+        let absSum = 0;
+        let diffSum = 0;
         let peak = 0;
         let crossings = 0;
         let previous = channel[0] || 0;
+        let previousAbs = Math.abs(previous);
         const envelope = [];
         const bucketSize = Math.max(1, Math.floor(sampleRate * 0.12));
         let bucketSum = 0;
@@ -618,9 +623,12 @@
           const sample = channel[index] || 0;
           const abs = Math.abs(sample);
           sum += sample * sample;
+          absSum += abs;
+          diffSum += Math.abs(abs - previousAbs);
           if (abs > peak) peak = abs;
           if ((sample >= 0 && previous < 0) || (sample < 0 && previous >= 0)) crossings += 1;
           previous = sample;
+          previousAbs = abs;
           bucketSum += abs;
           bucketCount += 1;
           if (index % bucketSize < step) {
@@ -630,11 +638,15 @@
           }
         }
 
-        const rms = Math.sqrt(sum / Math.max(1, Math.ceil(maxSamples / step)));
-        const zcr = crossings / Math.max(1, Math.ceil(maxSamples / step));
+        const sampledCount = Math.max(1, Math.ceil(maxSamples / step));
+        const rms = Math.sqrt(sum / sampledCount);
+        const averageAbs = absSum / sampledCount;
+        const brightness = Math.min(1, diffSum / Math.max(0.0001, absSum));
+        const zcr = crossings / sampledCount;
         const tempo = estimateTempo(envelope);
+        const transientRate = estimateTransientRate(envelope);
         const dynamics = peak / Math.max(0.0001, rms);
-        return inferAnalysisFromText(song, { rms, zcr, tempo, dynamics, duration });
+        return inferAnalysisFromText(song, { rms, zcr, tempo, dynamics, duration, brightness, averageAbs, transientRate });
       };
 
       const estimateTempo = (envelope) => {
@@ -662,31 +674,115 @@
         return bpm;
       };
 
+      const estimateTransientRate = (envelope) => {
+        if (envelope.length < 4) return 0;
+        const mean = envelope.reduce((sum, value) => sum + value, 0) / envelope.length;
+        let hits = 0;
+        for (let index = 1; index < envelope.length; index += 1) {
+          if (envelope[index] > mean * 1.35 && envelope[index] > envelope[index - 1] * 1.12) hits += 1;
+        }
+        return hits / envelope.length;
+      };
+
       const inferAnalysisFromText = (song, features) => {
         const text = ((song.title || "") + " " + (song.filename || "")).toLocaleLowerCase("de");
         const bpm = Number(features.tempo) || 0;
         const zcr = Number(features.zcr) || 0;
         const rms = Number(features.rms) || 0;
         const dynamics = Number(features.dynamics) || 0;
-
-        const rules = [
-          [/rock|guitar|metal|punk|grunge|band/i, ["Rock", "Alternative Rock", "guitar-driven, energetic, live-band feel"]],
-          [/hip.?hop|rap|trap|drill|boom.?bap/i, ["Hip-Hop", "Rap", "beat-focused, spoken flow, bass-heavy"]],
-          [/dance|club|house|techno|edm|trance|electro/i, ["Electronic", "Dance", "club-ready, synthetic, pulse-driven"]],
-          [/pop|summer|heart|love/i, ["Pop", "Modern Pop", "melodic, polished, radio-friendly"]],
-          [/country|folk|acoustic/i, ["Folk", "Acoustic Folk", "organic, warm, storytelling"]],
-          [/jazz|swing|blues|soul/i, ["Jazz/Soul", "Soulful Groove", "warm, expressive, vintage-tinted"]],
-          [/cinema|score|ambient|dream|space/i, ["Cinematic", "Ambient Score", "atmospheric, spacious, visual"]],
+        const brightness = Number(features.brightness) || 0;
+        const transientRate = Number(features.transientRate) || 0;
+        const scores = [
+          {
+            genre: "Electronic",
+            subgenre: bpm >= 128 ? "EDM / Club" : "Synth Pop",
+            style: "synthetisch, pulsierend, modern produziert",
+            score: 0,
+            patterns: /dance|club|house|techno|edm|trance|electro|synth|cyber|neon/i,
+          },
+          {
+            genre: "Pop",
+            subgenre: bpm >= 112 ? "Upbeat Pop" : "Melodic Pop",
+            style: "eingaengig, klar strukturiert, hook-orientiert",
+            score: 0,
+            patterns: /pop|summer|heart|love|radio|hit|dream/i,
+          },
+          {
+            genre: "Rock",
+            subgenre: zcr > 0.08 ? "Alternative Rock" : "Pop Rock",
+            style: "druckvoll, kantig, bandorientiert",
+            score: 0,
+            patterns: /rock|guitar|metal|punk|grunge|band|drive/i,
+          },
+          {
+            genre: "Hip-Hop",
+            subgenre: bpm < 95 ? "Trap / Slow Rap" : "Rap Groove",
+            style: "beatbetont, basslastig, rhythmisch fokussiert",
+            score: 0,
+            patterns: /hip.?hop|rap|trap|drill|boom.?bap|808|beat/i,
+          },
+          {
+            genre: "Cinematic",
+            subgenre: dynamics > 7 ? "Epic Score" : "Atmospheric Score",
+            style: "weit, emotional, filmisch aufgebaut",
+            score: 0,
+            patterns: /cinema|cinematic|score|orchestra|epic|ambient|space|movie/i,
+          },
+          {
+            genre: "R&B/Soul",
+            subgenre: bpm && bpm < 96 ? "Slow Groove" : "Soul Pop",
+            style: "warm, weich, vokal und groove-orientiert",
+            score: 0,
+            patterns: /r.?b|soul|blues|smooth|groove|slow jam/i,
+          },
+          {
+            genre: "Folk",
+            subgenre: "Acoustic Folk",
+            style: "organisch, erzaehlend, akustisch gepraegt",
+            score: 0,
+            patterns: /country|folk|acoustic|singer|songwriter|ballad/i,
+          },
+          {
+            genre: "Jazz",
+            subgenre: "Modern Jazz / Lounge",
+            style: "locker, harmonisch reich, elegant",
+            score: 0,
+            patterns: /jazz|swing|lounge|bossa|latin|sax/i,
+          },
         ];
-        const match = rules.find(([pattern]) => pattern.test(text));
-        if (match) return { genre: match[1][0], subgenre: match[1][1], style: match[1][2] };
 
-        if (bpm >= 122 && zcr > 0.055) return { genre: "Electronic", subgenre: "Dance Pop", style: "bright, driving, rhythm-forward" };
-        if (bpm >= 105 && rms > 0.08) return { genre: "Pop", subgenre: "Upbeat Pop", style: "energetic, polished, hook-focused" };
-        if (zcr > 0.075) return { genre: "Rock", subgenre: "Indie Rock", style: "edgy, textured, guitar-like transients" };
-        if (dynamics > 8 && rms < 0.07) return { genre: "Cinematic", subgenre: "Atmospheric Ballad", style: "wide dynamics, emotional, spacious" };
-        if (bpm && bpm < 92) return { genre: "R&B/Soul", subgenre: "Slow Groove", style: "warm, relaxed, intimate" };
-        return { genre: "Pop", subgenre: "AI Music", style: "melodic, modern, balanced mix" };
+        scores.forEach((entry) => {
+          if (entry.patterns.test(text)) entry.score += 9;
+        });
+
+        if (bpm >= 124) scores[0].score += 4;
+        if (bpm >= 105 && bpm < 124) scores[1].score += 3;
+        if (bpm > 0 && bpm < 96) {
+          scores[3].score += 2;
+          scores[5].score += 3;
+          scores[4].score += dynamics > 7 ? 2 : 0;
+        }
+        if (rms > 0.09 && transientRate > 0.13) {
+          scores[0].score += 3;
+          scores[2].score += 2;
+        }
+        if (brightness > 0.18 || zcr > 0.075) scores[2].score += 4;
+        if (brightness < 0.1 && dynamics > 7) scores[4].score += 4;
+        if (rms < 0.06 && dynamics > 8) scores[4].score += 3;
+        if (transientRate > 0.16 && bpm >= 100) scores[0].score += 2;
+        if (zcr < 0.045 && bpm > 0 && bpm < 105) scores[5].score += 2;
+
+        scores.sort((a, b) => b.score - a.score);
+        const best = scores[0];
+        const fallbackMood = bpm >= 124 ? "treibend" : bpm && bpm < 92 ? "ruhig" : rms > 0.085 ? "kraftvoll" : "melodisch";
+        return {
+          version: analysisVersion,
+          genre: best.score > 0 ? best.genre : "Pop",
+          subgenre: best.score > 0 ? best.subgenre : "Melodic AI Pop",
+          style: best.score > 0 ? best.style : fallbackMood + ", ausgewogen, modern produziert",
+          bpm: bpm ? Math.round(bpm) : "",
+          confidence: best.score >= 8 ? "hoch" : best.score >= 4 ? "mittel" : "niedrig",
+        };
       };
 
       function createSongPlayer(song, analysisNode) {
