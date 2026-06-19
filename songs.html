@@ -562,7 +562,7 @@
         });
       };
 
-      const analysisVersion = 3;
+      const analysisVersion = 4;
       const hasAnalysis = (analysis) => Boolean(
         analysis && analysis.version === analysisVersion && analysis.genre && analysis.subgenre && analysis.style
       );
@@ -757,111 +757,86 @@
         const spectralCentroid = Number(spectrum.centroid) || 0;
         const warmth = Number(spectrum.warmth) || 0;
         const scores = [
-          {
-            genre: "Electronic",
-            subgenre: bpm >= 128 ? "EDM / Club" : "Synth Pop",
-            style: "synthetisch, pulsierend, modern produziert",
-            score: 0,
-            patterns: /dance|club|house|techno|edm|trance|electro|synth|cyber|neon/i,
-          },
-          {
-            genre: "Pop",
-            subgenre: bpm >= 112 ? "Upbeat Pop" : "Melodic Pop",
-            style: "eingaengig, klar strukturiert, hook-orientiert",
-            score: 0,
-            patterns: /pop|summer|heart|love|radio|hit|dream/i,
-          },
-          {
-            genre: "Rock",
-            subgenre: zcr > 0.08 ? "Alternative Rock" : "Pop Rock",
-            style: "druckvoll, kantig, bandorientiert",
-            score: 0,
-            patterns: /rock|guitar|metal|punk|grunge|band|drive/i,
-          },
-          {
-            genre: "Hip-Hop",
-            subgenre: bpm < 95 ? "Trap / Slow Rap" : "Rap Groove",
-            style: "beatbetont, basslastig, rhythmisch fokussiert",
-            score: 0,
-            patterns: /hip.?hop|rap|trap|drill|boom.?bap|808|beat/i,
-          },
-          {
-            genre: "Cinematic",
-            subgenre: dynamics > 7 ? "Epic Score" : "Atmospheric Score",
-            style: "weit, emotional, filmisch aufgebaut",
-            score: 0,
-            patterns: /cinema|cinematic|score|orchestra|epic|ambient|space|movie/i,
-          },
-          {
-            genre: "R&B/Soul",
-            subgenre: bpm && bpm < 96 ? "Slow Groove" : "Soul Pop",
-            style: "warm, weich, vokal und groove-orientiert",
-            score: 0,
-            patterns: /r.?b|soul|blues|smooth|groove|slow jam/i,
-          },
-          {
-            genre: "Folk",
-            subgenre: "Acoustic Folk",
-            style: "organisch, erzaehlend, akustisch gepraegt",
-            score: 0,
-            patterns: /country|folk|acoustic|singer|songwriter|ballad/i,
-          },
-          {
-            genre: "Jazz",
-            subgenre: "Modern Jazz / Lounge",
-            style: "locker, harmonisch reich, elegant",
-            score: 0,
-            patterns: /jazz|swing|lounge|bossa|latin|sax/i,
-          },
+          { id: "edm", genre: "Electronic", subgenre: bpm >= 134 ? "EDM / Trance" : "Dance / Club", baseStyle: "club-orientiert, synthetisch, pulsierend", score: 0, patterns: /edm|dance|club|house|techno|trance|rave|festival/i },
+          { id: "synth", genre: "Electronic", subgenre: bpm >= 110 ? "Synthwave / Electro Pop" : "Downtempo Synth", baseStyle: "neonartig, elektronisch, flaechig", score: 0, patterns: /synth|cyber|neon|retrowave|wave|electro/i },
+          { id: "pop", genre: "Pop", subgenre: bpm >= 112 ? "Upbeat Pop" : "Melodic Pop", baseStyle: "eingaengig, hook-orientiert, klar strukturiert", score: 0, patterns: /pop|summer|heart|love|radio|hit|anthem/i },
+          { id: "rock", genre: "Rock", subgenre: zcr > 0.085 ? "Alternative Rock" : "Pop Rock", baseStyle: "druckvoll, kantig, bandorientiert", score: 0, patterns: /rock|guitar|metal|punk|grunge|band|drive|riff/i },
+          { id: "hiphop", genre: "Hip-Hop", subgenre: bpm < 95 ? "Trap / Slow Rap" : "Rap Groove", baseStyle: "beatbetont, basslastig, rhythmisch fokussiert", score: 0, patterns: /hip.?hop|rap|trap|drill|boom.?bap|808|beat/i },
+          { id: "cinematic", genre: "Cinematic", subgenre: dynamics > 7 ? "Epic Score" : "Atmospheric Score", baseStyle: "weit, emotional, filmisch aufgebaut", score: 0, patterns: /cinema|cinematic|score|orchestra|epic|movie|trailer/i },
+          { id: "ambient", genre: "Ambient", subgenre: highRatio > 0.24 ? "Space Ambient" : "Dark Ambient", baseStyle: "schwebend, atmosphaerisch, texturbetont", score: 0, patterns: /ambient|space|drone|meditation|calm|relax/i },
+          { id: "rnb", genre: "R&B/Soul", subgenre: bpm && bpm < 96 ? "Slow Groove" : "Soul Pop", baseStyle: "warm, weich, groove-orientiert", score: 0, patterns: /r.?b|soul|blues|smooth|groove|slow jam/i },
+          { id: "folk", genre: "Folk", subgenre: "Acoustic Folk", baseStyle: "organisch, erzaehlend, akustisch gepraegt", score: 0, patterns: /country|folk|acoustic|singer|songwriter|ballad/i },
+          { id: "jazz", genre: "Jazz", subgenre: "Modern Jazz / Lounge", baseStyle: "locker, harmonisch reich, elegant", score: 0, patterns: /jazz|swing|lounge|bossa|latin|sax/i },
         ];
+        const byId = Object.fromEntries(scores.map((entry) => [entry.id, entry]));
+        const addScore = (id, value) => {
+          if (byId[id]) byId[id].score += value;
+        };
 
         scores.forEach((entry) => {
-          if (entry.patterns.test(text)) entry.score += 9;
+          if (entry.patterns.test(text)) entry.score += 11;
         });
 
-        if (bpm >= 124) scores[0].score += 4;
-        if (bpm >= 105 && bpm < 124) scores[1].score += 3;
-        if (bpm > 0 && bpm < 96) {
-          scores[3].score += 2;
-          scores[5].score += 3;
-          scores[4].score += dynamics > 7 ? 2 : 0;
+        if (bpm >= 128) addScore("edm", 5);
+        if (bpm >= 112 && bpm < 128) {
+          addScore("pop", 4);
+          addScore("synth", 2);
+        }
+        if (bpm > 0 && bpm < 92) {
+          addScore("hiphop", 2);
+          addScore("rnb", 4);
+          addScore("ambient", 3);
+          addScore("cinematic", dynamics > 7 ? 3 : 1);
         }
         if (rms > 0.09 && transientRate > 0.13) {
-          scores[0].score += 3;
-          scores[2].score += 2;
+          addScore("edm", 4);
+          addScore("rock", 3);
         }
-        if (brightness > 0.18 || zcr > 0.075) scores[2].score += 4;
-        if (brightness < 0.1 && dynamics > 7) scores[4].score += 4;
-        if (rms < 0.06 && dynamics > 8) scores[4].score += 3;
-        if (transientRate > 0.16 && bpm >= 100) scores[0].score += 2;
-        if (zcr < 0.045 && bpm > 0 && bpm < 105) scores[5].score += 2;
-        if (bassRatio > 0.38 && bpm >= 115) scores[0].score += 4;
-        if (bassRatio > 0.42 && bpm < 105) scores[3].score += 4;
-        if (midRatio > 0.62 && spectralCentroid < 1800) scores[6].score += 3;
-        if (warmth > 0.5 && bpm < 108) scores[5].score += 3;
-        if (highRatio > 0.34 && brightness > 0.16) scores[2].score += 3;
-        if (spectralCentroid > 2600 && transientRate > 0.12) scores[0].score += 2;
-        if (spectralCentroid < 1300 && dynamics > 7) scores[4].score += 3;
+        if (transientRate > 0.18 && bpm >= 110) addScore("edm", 3);
+        if (bassRatio > 0.43 && bpm < 108) addScore("hiphop", 5);
+        if (bassRatio > 0.36 && bpm >= 116) addScore("edm", 4);
+        if (bassRatio > 0.3 && warmth > 0.44 && bpm < 108) addScore("rnb", 4);
+        if ((brightness > 0.18 || zcr > 0.075) && highRatio > 0.26) addScore("rock", 5);
+        if (highRatio > 0.32 && spectralCentroid > 2600 && bpm >= 105) addScore("synth", 3);
+        if (spectralCentroid > 2800 && transientRate > 0.12) addScore("edm", 2);
+        if (spectralCentroid < 1250 && dynamics > 7) addScore("cinematic", 5);
+        if (rms < 0.055 && dynamics > 7) {
+          addScore("cinematic", 4);
+          addScore("ambient", 3);
+        }
+        if (midRatio > 0.62 && spectralCentroid < 1800) {
+          addScore("folk", 4);
+          addScore("jazz", 2);
+        }
+        if (warmth > 0.52 && bpm < 108) addScore("rnb", 4);
+        if (warmth > 0.5 && highRatio < 0.2 && transientRate < 0.13) addScore("folk", 3);
+        if (zcr < 0.045 && bpm > 0 && bpm < 105) addScore("rnb", 3);
+        if (highRatio < 0.17 && transientRate < 0.1 && rms < 0.075) addScore("ambient", 4);
+        if (bpm >= 95 && bpm <= 125 && warmth > 0.42 && highRatio > 0.22 && transientRate < 0.16) addScore("jazz", 3);
 
         scores.sort((a, b) => b.score - a.score);
         const best = scores[0];
-        const fallbackMood = bpm >= 124 ? "treibend" : bpm && bpm < 92 ? "ruhig" : rms > 0.085 ? "kraftvoll" : "melodisch";
-        const sonicTags = [];
-        if (bassRatio > 0.4) sonicTags.push("bassbetont");
-        else if (bassRatio < 0.18) sonicTags.push("bassarm");
-        if (highRatio > 0.32 || spectralCentroid > 2600) sonicTags.push("hoehenreich");
-        else if (highRatio < 0.16) sonicTags.push("weich");
-        if (transientRate > 0.16) sonicTags.push("impulsiv");
-        if (dynamics > 8) sonicTags.push("dynamisch");
-        if (warmth > 0.5) sonicTags.push("warm");
+        const second = scores.find((entry) => entry.genre !== best.genre && entry.score > 0);
+        const isHybrid = second && best.score - second.score <= 3 && best.score >= 5;
+        const tempoTag = bpm >= 132 ? "schnell" : bpm >= 112 ? "mittleres Uptempo" : bpm >= 92 ? "moderates Tempo" : bpm > 0 ? "langsames Tempo" : "freies Tempo";
+        const energyTag = rms > 0.1 ? "sehr energiegeladen" : rms > 0.075 ? "kraftvoll" : rms > 0.052 ? "ausgewogen" : "zurueckhaltend";
+        const bassTag = bassRatio > 0.43 ? "massiver Low-End-Fokus" : bassRatio > 0.32 ? "praesenter Bass" : bassRatio < 0.16 ? "leichter Bassbereich" : "";
+        const toneTag = spectralCentroid > 3000 || highRatio > 0.34 ? "brillante Hoehen" : spectralCentroid < 1350 ? "dunkle Klangfarbe" : warmth > 0.5 ? "warme Mitten" : "ausgewogene Klangfarbe";
+        const motionTag = transientRate > 0.18 ? "stark rhythmisch" : transientRate > 0.12 ? "klarer Groove" : dynamics > 8 ? "weite Dynamik" : "ruhiger Fluss";
+        const hybridTag = isHybrid ? "mit " + second.genre + "-Einfluss" : "";
         const detailStyle = [
-          best.score > 0 ? best.style : fallbackMood + ", ausgewogen, modern produziert",
-          sonicTags.slice(0, 3).join(", "),
+          best.score > 0 ? best.baseStyle : "melodisch, modern produziert",
+          hybridTag,
+          tempoTag,
+          energyTag,
+          bassTag,
+          toneTag,
+          motionTag,
         ].filter(Boolean).join(", ");
         return {
           version: analysisVersion,
-          genre: best.score > 0 ? best.genre : "Pop",
-          subgenre: best.score > 0 ? best.subgenre : "Melodic AI Pop",
+          genre: isHybrid ? best.genre + " / " + second.genre : best.score > 0 ? best.genre : "Pop",
+          subgenre: isHybrid ? best.subgenre + " mit " + second.subgenre : best.score > 0 ? best.subgenre : "Melodic AI Pop",
           style: detailStyle,
           bpm: bpm ? Math.round(bpm) : "",
           confidence: best.score >= 8 ? "hoch" : best.score >= 4 ? "mittel" : "niedrig",
