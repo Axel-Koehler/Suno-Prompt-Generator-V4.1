@@ -562,15 +562,16 @@
         });
       };
 
-      const analysisVersion = 2;
+      const analysisVersion = 3;
       const hasAnalysis = (analysis) => Boolean(
         analysis && analysis.version === analysisVersion && analysis.genre && analysis.subgenre && analysis.style
       );
 
       const formatAnalysis = (analysis) => {
-        if (!hasAnalysis(analysis)) return " - Analyse läuft...";
+        if (!hasAnalysis(analysis)) return " - Analyse laeuft...";
         const bpm = analysis.bpm ? " / " + analysis.bpm + " BPM" : "";
-        return " - " + [analysis.genre, analysis.subgenre, analysis.style].filter(Boolean).join(" / ") + bpm;
+        const confidence = analysis.confidence ? " / Treffer: " + analysis.confidence : "";
+        return " - " + [analysis.genre, analysis.subgenre, analysis.style].filter(Boolean).join(" / ") + bpm + confidence;
       };
 
       const formatTime = (seconds) => {
@@ -646,7 +647,64 @@
         const tempo = estimateTempo(envelope);
         const transientRate = estimateTransientRate(envelope);
         const dynamics = peak / Math.max(0.0001, rms);
-        return inferAnalysisFromText(song, { rms, zcr, tempo, dynamics, duration, brightness, averageAbs, transientRate });
+        const spectrum = analyzeFrequencyProfile(channel, sampleRate, maxSamples);
+        return inferAnalysisFromText(song, { rms, zcr, tempo, dynamics, duration, brightness, averageAbs, transientRate, spectrum });
+      };
+
+      const analyzeFrequencyProfile = (channel, sampleRate, maxSamples) => {
+        const windowSize = 2048;
+        const sampleWindows = 14;
+        const usableSamples = Math.max(windowSize, maxSamples - windowSize);
+        const bands = [
+          { key: "sub", min: 30, max: 60 },
+          { key: "bass", min: 60, max: 160 },
+          { key: "lowMid", min: 160, max: 400 },
+          { key: "mid", min: 400, max: 1200 },
+          { key: "highMid", min: 1200, max: 3200 },
+          { key: "presence", min: 3200, max: 6500 },
+          { key: "air", min: 6500, max: 12000 },
+        ];
+        const totals = Object.fromEntries(bands.map((band) => [band.key, 0]));
+        let totalEnergy = 0;
+        let weightedFrequency = 0;
+
+        const goertzelPower = (start, frequency) => {
+          const omega = (2 * Math.PI * frequency) / sampleRate;
+          const coeff = 2 * Math.cos(omega);
+          let q0 = 0;
+          let q1 = 0;
+          let q2 = 0;
+          for (let offset = 0; offset < windowSize; offset += 1) {
+            const sample = channel[start + offset] || 0;
+            const window = 0.5 - 0.5 * Math.cos((2 * Math.PI * offset) / (windowSize - 1));
+            q0 = coeff * q1 - q2 + sample * window;
+            q2 = q1;
+            q1 = q0;
+          }
+          return Math.max(0, q1 * q1 + q2 * q2 - coeff * q1 * q2);
+        };
+
+        for (let windowIndex = 0; windowIndex < sampleWindows; windowIndex += 1) {
+          const ratio = sampleWindows === 1 ? 0 : windowIndex / (sampleWindows - 1);
+          const start = Math.min(channel.length - windowSize, Math.max(0, Math.floor(ratio * usableSamples)));
+          bands.forEach((band) => {
+            const center = Math.sqrt(band.min * band.max);
+            const power = goertzelPower(start, center);
+            totals[band.key] += power;
+            totalEnergy += power;
+            weightedFrequency += power * center;
+          });
+        }
+
+        const safeTotal = Math.max(0.000001, totalEnergy);
+        const profile = Object.fromEntries(Object.entries(totals).map(([key, value]) => [key, value / safeTotal]));
+        profile.centroid = weightedFrequency / safeTotal;
+        profile.lowRatio = profile.sub + profile.bass;
+        profile.midRatio = profile.lowMid + profile.mid + profile.highMid;
+        profile.highRatio = profile.presence + profile.air;
+        profile.warmth = profile.lowMid + profile.mid;
+        profile.brightness = profile.highMid + profile.presence + profile.air;
+        return profile;
       };
 
       const estimateTempo = (envelope) => {
@@ -692,6 +750,12 @@
         const dynamics = Number(features.dynamics) || 0;
         const brightness = Number(features.brightness) || 0;
         const transientRate = Number(features.transientRate) || 0;
+        const spectrum = features.spectrum || {};
+        const bassRatio = Number(spectrum.lowRatio) || 0;
+        const midRatio = Number(spectrum.midRatio) || 0;
+        const highRatio = Number(spectrum.highRatio) || 0;
+        const spectralCentroid = Number(spectrum.centroid) || 0;
+        const warmth = Number(spectrum.warmth) || 0;
         const scores = [
           {
             genre: "Electronic",
@@ -771,15 +835,34 @@
         if (rms < 0.06 && dynamics > 8) scores[4].score += 3;
         if (transientRate > 0.16 && bpm >= 100) scores[0].score += 2;
         if (zcr < 0.045 && bpm > 0 && bpm < 105) scores[5].score += 2;
+        if (bassRatio > 0.38 && bpm >= 115) scores[0].score += 4;
+        if (bassRatio > 0.42 && bpm < 105) scores[3].score += 4;
+        if (midRatio > 0.62 && spectralCentroid < 1800) scores[6].score += 3;
+        if (warmth > 0.5 && bpm < 108) scores[5].score += 3;
+        if (highRatio > 0.34 && brightness > 0.16) scores[2].score += 3;
+        if (spectralCentroid > 2600 && transientRate > 0.12) scores[0].score += 2;
+        if (spectralCentroid < 1300 && dynamics > 7) scores[4].score += 3;
 
         scores.sort((a, b) => b.score - a.score);
         const best = scores[0];
         const fallbackMood = bpm >= 124 ? "treibend" : bpm && bpm < 92 ? "ruhig" : rms > 0.085 ? "kraftvoll" : "melodisch";
+        const sonicTags = [];
+        if (bassRatio > 0.4) sonicTags.push("bassbetont");
+        else if (bassRatio < 0.18) sonicTags.push("bassarm");
+        if (highRatio > 0.32 || spectralCentroid > 2600) sonicTags.push("hoehenreich");
+        else if (highRatio < 0.16) sonicTags.push("weich");
+        if (transientRate > 0.16) sonicTags.push("impulsiv");
+        if (dynamics > 8) sonicTags.push("dynamisch");
+        if (warmth > 0.5) sonicTags.push("warm");
+        const detailStyle = [
+          best.score > 0 ? best.style : fallbackMood + ", ausgewogen, modern produziert",
+          sonicTags.slice(0, 3).join(", "),
+        ].filter(Boolean).join(", ");
         return {
           version: analysisVersion,
           genre: best.score > 0 ? best.genre : "Pop",
           subgenre: best.score > 0 ? best.subgenre : "Melodic AI Pop",
-          style: best.score > 0 ? best.style : fallbackMood + ", ausgewogen, modern produziert",
+          style: detailStyle,
           bpm: bpm ? Math.round(bpm) : "",
           confidence: best.score >= 8 ? "hoch" : best.score >= 4 ? "mittel" : "niedrig",
         };
