@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -108,7 +108,7 @@
       width: min(1420px, 97vw);
       min-height: min(760px, calc(100vh - 48px));
       padding: 10px 22px 58px;
-      clip-path: polygon(4.5% 0, 95.5% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 95.5% 100%, 4.5% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+      clip-path: none;
       background:
         linear-gradient(90deg, var(--yellow), var(--orange) 9%, var(--violet) 23%, var(--magenta) 51%, var(--violet) 76%, var(--cyan) 91%, var(--yellow)),
         linear-gradient(180deg, rgba(17, 8, 47, 0.96), rgba(5, 5, 18, 0.98));
@@ -119,7 +119,7 @@
       content: "";
       position: absolute;
       inset: 3px;
-      clip-path: inherit;
+      clip-path: none;
       background:
         linear-gradient(180deg, rgba(10, 6, 29, 0.95), rgba(8, 5, 24, 0.98)),
         linear-gradient(90deg, rgba(0, 217, 255, 0.08), rgba(255, 45, 253, 0.08));
@@ -149,17 +149,13 @@
       text-transform: uppercase;
       letter-spacing: 0;
       background:
-        linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
-        linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
-        linear-gradient(45deg, #ff8a19 0 10px, transparent 10px) left bottom / 30px 30px no-repeat,
-        linear-gradient(315deg, #ff8a19 0 10px, transparent 10px) right bottom / 30px 30px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
       border: 1px solid rgba(0, 217, 255, 0.8);
       box-shadow:
         0 0 26px rgba(0, 217, 255, 0.52),
         0 0 34px rgba(175, 25, 255, 0.36),
         inset 0 0 16px rgba(0, 217, 255, 0.28);
-      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+      clip-path: none;
       text-shadow: 0 0 12px rgba(0, 217, 255, 0.78);
       white-space: nowrap;
       isolation: isolate;
@@ -172,7 +168,7 @@
       inset: 5px 12px;
       border-top: 1px solid rgba(198, 31, 255, 0.78);
       border-bottom: 1px solid rgba(198, 31, 255, 0.78);
-      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      clip-path: none;
       box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
       pointer-events: none;
     }
@@ -381,7 +377,7 @@
         --shell-corner-depth: 42px;
         width: min(100%, 96vw);
         padding: 10px 14px 44px;
-        clip-path: polygon(3% 0, 97% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 97% 100%, 3% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+        clip-path: none;
       }
 
       .prompt-title-chip {
@@ -396,7 +392,7 @@
     <section class="prompt-shell" aria-label="KI Song Text Generator">
       <div class="prompt-title">
         <div class="prompt-title-chip">KI Song Text Generator</div>
-        <div class="prompt-subline">Die Zukunft der Musik: KI trifft Kreativität</div>
+        <div class="prompt-subline">Die Zukunft der Musik: KI trifft KreativitÃ¤t</div>
       </div>
 
       <nav class="site-nav" data-active="ki-song-text" aria-label="Hauptnavigation"></nav>
@@ -477,14 +473,14 @@
       { label: "Deutsch", value: "de-DE" },
       { label: "Englisch", value: "en-US" },
       { label: "Spanisch", value: "es-ES" },
-      { label: "Französisch", value: "fr-FR" },
+      { label: "FranzÃ¶sisch", value: "fr-FR" },
       { label: "Italiano", value: "it-IT" },
     ];
 
     const lyricTemplates = {
       "de-DE": {
         topicFallback: "deine Geschichte",
-        moodFallback: "Gefühl",
+        moodFallback: "GefÃ¼hl",
         imageFallback: "Licht",
         secondImageFallback: "Nacht",
         lines: (_topic, mood, image, secondImage) => [
@@ -495,34 +491,34 @@
           "und mein Herz schreibt die Worte, die ich nie verlor.",
           "",
           "[Pre-Chorus]",
-          "Wenn die Welt zu laut wird, hör ich mich klar,",
+          "Wenn die Welt zu laut wird, hÃ¶r ich mich klar,",
           "alles, was ich suchte, war schon immer da.",
           "",
           "[Chorus]",
           "Was tief in mir lebt, brennt hell in dieser Nacht,",
           "ich falle nicht, ich bin erwacht.",
           line(["Mit", image, "in der Stimme und Mut im Blick,"]),
-          "sing ich mich nach vorn, Stück für Stück.",
+          "sing ich mich nach vorn, StÃ¼ck fÃ¼r StÃ¼ck.",
           "",
           "[Verse 2]",
-          "Aus alten Schatten wächst ein neuer Ton,",
+          "Aus alten Schatten wÃ¤chst ein neuer Ton,",
           "jede Narbe wird Rhythmus, jede Frage wird Lohn.",
           line(["Und wenn", secondImage, "an den Fenstern zieht,"]),
           "bleibt diese Melodie, die mich weiter sieht.",
           "",
           "[Bridge]",
-          "Kein Zurück, nur der Beat unter meiner Haut,",
+          "Kein ZurÃ¼ck, nur der Beat unter meiner Haut,",
           "ich sag es laut, bis es jeder glaubt.",
           "",
           "[Chorus]",
           "Was tief in mir lebt, brennt hell in dieser Nacht,",
           "ich falle nicht, ich bin erwacht.",
           line(["Mit", image, "in der Stimme und Mut im Blick,"]),
-          "sing ich mich nach vorn, Stück für Stück.",
+          "sing ich mich nach vorn, StÃ¼ck fÃ¼r StÃ¼ck.",
           "",
           "[Outro]",
           "Am Ende bleibt ein Zeichen wie ein Stern im Wind,",
-          "und ich weiß, dass wir noch nicht fertig sind.",
+          "und ich weiÃŸ, dass wir noch nicht fertig sind.",
         ],
       },
       "en-US": {
@@ -681,7 +677,7 @@
         regen: "rain",
         stadt: "city",
         traum: "dream",
-        träume: "dreams",
+        trÃ¤ume: "dreams",
         erinnerung: "memory",
         erinnerungen: "memories",
         abschied: "farewell",
@@ -700,7 +696,7 @@
         hoffnung: "esperanza",
         freiheit: "libertad",
         einsamkeit: "soledad",
-        verlust: "pérdida",
+        verlust: "pÃ©rdida",
         sehnsucht: "anhelo",
         neuanfang: "nuevo comienzo",
         selbstliebe: "amor propio",
@@ -711,15 +707,15 @@
         winter: "invierno",
         regen: "lluvia",
         stadt: "ciudad",
-        traum: "sueño",
-        träume: "sueños",
+        traum: "sueÃ±o",
+        trÃ¤ume: "sueÃ±os",
         erinnerung: "recuerdo",
         erinnerungen: "recuerdos",
         abschied: "despedida",
         mut: "valor",
         angst: "miedo",
         leben: "vida",
-        musik: "música",
+        musik: "mÃºsica",
         zukunft: "futuro",
       },
       "fr-FR": {
@@ -729,21 +725,21 @@
         nachtfahrt: "trajet de nuit",
         fernweh: "envie d'ailleurs",
         hoffnung: "espoir",
-        freiheit: "liberté",
+        freiheit: "libertÃ©",
         einsamkeit: "solitude",
         verlust: "perte",
         sehnsucht: "nostalgie",
-        neuanfang: "nouveau départ",
+        neuanfang: "nouveau dÃ©part",
         selbstliebe: "amour de soi",
-        wahrheit: "vérité",
+        wahrheit: "vÃ©ritÃ©",
         rache: "vengeance",
         euphorie: "euphorie",
-        sommer: "été",
+        sommer: "Ã©tÃ©",
         winter: "hiver",
         regen: "pluie",
         stadt: "ville",
-        traum: "rêve",
-        träume: "rêves",
+        traum: "rÃªve",
+        trÃ¤ume: "rÃªves",
         erinnerung: "souvenir",
         erinnerungen: "souvenirs",
         abschied: "adieu",
@@ -760,21 +756,21 @@
         nachtfahrt: "viaggio notturno",
         fernweh: "voglia di partire",
         hoffnung: "speranza",
-        freiheit: "libertà",
+        freiheit: "libertÃ ",
         einsamkeit: "solitudine",
         verlust: "perdita",
         sehnsucht: "nostalgia",
         neuanfang: "nuovo inizio",
         selbstliebe: "amor proprio",
-        wahrheit: "verità",
+        wahrheit: "veritÃ ",
         rache: "vendetta",
         euphorie: "euforia",
         sommer: "estate",
         winter: "inverno",
         regen: "pioggia",
-        stadt: "città",
+        stadt: "cittÃ ",
         traum: "sogno",
-        träume: "sogni",
+        trÃ¤ume: "sogni",
         erinnerung: "ricordo",
         erinnerungen: "ricordi",
         abschied: "addio",
@@ -788,16 +784,16 @@
 
     const messageTranslations = {
       "en-US": { hoffnung: "hope", freiheit: "freedom", liebe: "love", verlust: "loss", rebellion: "rebellion", einsamkeit: "loneliness", staerke: "strength", vergaenglichkeit: "transience", zusammenhalt: "unity", sehnsucht: "longing", neuanfang: "new beginning", selbstliebe: "self-love", wahrheit: "truth", rache: "revenge", euphorie: "euphoria" },
-      "es-ES": { hoffnung: "esperanza", freiheit: "libertad", liebe: "amor", verlust: "pérdida", rebellion: "rebelión", einsamkeit: "soledad", staerke: "fuerza", vergaenglichkeit: "fugacidad", zusammenhalt: "unidad", sehnsucht: "anhelo", neuanfang: "nuevo comienzo", selbstliebe: "amor propio", wahrheit: "verdad", rache: "venganza", euphorie: "euforia" },
-      "fr-FR": { hoffnung: "espoir", freiheit: "liberté", liebe: "amour", verlust: "perte", rebellion: "rébellion", einsamkeit: "solitude", staerke: "force", vergaenglichkeit: "éphémère", zusammenhalt: "unité", sehnsucht: "nostalgie", neuanfang: "nouveau départ", selbstliebe: "amour de soi", wahrheit: "vérité", rache: "vengeance", euphorie: "euphorie" },
-      "it-IT": { hoffnung: "speranza", freiheit: "libertà", liebe: "amore", verlust: "perdita", rebellion: "ribellione", einsamkeit: "solitudine", staerke: "forza", vergaenglichkeit: "transitorietà", zusammenhalt: "unità", sehnsucht: "nostalgia", neuanfang: "nuovo inizio", selbstliebe: "amor proprio", wahrheit: "verità", rache: "vendetta", euphorie: "euforia" },
+      "es-ES": { hoffnung: "esperanza", freiheit: "libertad", liebe: "amor", verlust: "pÃ©rdida", rebellion: "rebeliÃ³n", einsamkeit: "soledad", staerke: "fuerza", vergaenglichkeit: "fugacidad", zusammenhalt: "unidad", sehnsucht: "anhelo", neuanfang: "nuevo comienzo", selbstliebe: "amor propio", wahrheit: "verdad", rache: "venganza", euphorie: "euforia" },
+      "fr-FR": { hoffnung: "espoir", freiheit: "libertÃ©", liebe: "amour", verlust: "perte", rebellion: "rÃ©bellion", einsamkeit: "solitude", staerke: "force", vergaenglichkeit: "Ã©phÃ©mÃ¨re", zusammenhalt: "unitÃ©", sehnsucht: "nostalgie", neuanfang: "nouveau dÃ©part", selbstliebe: "amour de soi", wahrheit: "vÃ©ritÃ©", rache: "vengeance", euphorie: "euphorie" },
+      "it-IT": { hoffnung: "speranza", freiheit: "libertÃ ", liebe: "amore", verlust: "perdita", rebellion: "ribellione", einsamkeit: "solitudine", staerke: "forza", vergaenglichkeit: "transitorietÃ ", zusammenhalt: "unitÃ ", sehnsucht: "nostalgia", neuanfang: "nuovo inizio", selbstliebe: "amor proprio", wahrheit: "veritÃ ", rache: "vendetta", euphorie: "euforia" },
     };
 
     const metaphorTranslations = {
       "en-US": { natur: "nature", licht: "light and shadow", reise: "journey", krieg: "fight", meer: "sea", stadt: "city", himmel: "cosmos", tier: "animal imagery", musik: "music", feuer: "fire", zeit: "time", traum: "dream", maschine: "machine", blut: "blood and heart", gefaengnis: "prison", religion: "faith", pflanze: "growth", magisch: "magic", sport: "competition", kind: "childhood", hunger: "hunger and thirst", spiegel: "mirror and mask", winter: "winter and cold" },
-      "es-ES": { natur: "naturaleza", licht: "luz y sombra", reise: "viaje", krieg: "lucha", meer: "mar", stadt: "ciudad", himmel: "cosmos", tier: "imagenes de animales", musik: "música", feuer: "fuego", zeit: "tiempo", traum: "sueño", maschine: "máquina", blut: "sangre y corazón", gefaengnis: "prisión", religion: "fe", pflanze: "crecimiento", magisch: "magia", sport: "competencia", kind: "infancia", hunger: "hambre y sed", spiegel: "espejo y máscara", winter: "invierno y frío" },
-      "fr-FR": { natur: "nature", licht: "lumière et ombre", reise: "voyage", krieg: "combat", meer: "mer", stadt: "ville", himmel: "cosmos", tier: "images animales", musik: "musique", feuer: "feu", zeit: "temps", traum: "rêve", maschine: "machine", blut: "sang et coeur", gefaengnis: "prison", religion: "foi", pflanze: "croissance", magisch: "magie", sport: "compétition", kind: "enfance", hunger: "faim et soif", spiegel: "miroir et masque", winter: "hiver et froid" },
-      "it-IT": { natur: "natura", licht: "luce e ombra", reise: "viaggio", krieg: "lotta", meer: "mare", stadt: "città", himmel: "cosmo", tier: "immagini animali", musik: "musica", feuer: "fuoco", zeit: "tempo", traum: "sogno", maschine: "macchina", blut: "sangue e cuore", gefaengnis: "prigione", religion: "fede", pflanze: "crescita", magisch: "magia", sport: "competizione", kind: "infanzia", hunger: "fame e sete", spiegel: "specchio e maschera", winter: "inverno e freddo" },
+      "es-ES": { natur: "naturaleza", licht: "luz y sombra", reise: "viaje", krieg: "lucha", meer: "mar", stadt: "ciudad", himmel: "cosmos", tier: "imagenes de animales", musik: "mÃºsica", feuer: "fuego", zeit: "tiempo", traum: "sueÃ±o", maschine: "mÃ¡quina", blut: "sangre y corazÃ³n", gefaengnis: "prisiÃ³n", religion: "fe", pflanze: "crecimiento", magisch: "magia", sport: "competencia", kind: "infancia", hunger: "hambre y sed", spiegel: "espejo y mÃ¡scara", winter: "invierno y frÃ­o" },
+      "fr-FR": { natur: "nature", licht: "lumiÃ¨re et ombre", reise: "voyage", krieg: "combat", meer: "mer", stadt: "ville", himmel: "cosmos", tier: "images animales", musik: "musique", feuer: "feu", zeit: "temps", traum: "rÃªve", maschine: "machine", blut: "sang et coeur", gefaengnis: "prison", religion: "foi", pflanze: "croissance", magisch: "magie", sport: "compÃ©tition", kind: "enfance", hunger: "faim et soif", spiegel: "miroir et masque", winter: "hiver et froid" },
+      "it-IT": { natur: "natura", licht: "luce e ombra", reise: "viaggio", krieg: "lotta", meer: "mare", stadt: "cittÃ ", himmel: "cosmo", tier: "immagini animali", musik: "musica", feuer: "fuoco", zeit: "tempo", traum: "sogno", maschine: "macchina", blut: "sangue e cuore", gefaengnis: "prigione", religion: "fede", pflanze: "crescita", magisch: "magia", sport: "competizione", kind: "infanzia", hunger: "fame e sete", spiegel: "specchio e maschera", winter: "inverno e freddo" },
     };
 
     const normalizeGermanKey = (text) => String(text || "")
@@ -817,7 +813,7 @@
     const controls = [
       { id: "language", title: "Sprache", label: "Songtext", options: languageOptions },
       { id: "rhyme", title: "Reim", label: "Schema", options: rhymeOptions },
-      { id: "rhymeQuality", title: "Reim", label: "Qualität", options: rhymeQualityOptions },
+      { id: "rhymeQuality", title: "Reim", label: "QualitÃ¤t", options: rhymeQualityOptions },
     ];
 
     const getValue = (id) => selections.get(id) || "";
@@ -894,7 +890,7 @@
         "Thema: " + (topicInput.value.trim() || "noch nicht eingegeben"),
         "Sprache: " + getLabel("language"),
         "Reimschema: " + getLabel("rhyme"),
-        "Reimqualität: " + getLabel("rhymeQuality"),
+        "ReimqualitÃ¤t: " + getLabel("rhymeQuality"),
         "Kernbotschaften: " + (selectedLabels(kernbotschaftOptions, selectedMessages).join(", ") || "keine"),
         "Metaphern: " + (selectedLabels(metaphorOptions, selectedMetaphors).join(", ") || "keine"),
       ].join("\n");
@@ -909,12 +905,12 @@
       const key = normalizeGermanKey(rawTopic);
       const scenes = {
         "de-DE": {
-          liebe: ["zwei Hände im Regen", "ein Blick, der zu lange bleibt", "warme Fenster im Morgenlicht"],
+          liebe: ["zwei HÃ¤nde im Regen", "ein Blick, der zu lange bleibt", "warme Fenster im Morgenlicht"],
           herzschmerz: ["ein leerer Platz am Tisch", "Nachrichten, die niemand mehr schreibt", "kalter Kaffee neben deinem Namen"],
-          fernweh: ["Koffer neben der Tür", "Scheinwerfer auf nassem Asphalt", "ein Bahnhof kurz vor Mitternacht"],
+          fernweh: ["Koffer neben der TÃ¼r", "Scheinwerfer auf nassem Asphalt", "ein Bahnhof kurz vor Mitternacht"],
           hoffnung: ["ein heller Streifen am Rand der Wolken", "ein Funke unter grauer Asche", "Schritte auf neuem Boden"],
-          freiheit: ["offene Türen im Gegenwind", "Staub auf alten Ketten", "ein weiter Himmel ohne Grenzen"],
-          einsamkeit: ["Licht in fremden Fenstern", "Stille zwischen zwei Atemzügen", "ein Telefon, das nicht mehr klingt"],
+          freiheit: ["offene TÃ¼ren im Gegenwind", "Staub auf alten Ketten", "ein weiter Himmel ohne Grenzen"],
+          einsamkeit: ["Licht in fremden Fenstern", "Stille zwischen zwei AtemzÃ¼gen", "ein Telefon, das nicht mehr klingt"],
           nacht: ["Neon auf nassem Stein", "Motoren weit hinter der Stadt", "Schatten unter blauem Licht"],
         },
         "en-US": {
@@ -1009,7 +1005,7 @@
     document.getElementById("speakButton").addEventListener("click", () => {
       if (!styleOutput.value) return;
       if (!("speechSynthesis" in window)) {
-        copyStatus.textContent = "Sprachausgabe wird von diesem Browser nicht unterstützt.";
+        copyStatus.textContent = "Sprachausgabe wird von diesem Browser nicht unterstÃ¼tzt.";
         return;
       }
       if (speaking) {
@@ -1032,7 +1028,7 @@
       utterance.onerror = () => {
         speaking = false;
         document.getElementById("speakButton").textContent = "Vorlesen";
-        copyStatus.textContent = "Keine passende Stimme für diese Sprache gefunden.";
+        copyStatus.textContent = "Keine passende Stimme fÃ¼r diese Sprache gefunden.";
       };
       window.speechSynthesis.speak(utterance);
       speaking = true;
@@ -1065,3 +1061,4 @@
   </script>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -12,12 +12,12 @@
   <meta property="og:type" content="website">
   <meta property="og:locale" content="de_DE">
   <meta property="og:title" content="AK AI Music Studio">
-  <meta property="og:description" content="KI trifft Kreativität: Musik, Suno Prompt Generatoren, Songtexte und Audio-Tools von Axel Koehler.">
+  <meta property="og:description" content="KI trifft KreativitÃ¤t: Musik, Suno Prompt Generatoren, Songtexte und Audio-Tools von Axel Koehler.">
   <meta property="og:url" content="https://www.ak-ai-music.studio/">
   <meta property="og:image" content="https://www.ak-ai-music.studio/favicon.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AK AI Music Studio">
-  <meta name="twitter:description" content="KI trifft Kreativität: Musik, Suno Prompt Generatoren, Songtexte und Audio-Tools.">
+  <meta name="twitter:description" content="KI trifft KreativitÃ¤t: Musik, Suno Prompt Generatoren, Songtexte und Audio-Tools.">
   <link rel="stylesheet" href="assets/site-nav.css">
   <script src="assets/remote-config.js"></script>
   <script src="assets/remote-store.js"></script>
@@ -123,7 +123,7 @@
       width: min(1420px, 97vw);
       min-height: min(760px, calc(100vh - 48px));
       padding: 10px 22px 58px;
-      clip-path: polygon(4.5% 0, 95.5% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 95.5% 100%, 4.5% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+      clip-path: none;
       background:
         linear-gradient(90deg, var(--yellow), var(--orange) 9%, var(--violet) 23%, var(--magenta) 51%, var(--violet) 76%, var(--cyan) 91%, var(--yellow)),
         linear-gradient(180deg, rgba(17, 8, 47, 0.96), rgba(5, 5, 18, 0.98));
@@ -134,7 +134,7 @@
       content: "";
       position: absolute;
       inset: 3px;
-      clip-path: inherit;
+      clip-path: none;
       background:
         linear-gradient(180deg, rgba(10, 6, 29, 0.95), rgba(8, 5, 24, 0.98)),
         linear-gradient(90deg, rgba(0, 217, 255, 0.08), rgba(255, 45, 253, 0.08));
@@ -164,17 +164,13 @@
       text-transform: uppercase;
       letter-spacing: 0;
       background:
-        linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
-        linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
-        linear-gradient(45deg, #ff8a19 0 10px, transparent 10px) left bottom / 30px 30px no-repeat,
-        linear-gradient(315deg, #ff8a19 0 10px, transparent 10px) right bottom / 30px 30px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
       border: 1px solid rgba(0, 217, 255, 0.8);
       box-shadow:
         0 0 26px rgba(0, 217, 255, 0.52),
         0 0 34px rgba(175, 25, 255, 0.36),
         inset 0 0 16px rgba(0, 217, 255, 0.28);
-      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+      clip-path: none;
       text-shadow: 0 0 12px rgba(0, 217, 255, 0.78);
       white-space: nowrap;
       isolation: isolate;
@@ -187,7 +183,7 @@
       inset: 5px 12px;
       border-top: 1px solid rgba(198, 31, 255, 0.78);
       border-bottom: 1px solid rgba(198, 31, 255, 0.78);
-      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      clip-path: none;
       box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
       pointer-events: none;
     }
@@ -375,7 +371,7 @@
         --shell-corner-depth: 42px;
         width: min(100%, 96vw);
         padding: 10px 14px 44px;
-        clip-path: polygon(3% 0, 97% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 97% 100%, 3% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+        clip-path: none;
       }
 
       .home-title-chip {
@@ -407,7 +403,7 @@
     <section class="home-shell" aria-label="Hauptseite">
       <div class="home-title">
         <div class="home-title-chip" data-content-key="home.title">AK AI Music Studio</div>
-        <div class="home-subline" data-content-key="home.subtitle">Die Zukunft der Musik: KI trifft Kreativität</div>
+        <div class="home-subline" data-content-key="home.subtitle">Die Zukunft der Musik: KI trifft KreativitÃ¤t</div>
       </div>
 
       <nav class="site-nav" data-active="home" aria-label="Hauptnavigation"></nav>
@@ -419,7 +415,7 @@
             <div class="home-video">
               <video id="homeStudioVideo" src="assets/ak-ai-music-studio.mp4" loop playsinline preload="metadata"></video>
               <div class="home-video-player" aria-label="Videoplayer">
-                <button class="home-video-play" id="homeVideoPlay" type="button">▶</button>
+                <button class="home-video-play" id="homeVideoPlay" type="button">â–¶</button>
                 <input class="home-video-progress" id="homeVideoProgress" type="range" min="0" max="1000" value="0">
                 <span class="home-video-time" id="homeVideoTime">0:00 / 0:00</span>
               </div>
@@ -427,38 +423,38 @@
           </label>
 
           <label class="home-field">
-            <span data-content-key="home.about.title">Über mich</span>
-            <div class="home-text" data-content-key="home.about.text">Hallo, ich bin Axel Köhler – Gründer von AK AI Music Studio und leidenschaftlicher Experte für die Verbindung von Musik, Technologie und künstlicher Intelligenz.
+            <span data-content-key="home.about.title">Ãœber mich</span>
+            <div class="home-text" data-content-key="home.about.text">Hallo, ich bin Axel KÃ¶hler â€“ GrÃ¼nder von AK AI Music Studio und leidenschaftlicher Experte fÃ¼r die Verbindung von Musik, Technologie und kÃ¼nstlicher Intelligenz.
 
-Musik war schon immer ein kreativer Ausdruck von Emotionen, Ideen und Geschichten. Mit den heutigen Möglichkeiten der KI eröffnen sich völlig neue Wege, Musik zu erschaffen, zu produzieren und zu erleben. Genau hier setzt meine Arbeit an.
+Musik war schon immer ein kreativer Ausdruck von Emotionen, Ideen und Geschichten. Mit den heutigen MÃ¶glichkeiten der KI erÃ¶ffnen sich vÃ¶llig neue Wege, Musik zu erschaffen, zu produzieren und zu erleben. Genau hier setzt meine Arbeit an.
 
-Auf AK AI Music Studio kombiniere ich moderne KI-Technologien mit musikalischer Kreativität, um innovative Klangwelten, individuelle Songs und zukunftsweisende Musikprojekte zu entwickeln. Dabei nutze ich die neuesten Werkzeuge der künstlichen Intelligenz, um einzigartige musikalische Konzepte zu realisieren – von der ersten Idee bis zum fertigen Track.
+Auf AK AI Music Studio kombiniere ich moderne KI-Technologien mit musikalischer KreativitÃ¤t, um innovative Klangwelten, individuelle Songs und zukunftsweisende Musikprojekte zu entwickeln. Dabei nutze ich die neuesten Werkzeuge der kÃ¼nstlichen Intelligenz, um einzigartige musikalische Konzepte zu realisieren â€“ von der ersten Idee bis zum fertigen Track.
 
-Mein Ziel ist es, Menschen, Unternehmen und Kreative dabei zu unterstützen, die Möglichkeiten der KI-Musikproduktion zu entdecken und für ihre eigenen Projekte zu nutzen. Ob individuelle Musikstücke, Sounddesign, kreative Experimente oder professionelle Produktionen – ich glaube daran, dass Technologie und Kreativität gemeinsam etwas Außergewöhnliches schaffen können.</div>
+Mein Ziel ist es, Menschen, Unternehmen und Kreative dabei zu unterstÃ¼tzen, die MÃ¶glichkeiten der KI-Musikproduktion zu entdecken und fÃ¼r ihre eigenen Projekte zu nutzen. Ob individuelle MusikstÃ¼cke, Sounddesign, kreative Experimente oder professionelle Produktionen â€“ ich glaube daran, dass Technologie und KreativitÃ¤t gemeinsam etwas AuÃŸergewÃ¶hnliches schaffen kÃ¶nnen.</div>
           </label>
 
           <label class="home-field">
             <span data-content-key="home.idea.title">Von der Idee zum Song</span>
             <div class="home-text formatted" data-content-key="home.idea.text">
-              <p class="home-kicker">„Von der Idee zum Song – intelligente Prompts für bessere KI-Musik.“</p>
+              <p class="home-kicker">â€žVon der Idee zum Song â€“ intelligente Prompts fÃ¼r bessere KI-Musik.â€œ</p>
               <p>Musik mit KI zu erzeugen ist heute einfacher denn je. Die eigentliche Herausforderung liegt jedoch darin, die richtigen Anweisungen zu formulieren. Genau hier setzt unser erstes Projekt an.</p>
-              <p>Mit den Prompt Generatoren für Suno AI entwickeln wir eine eigene Plattform, die kreative Ideen automatisch in professionelle Musik-Prompts übersetzt.</p>
-              <p>Anstatt komplexe Beschreibungen manuell zu erstellen, können Nutzer ihre Vorstellungen eingeben und erhalten optimierte Prompts für hochwertige KI-generierte Songs.</p>
-              <p>Das System analysiert Musikstile, Stimmungen, Songstrukturen, Instrumentierungen und Gesangskonzepte und kombiniert diese zu präzisen Eingaben für Suno.</p>
-              <p>Dadurch entstehen konsistentere Ergebnisse, bessere Klangqualität und ein deutlich effizienterer kreativer Workflow.</p>
-              <p>Unser Ziel ist es, die Brücke zwischen kreativer Vision und künstlicher Intelligenz zu schlagen. Es soll nicht nur die Erstellung von Musik vereinfachen, sondern auch neue kreative Möglichkeiten eröffnen, die mit klassischen Produktionsmethoden nur schwer erreichbar wären.</p>
+              <p>Mit den Prompt Generatoren fÃ¼r Suno AI entwickeln wir eine eigene Plattform, die kreative Ideen automatisch in professionelle Musik-Prompts Ã¼bersetzt.</p>
+              <p>Anstatt komplexe Beschreibungen manuell zu erstellen, kÃ¶nnen Nutzer ihre Vorstellungen eingeben und erhalten optimierte Prompts fÃ¼r hochwertige KI-generierte Songs.</p>
+              <p>Das System analysiert Musikstile, Stimmungen, Songstrukturen, Instrumentierungen und Gesangskonzepte und kombiniert diese zu prÃ¤zisen Eingaben fÃ¼r Suno.</p>
+              <p>Dadurch entstehen konsistentere Ergebnisse, bessere KlangqualitÃ¤t und ein deutlich effizienterer kreativer Workflow.</p>
+              <p>Unser Ziel ist es, die BrÃ¼cke zwischen kreativer Vision und kÃ¼nstlicher Intelligenz zu schlagen. Es soll nicht nur die Erstellung von Musik vereinfachen, sondern auch neue kreative MÃ¶glichkeiten erÃ¶ffnen, die mit klassischen Produktionsmethoden nur schwer erreichbar wÃ¤ren.</p>
 
               <div class="home-section-title">Features</div>
               <ul class="home-feature-list">
                 <li>Automatische Generierung professioneller Suno-Prompts</li>
                 <li>Genre- und Stilassistent</li>
-                <li>Vorlagen für verschiedene Musikrichtungen</li>
+                <li>Vorlagen fÃ¼r verschiedene Musikrichtungen</li>
                 <li>Mehrsprachige Prompt-Erstellung</li>
                 <li>Kontinuierliche Weiterentwicklung durch Praxistests</li>
               </ul>
 
               <div class="home-section-title">Vision</div>
-              <p>Wir möchten Werkzeuge entwickeln, die Kreativität nicht ersetzen, sondern erweitern soll. Dies ist der erste Schritt auf dem Weg zu einer neuen Generation intelligenter Musikproduktions-Tools, die das Beste aus menschlicher Kreativität und künstlicher Intelligenz verbindet.</p>
+              <p>Wir mÃ¶chten Werkzeuge entwickeln, die KreativitÃ¤t nicht ersetzen, sondern erweitern soll. Dies ist der erste Schritt auf dem Weg zu einer neuen Generation intelligenter Musikproduktions-Tools, die das Beste aus menschlicher KreativitÃ¤t und kÃ¼nstlicher Intelligenz verbindet.</p>
             </div>
           </label>
         </div>
@@ -508,10 +504,11 @@ Mein Ziel ist es, Menschen, Unternehmen und Kreative dabei zu unterstützen, die
       video.addEventListener("loadedmetadata", update);
       video.addEventListener("timeupdate", update);
       video.addEventListener("play", () => { play.textContent = "II"; });
-      video.addEventListener("pause", () => { play.textContent = "▶"; });
+      video.addEventListener("pause", () => { play.textContent = "â–¶"; });
       video.play().catch(() => {});
       update();
     })();
   </script>
 </body>
 </html>
+

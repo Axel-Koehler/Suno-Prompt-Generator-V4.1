@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -81,7 +81,7 @@
       width: min(1420px, 97vw);
       min-height: min(760px, calc(100vh - 48px));
       padding: 10px 22px 58px;
-      clip-path: polygon(4.5% 0, 95.5% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 95.5% 100%, 4.5% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+      clip-path: none;
       background:
         linear-gradient(90deg, var(--yellow), var(--orange) 9%, var(--violet) 23%, var(--magenta) 51%, var(--violet) 76%, var(--cyan) 91%, var(--yellow)),
         linear-gradient(180deg, rgba(17, 8, 47, 0.96), rgba(5, 5, 18, 0.98));
@@ -92,7 +92,7 @@
       content: "";
       position: absolute;
       inset: 3px;
-      clip-path: inherit;
+      clip-path: none;
       background:
         linear-gradient(180deg, rgba(10, 6, 29, 0.95), rgba(8, 5, 24, 0.98)),
         linear-gradient(90deg, rgba(0, 217, 255, 0.08), rgba(255, 45, 253, 0.08));
@@ -122,17 +122,13 @@
       text-transform: uppercase;
       letter-spacing: 0;
       background:
-        linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
-        linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
-        linear-gradient(45deg, #ff8a19 0 10px, transparent 10px) left bottom / 30px 30px no-repeat,
-        linear-gradient(315deg, #ff8a19 0 10px, transparent 10px) right bottom / 30px 30px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
       border: 1px solid rgba(0, 217, 255, 0.8);
       box-shadow:
         0 0 26px rgba(0, 217, 255, 0.52),
         0 0 34px rgba(175, 25, 255, 0.36),
         inset 0 0 16px rgba(0, 217, 255, 0.28);
-      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+      clip-path: none;
       text-shadow: 0 0 12px rgba(0, 217, 255, 0.78);
       white-space: nowrap;
       isolation: isolate;
@@ -145,7 +141,7 @@
       inset: 5px 12px;
       border-top: 1px solid rgba(198, 31, 255, 0.78);
       border-bottom: 1px solid rgba(198, 31, 255, 0.78);
-      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      clip-path: none;
       box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
       pointer-events: none;
     }
@@ -180,10 +176,8 @@
       color: rgba(247, 251, 255, 0.96);
       text-transform: uppercase;
       background:
-        linear-gradient(135deg, var(--yellow) 0 9px, transparent 9px) left top / 24px 24px no-repeat,
-        linear-gradient(225deg, var(--yellow) 0 9px, transparent 9px) right top / 24px 24px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.82), rgba(9, 14, 42, 0.96));
-      clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0 50%);
+      clip-path: none;
       box-shadow: 0 0 18px rgba(0, 217, 255, 0.28), inset 0 0 14px rgba(255, 45, 253, 0.14);
       cursor: pointer;
     }
@@ -224,12 +218,8 @@
       padding: 18px 16px 16px;
       border: 1px solid rgba(0, 217, 255, 0.72);
       background:
-        linear-gradient(135deg, var(--yellow) 0 10px, transparent 10px) left top / 28px 28px no-repeat,
-        linear-gradient(225deg, var(--yellow) 0 10px, transparent 10px) right top / 28px 28px no-repeat,
-        linear-gradient(45deg, var(--orange) 0 9px, transparent 9px) left bottom / 26px 26px no-repeat,
-        linear-gradient(315deg, var(--orange) 0 9px, transparent 9px) right bottom / 26px 26px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.82), rgba(9, 14, 42, 0.96));
-      clip-path: polygon(8% 0, 92% 0, 100% 17%, 100% 83%, 92% 100%, 8% 100%, 0 83%, 0 17%);
+      clip-path: none;
       box-shadow:
         0 0 18px rgba(0, 217, 255, 0.28),
         0 0 24px rgba(175, 25, 255, 0.2),
@@ -242,7 +232,7 @@
       inset: 7px 13px;
       border-top: 1px solid rgba(198, 31, 255, 0.72);
       border-bottom: 1px solid rgba(198, 31, 255, 0.72);
-      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+      clip-path: none;
       pointer-events: none;
     }
 
@@ -280,7 +270,7 @@
       padding: 9px 10px;
       border: 1px solid rgba(0, 217, 255, 0.52);
       background: rgba(2, 5, 20, 0.46);
-      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      clip-path: none;
       box-shadow: inset 0 0 14px rgba(255, 45, 253, 0.1);
     }
 
@@ -337,7 +327,7 @@
       color: rgba(247, 251, 255, 0.96);
       background: linear-gradient(180deg, rgba(255, 45, 253, 0.3), rgba(103, 54, 255, 0.24));
       border: 1px solid rgba(0, 217, 255, 0.72);
-      clip-path: polygon(18% 0, 82% 0, 100% 50%, 82% 100%, 18% 100%, 0 50%);
+      clip-path: none;
       cursor: pointer;
       text-shadow: 0 0 10px rgba(0, 217, 255, 0.72);
       box-shadow: inset 0 0 12px rgba(0, 217, 255, 0.16);
@@ -407,7 +397,7 @@
         --shell-corner-depth: 42px;
         width: min(100%, 96vw);
         padding: 10px 14px 44px;
-        clip-path: polygon(3% 0, 97% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 97% 100%, 3% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+        clip-path: none;
       }
 
       .songs-title-chip {
@@ -435,7 +425,7 @@
     <section class="songs-shell" aria-label="Meine Songs">
       <div class="songs-title">
         <div class="songs-title-chip">Meine Song`s</div>
-        <div class="songs-subline">Die Zukunft der Musik: KI trifft Kreativität</div>
+        <div class="songs-subline">Die Zukunft der Musik: KI trifft KreativitÃ¤t</div>
       </div>
 
       <nav class="site-nav" data-active="songs" aria-label="Hauptnavigation"></nav>
@@ -444,7 +434,7 @@
         <div class="songs-actions">
           <button class="song-action-button" id="playAllSongsButton" type="button" disabled>Alle Songs abspielen</button>
           <label class="songs-master-volume">
-            Lautstärke alle Songs
+            LautstÃ¤rke alle Songs
             <input id="masterVolume" type="range" min="0" max="1" step="0.01" value="0.75">
           </label>
         </div>
@@ -591,7 +581,7 @@
           analysisNode.textContent = formatAnalysis(analysis);
           await window.AKRemoteStore.updateAudioAnalysis(song.id, analysis);
         } catch (error) {
-          analysisNode.textContent = " - Analyse nicht möglich";
+          analysisNode.textContent = " - Analyse nicht mÃ¶glich";
         }
       };
 
@@ -865,7 +855,7 @@
         spectrum.className = "song-spectrum";
 
         playButton.type = "button";
-        playButton.textContent = "▶";
+        playButton.textContent = "â–¶";
         progress.type = "range";
         progress.min = "0";
         progress.max = "1000";
@@ -1096,11 +1086,11 @@
         });
 
         audio.addEventListener("pause", () => {
-          playButton.textContent = "▶";
+          playButton.textContent = "â–¶";
         });
 
         audio.addEventListener("ended", () => {
-          playButton.textContent = "▶";
+          playButton.textContent = "â–¶";
           progress.value = "0";
           if (playAllSongsRunning) {
             const currentIndex = songPlayers.findIndex((player) => player.audio === audio);
@@ -1200,3 +1190,4 @@
   </script>
 </body>
 </html>
+

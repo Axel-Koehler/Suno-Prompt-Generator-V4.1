@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -92,7 +92,7 @@
       width: min(1420px, 97vw);
       min-height: min(760px, calc(100vh - 48px));
       padding: 10px 22px 58px;
-      clip-path: polygon(5% 0, 95% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 95% 100%, 5% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+      clip-path: none;
       background: rgba(4, 6, 22, 0.9);
       box-shadow: 0 0 34px rgba(0, 217, 255, 0.24), 0 0 58px rgba(255, 45, 253, 0.2);
       isolation: isolate;
@@ -102,7 +102,7 @@
       content: "";
       position: absolute;
       inset: 3px;
-      clip-path: inherit;
+      clip-path: none;
       background:
         linear-gradient(90deg, var(--yellow) 0 6px, transparent 6px calc(100% - 6px), var(--yellow) calc(100% - 6px)),
         linear-gradient(180deg, var(--violet), var(--magenta) 48%, var(--cyan));
@@ -113,7 +113,7 @@
       content: "";
       position: absolute;
       inset: 10px;
-      clip-path: inherit;
+      clip-path: none;
       background: rgba(5, 7, 24, 0.96);
       z-index: -1;
     }
@@ -139,13 +139,9 @@
       text-align: center;
       text-transform: uppercase;
       background:
-        linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
-        linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
-        linear-gradient(45deg, var(--orange) 0 11px, transparent 11px) left bottom / 32px 32px no-repeat,
-        linear-gradient(315deg, var(--orange) 0 11px, transparent 11px) right bottom / 32px 32px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
       border: 1px solid rgba(0, 217, 255, 0.72);
-      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+      clip-path: none;
       box-shadow:
         0 0 18px rgba(0, 217, 255, 0.34),
         0 0 24px rgba(175, 25, 255, 0.25),
@@ -160,7 +156,7 @@
       inset: 5px 12px;
       border-top: 1px solid rgba(198, 31, 255, 0.78);
       border-bottom: 1px solid rgba(198, 31, 255, 0.78);
-      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      clip-path: none;
       box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
       pointer-events: none;
     }
@@ -432,7 +428,7 @@
         --shell-corner-depth: 42px;
         width: min(100%, 96vw);
         padding: 10px 14px 44px;
-        clip-path: polygon(3% 0, 97% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 97% 100%, 3% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
+        clip-path: none;
       }
 
       .style-title-chip {
@@ -448,7 +444,7 @@
     <section class="style-shell" aria-label="Lyric Stil Generator">
       <header class="style-title">
         <div class="style-title-chip" data-content-key="lyric-style.title">Lyric Stil Generator</div>
-        <div class="style-subline" data-content-key="lyric-style.subtitle">Die Zukunft der Musik: KI trifft Kreativität</div>
+        <div class="style-subline" data-content-key="lyric-style.subtitle">Die Zukunft der Musik: KI trifft KreativitÃ¤t</div>
       </header>
 
       <nav class="site-nav" data-active="lyric-style" aria-label="Hauptnavigation"></nav>
@@ -473,7 +469,7 @@
 
       <section class="lyric-info-card" aria-label="Informationen Lyric Stil Generator">
         <h2 class="lyric-info-title" data-content-key="lyric-style.info.title">Informationen</h2>
-        <div class="lyric-info-text" data-content-key="lyric-style.info.text" spellcheck="true" lang="de" autocomplete="off" autocorrect="off" autocapitalize="off">1. Eckige Klammern [ ] – Der Regiestuhl
+        <div class="lyric-info-text" data-content-key="lyric-style.info.text" spellcheck="true" lang="de" autocomplete="off" autocorrect="off" autocapitalize="off">1. Eckige Klammern [ ] â€“ Der Regiestuhl
 
 Alles, was in eckigen Klammern steht, singt die KI nicht, sondern liest es als musikalische Anweisung (Metatag). Sie steuern den kompletten Songaufbau.
 
@@ -487,19 +483,19 @@ Teilt den Song in Strophen (eher ruhig) und Refrain (energiegeladen) ein.
 
 [Pre-Chorus]
 
-Baut Spannung auf, bevor der Refrain einschlägt.
+Baut Spannung auf, bevor der Refrain einschlÃ¤gt.
 
 [Bridge]
 
-Ändert oft Melodie, Rhythmus oder Tonart, um Abwechslung zu schaffen.
+Ã„ndert oft Melodie, Rhythmus oder Tonart, um Abwechslung zu schaffen.
 
 [Instrumental] / [Solo]
 
-Unterdrückt den Gesang komplett für eine Passage (z.B. [Guitar Solo]).
+UnterdrÃ¼ckt den Gesang komplett fÃ¼r eine Passage (z.B. [Guitar Solo]).
 
 [Drop] / [Beat Drop]
 
-Erzeugt den plötzlichen, harten Einsatz des Beats (wichtig für EDM/Hip-Hop).
+Erzeugt den plÃ¶tzlichen, harten Einsatz des Beats (wichtig fÃ¼r EDM/Hip-Hop).
 
 [A Capella]
 
@@ -507,9 +503,9 @@ Stoppt die Instrumente, sodass die Stimme kurzzeitig alleine singt.
 
 [Outro] / [End]
 
-Leitet das Ende des Songs ein (häufig verbunden mit einem Fade-out).
+Leitet das Ende des Songs ein (hÃ¤ufig verbunden mit einem Fade-out).
 
-2. Runde Klammern ( ) – Die zweite Reihe
+2. Runde Klammern ( ) â€“ Die zweite Reihe
 
 Runde Klammern steuern Hintergrundgesang (Backing Vocals) und Echos. Die KI interpretiert diesen Text als Ebene hinter der Hauptstimme.
 
@@ -517,15 +513,15 @@ Echos / Ad-libs: Wenn du den Haupttext doppelst.
 
 Prompt: I am flying high (flying high)
 
-Ergebnis: Die Hauptstimme singt den ganzen Satz, eine zweite Stimme oder ein Chor flüstert/ruft das "flying high" im Hintergrund.
+Ergebnis: Die Hauptstimme singt den ganzen Satz, eine zweite Stimme oder ein Chor flÃ¼stert/ruft das "flying high" im Hintergrund.
 
 Antwort-Gesang (Call &amp; Response):
 
 Prompt: We want it all! (Yeah we do!)
 
-3. Sternchen * * – Geräusche und Aktionen
+3. Sternchen * * â€“ GerÃ¤usche und Aktionen
 
-Sternchen werden genutzt, um nicht-musikalische Vokalisationen oder Geräusche zu erzwingen. (Hinweis: Die KI setzt das nicht immer zu 100 % um, aber es erhöht die Wahrscheinlichkeit enorm).
+Sternchen werden genutzt, um nicht-musikalische Vokalisationen oder GerÃ¤usche zu erzwingen. (Hinweis: Die KI setzt das nicht immer zu 100 % um, aber es erhÃ¶ht die Wahrscheinlichkeit enorm).
 
 *sigh* (Seufzen)
 
@@ -533,17 +529,17 @@ Sternchen werden genutzt, um nicht-musikalische Vokalisationen oder Geräusche z
 
 *cough* (Husten)
 
-*whispers* (Wechselt für das nächste Wort oft in ein Flüstern)
+*whispers* (Wechselt fÃ¼r das nÃ¤chste Wort oft in ein FlÃ¼stern)
 
-4. Anführungszeichen " " – Gesprochenes Wort
+4. AnfÃ¼hrungszeichen " " â€“ Gesprochenes Wort
 
-Wenn du möchtest, dass ein bestimmter Satz gesprochen statt gesungen wird, kannst du ihn in Anführungszeichen setzen oder mit einem Metatag kombinieren.
+Wenn du mÃ¶chtest, dass ein bestimmter Satz gesprochen statt gesungen wird, kannst du ihn in AnfÃ¼hrungszeichen setzen oder mit einem Metatag kombinieren.
 
 Prompt: [Spoken Word] "This is the end of the line."
 
 Auswirkung: Die KI bricht aus der Melodie aus und spricht den Text (oft im Stil eines Radio-DJs oder eines dramatischen Monologs).
 
-5. Satzzeichen – Timing, Atmung und Rhythmus
+5. Satzzeichen â€“ Timing, Atmung und Rhythmus
 
 Suno nimmt Interpunktion sehr ernst. Satzzeichen sind deine Werkzeuge, um den Flow und die Pausen der Stimme zu dirigieren.
 
@@ -553,45 +549,45 @@ Auswirkung auf Gesang und Rhythmus
 
 Komma ,
 
-Kurze Atempause. Der Rhythmus läuft weiter, der Sänger schnappt kurz Luft.
+Kurze Atempause. Der Rhythmus lÃ¤uft weiter, der SÃ¤nger schnappt kurz Luft.
 
 Punkt .
 
-Längere Pause. Beendet eine musikalische Phrase ("Zeile abgeschlossen").
+LÃ¤ngere Pause. Beendet eine musikalische Phrase ("Zeile abgeschlossen").
 
 Ausrufezeichen !
 
-Erhöht die Energie. Der Sänger singt lauter, drückender oder "schreit" das Wort.
+ErhÃ¶ht die Energie. Der SÃ¤nger singt lauter, drÃ¼ckender oder "schreit" das Wort.
 
 Fragezeichen ?
 
-Verändert die Intonation. Die Stimme geht am Ende des Satzes oft nach oben.
+VerÃ¤ndert die Intonation. Die Stimme geht am Ende des Satzes oft nach oben.
 
 Auslassungspunkte ...
 
-Die Stimme "fadet" oft aus oder zieht das letzte Wort dramatisch in die Länge.
+Die Stimme "fadet" oft aus oder zieht das letzte Wort dramatisch in die LÃ¤nge.
 
 Bindestrich -
 
 Erzeugt Stottern oder Stakkato (z.B. W-w-w-wait a minute).
 
-6. Großbuchstaben (ALL CAPS) – Lautstärke
+6. GroÃŸbuchstaben (ALL CAPS) â€“ LautstÃ¤rke
 
-Kein klassisches Sonderzeichen, aber essenziell: Wenn du Wörter komplett großschreibst (z.B. I will NEVER surrender), interpretiert Suno das oft als starken Akzent (Belting/Shouting). Die KI legt auf dieses Wort besonders viel Kraft.
+Kein klassisches Sonderzeichen, aber essenziell: Wenn du WÃ¶rter komplett groÃŸschreibst (z.B. I will NEVER surrender), interpretiert Suno das oft als starken Akzent (Belting/Shouting). Die KI legt auf dieses Wort besonders viel Kraft.
 
-Experten-Tipp zur Formatierung: Suno liest deinen Prompt von oben nach unten wie ein Skript. Absätze (Leerzeilen) sind extrem wichtig. Eine leere Zeile zwischen einem [Verse] und einem [Chorus] gibt der KI den nötigen "Denkraum", um das Instrumentalmuster zu wechseln. Klebt der Text ohne Absätze aneinander, verschwimmen die Songteile oft zu einem musikalischen Brei.
+Experten-Tipp zur Formatierung: Suno liest deinen Prompt von oben nach unten wie ein Skript. AbsÃ¤tze (Leerzeilen) sind extrem wichtig. Eine leere Zeile zwischen einem [Verse] und einem [Chorus] gibt der KI den nÃ¶tigen "Denkraum", um das Instrumentalmuster zu wechseln. Klebt der Text ohne AbsÃ¤tze aneinander, verschwimmen die Songteile oft zu einem musikalischen Brei.
 
-Befehle zwischen zwei Sternchen (* *) sind in Suno deine Regieanweisungen für Soundeffekte, nonverbale Laute und emotionale Ausbrüche. Alles, was in diesen Sternchen steht, versucht die KI nicht zu singen, sondern als hörbares Geräusch in die Audiospur einzubauen.
+Befehle zwischen zwei Sternchen (* *) sind in Suno deine Regieanweisungen fÃ¼r Soundeffekte, nonverbale Laute und emotionale AusbrÃ¼che. Alles, was in diesen Sternchen steht, versucht die KI nicht zu singen, sondern als hÃ¶rbares GerÃ¤usch in die Audiospur einzubauen.
 
-Da Suno auf englischsprachigen Datensätzen trainiert wurde, funktionieren ausschließlich englische Begriffe zuverlässig.
+Da Suno auf englischsprachigen DatensÃ¤tzen trainiert wurde, funktionieren ausschlieÃŸlich englische Begriffe zuverlÃ¤ssig.
 
 Hier sind die Befehle, die von der KI am besten erkannt werden:
 
 1. Emotionale Laute
 
-Diese Befehle bringen Menschlichkeit und Gefühl in die Stimme, ohne dass ein Wort gesungen wird.
+Diese Befehle bringen Menschlichkeit und GefÃ¼hl in die Stimme, ohne dass ein Wort gesungen wird.
 
-*laugh* oder *chuckle*: Ein hörbares Lachen oder kurzes Kichern. Perfekt für fröhliche oder verrückte Songs.
+*laugh* oder *chuckle*: Ein hÃ¶rbares Lachen oder kurzes Kichern. Perfekt fÃ¼r frÃ¶hliche oder verrÃ¼ckte Songs.
 
 *sigh*: Ein tiefes, oft melancholisches Seufzen. Gut vor einer traurigen Strophe.
 
@@ -599,43 +595,43 @@ Diese Befehle bringen Menschlichkeit und Gefühl in die Stimme, ohne dass ein Wo
 
 *giggle*: Ein verspieltes Kichern.
 
-2. Atmung und körperliche Geräusche
+2. Atmung und kÃ¶rperliche GerÃ¤usche
 
-Hiermit steuerst du die Physis des "Sängers" und schaffst Pausen, die sehr natürlich wirken.
+Hiermit steuerst du die Physis des "SÃ¤ngers" und schaffst Pausen, die sehr natÃ¼rlich wirken.
 
-*breath* oder *deep breath*: Ein deutliches, hörbares Einatmen. Sehr effektiv vor einem langen, gehaltenen Ton oder nach einem schnellen Rap-Part.
+*breath* oder *deep breath*: Ein deutliches, hÃ¶rbares Einatmen. Sehr effektiv vor einem langen, gehaltenen Ton oder nach einem schnellen Rap-Part.
 
-*gasp*: Ein erschrockenes, plötzliches Schnappen nach Luft.
+*gasp*: Ein erschrockenes, plÃ¶tzliches Schnappen nach Luft.
 
 *cough*: Ein Husten.
 
-*clears throat* oder *ahem*: Ein Räuspern. Stark am Anfang eines Songs, bevor der eigentliche Text beginnt.
+*clears throat* oder *ahem*: Ein RÃ¤uspern. Stark am Anfang eines Songs, bevor der eigentliche Text beginnt.
 
-*yawn*: Ein Gähnen (oft genutzt in Schlafliedern oder ruhigen Lo-Fi-Tracks).
+*yawn*: Ein GÃ¤hnen (oft genutzt in Schlafliedern oder ruhigen Lo-Fi-Tracks).
 
 3. Stimmliche Effekte
 
-*scream*: Ein plötzlicher Schrei. (Hinweis: Wenn du möchtest, dass Text geschrien wird, nutze Großbuchstaben oder [Scream]. Die Sternchen erzeugen eher einen textlosen Schrei).
+*scream*: Ein plÃ¶tzlicher Schrei. (Hinweis: Wenn du mÃ¶chtest, dass Text geschrien wird, nutze GroÃŸbuchstaben oder [Scream]. Die Sternchen erzeugen eher einen textlosen Schrei).
 
-*whispers*: Zwingt die KI oft dazu, in den Flüstermodus zu wechseln.
+*whispers*: Zwingt die KI oft dazu, in den FlÃ¼stermodus zu wechseln.
 
-*mumbles*: Die Stimme fängt an, unverständlich vor sich hin zu murmeln.
+*mumbles*: Die Stimme fÃ¤ngt an, unverstÃ¤ndlich vor sich hin zu murmeln.
 
-*beatbox*: Die KI versucht, für einen kurzen Moment den Rhythmus mit dem Mund zu machen.
+*beatbox*: Die KI versucht, fÃ¼r einen kurzen Moment den Rhythmus mit dem Mund zu machen.
 
 So wendest du sie richtig an
 
 Damit Suno die Sternchen-Befehle nicht aus Versehen als Text mitsingt, kommt es auf die richtige Platzierung an.
 
-Variante A: Alleinstehend für volle Wirkung Setze den Befehl in eine eigene Zeile, damit die KI Platz hat, das Geräusch zu generieren.
+Variante A: Alleinstehend fÃ¼r volle Wirkung Setze den Befehl in eine eigene Zeile, damit die KI Platz hat, das GerÃ¤usch zu generieren.
 
 [Verse] I walked for miles in the rain *cough* My lungs are burning today
 
-Variante B: Mitten im Satz für Dynamik Du kannst sie direkt vor ein Wort setzen, um die Betonung dieses Wortes zu ändern.
+Variante B: Mitten im Satz fÃ¼r Dynamik Du kannst sie direkt vor ein Wort setzen, um die Betonung dieses Wortes zu Ã¤ndern.
 
 I just can't believe it *laugh* you must be joking!
 
-Wichtiges Detail: Suno ist eine kreative KI. Diese Befehle sind "weiche" Anweisungen. Wenn ein *laugh* in einem extrem traurigen Opern-Song steht, wird die KI es wahrscheinlich ignorieren, weil es musikalisch nicht passt. In passenden Genres (Pop, Musical, Rap, Theater) ist die Erfolgsquote deutlich höher.</div>
+Wichtiges Detail: Suno ist eine kreative KI. Diese Befehle sind "weiche" Anweisungen. Wenn ein *laugh* in einem extrem traurigen Opern-Song steht, wird die KI es wahrscheinlich ignorieren, weil es musikalisch nicht passt. In passenden Genres (Pop, Musical, Rap, Theater) ist die Erfolgsquote deutlich hÃ¶her.</div>
       </section>
     </section>
   </main>
@@ -723,7 +719,7 @@ Wichtiges Detail: Suno ist eine kreative KI. Diese Befehle sind "weiche" Anweisu
       selected.clear();
       document.querySelectorAll(".term-button.is-selected").forEach((button) => button.classList.remove("is-selected"));
       buildOutput();
-      copyStatus.textContent = "Auswahl zurückgesetzt.";
+      copyStatus.textContent = "Auswahl zurÃ¼ckgesetzt.";
       window.setTimeout(() => {
         copyStatus.textContent = "";
       }, 1600);
@@ -739,3 +735,4 @@ Wichtiges Detail: Suno ist eine kreative KI. Diese Befehle sind "weiche" Anweisu
   </script>
 </body>
 </html>
+
