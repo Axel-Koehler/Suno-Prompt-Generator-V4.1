@@ -109,6 +109,7 @@
       min-height: min(760px, calc(100vh - 48px));
       padding: 10px 22px 58px;
       clip-path: none;
+      border-radius: 14px;
       background:
         linear-gradient(90deg, var(--yellow), var(--orange) 9%, var(--violet) 23%, var(--magenta) 51%, var(--violet) 76%, var(--cyan) 91%, var(--yellow)),
         linear-gradient(180deg, rgba(17, 8, 47, 0.96), rgba(5, 5, 18, 0.98));
@@ -120,6 +121,7 @@
       position: absolute;
       inset: 3px;
       clip-path: none;
+      border-radius: inherit;
       background:
         linear-gradient(180deg, rgba(10, 6, 29, 0.95), rgba(8, 5, 24, 0.98)),
         linear-gradient(90deg, rgba(0, 217, 255, 0.08), rgba(255, 45, 253, 0.08));
@@ -149,6 +151,10 @@
       text-transform: uppercase;
       letter-spacing: 0;
       background:
+        linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
+        linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
+        linear-gradient(45deg, #ff8a19 0 10px, transparent 10px) left bottom / 30px 30px no-repeat,
+        linear-gradient(315deg, #ff8a19 0 10px, transparent 10px) right bottom / 30px 30px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
       border: 1px solid rgba(0, 217, 255, 0.8);
       box-shadow:
@@ -156,6 +162,7 @@
         0 0 34px rgba(175, 25, 255, 0.36),
         inset 0 0 16px rgba(0, 217, 255, 0.28);
       clip-path: none;
+      border-radius: 14px;
       text-shadow: 0 0 12px rgba(0, 217, 255, 0.78);
       white-space: nowrap;
       isolation: isolate;
@@ -169,6 +176,7 @@
       border-top: 1px solid rgba(198, 31, 255, 0.78);
       border-bottom: 1px solid rgba(198, 31, 255, 0.78);
       clip-path: none;
+      border-radius: 14px;
       box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
       pointer-events: none;
     }
@@ -378,6 +386,7 @@
         width: min(100%, 96vw);
         padding: 10px 14px 44px;
         clip-path: none;
+      border-radius: 14px;
       }
 
       .prompt-title-chip {
