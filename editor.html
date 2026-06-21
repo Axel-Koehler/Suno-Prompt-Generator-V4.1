@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -84,7 +84,7 @@
       width: min(1420px, 97vw);
       min-height: min(760px, calc(100vh - 48px));
       padding: 10px 22px 58px;
-      clip-path: none;
+      clip-path: polygon(4.5% 0, 95.5% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 95.5% 100%, 4.5% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
       background:
         linear-gradient(90deg, var(--yellow), var(--orange) 9%, var(--violet) 23%, var(--magenta) 51%, var(--violet) 76%, var(--cyan) 91%, var(--yellow)),
         linear-gradient(180deg, rgba(17, 8, 47, 0.96), rgba(5, 5, 18, 0.98));
@@ -95,7 +95,7 @@
       content: "";
       position: absolute;
       inset: 3px;
-      clip-path: none;
+      clip-path: inherit;
       background:
         linear-gradient(180deg, rgba(10, 6, 29, 0.95), rgba(8, 5, 24, 0.98)),
         linear-gradient(90deg, rgba(0, 217, 255, 0.08), rgba(255, 45, 253, 0.08));
@@ -124,9 +124,13 @@
       font-weight: 400;
       text-transform: uppercase;
       background:
+        linear-gradient(135deg, var(--yellow) 0 12px, transparent 12px) left top / 34px 34px no-repeat,
+        linear-gradient(225deg, var(--yellow) 0 12px, transparent 12px) right top / 34px 34px no-repeat,
+        linear-gradient(45deg, var(--orange) 0 11px, transparent 11px) left bottom / 32px 32px no-repeat,
+        linear-gradient(315deg, var(--orange) 0 11px, transparent 11px) right bottom / 32px 32px no-repeat,
         linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.88), rgba(9, 14, 42, 0.96));
       border: 1px solid rgba(0, 217, 255, 0.72);
-      clip-path: none;
+      clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
       box-shadow:
         0 0 18px rgba(0, 217, 255, 0.34),
         0 0 24px rgba(175, 25, 255, 0.25),
@@ -143,7 +147,7 @@
       inset: 5px 12px;
       border-top: 1px solid rgba(198, 31, 255, 0.78);
       border-bottom: 1px solid rgba(198, 31, 255, 0.78);
-      clip-path: none;
+      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
       box-shadow: inset 0 0 14px rgba(198, 31, 255, 0.32);
       pointer-events: none;
     }
@@ -449,7 +453,7 @@
         --shell-corner-depth: 42px;
         width: min(100%, 96vw);
         padding: 10px 14px 44px;
-        clip-path: none;
+        clip-path: polygon(3% 0, 97% 0, 100% var(--shell-corner-depth), 100% calc(100% - var(--shell-corner-depth)), 97% 100%, 3% 100%, 0 calc(100% - var(--shell-corner-depth)), 0 var(--shell-corner-depth));
       }
 
       .editor-title-chip {
@@ -488,7 +492,7 @@
       <nav class="site-nav" data-active="editor" aria-label="Hauptnavigation"></nav>
 
       <div class="editor-content">
-        <section class="visitor-counter is-hidden" id="visitorCounter" aria-label="BesucherzÃ¤hler">
+        <section class="visitor-counter is-hidden" id="visitorCounter" aria-label="Besucherzähler">
           <div class="visitor-counter-item">
             <span class="visitor-counter-label">Besuche gesamt</span>
             <span class="visitor-counter-value" id="visitorTotal">-</span>
@@ -520,14 +524,14 @@
           <div>
             <label class="editor-label">
               Textfelder
-              <select class="editor-input" id="fieldPageSelect" aria-label="Seite auswÃ¤hlen"></select>
+              <select class="editor-input" id="fieldPageSelect" aria-label="Seite auswählen"></select>
               <div class="field-list" id="fieldList"></div>
             </label>
           </div>
 
           <div class="form-area">
             <label class="editor-label">
-              AusgewÃ¤hltes Textfeld
+              Ausgewähltes Textfeld
               <input class="editor-input" id="fieldName" type="text" readonly>
             </label>
 
@@ -538,21 +542,21 @@
 
             <div class="control-row">
               <label class="editor-label">
-                SchriftgrÃ¶ÃŸe
+                Schriftgröße
                 <input class="editor-input" id="fontSize" type="number" min="10" max="48" step="1">
               </label>
               <label class="editor-label">
                 Schriftfarbe
                 <div class="color-control">
                   <select class="editor-input" id="colorPreset">
-                    <option value="#f7fbff">Text WeiÃŸ</option>
+                    <option value="#f7fbff">Text Weiß</option>
                     <option value="#00d9ff">Neon Cyan</option>
                     <option value="#f8ff13">Neon Gelb</option>
                     <option value="#ff2dfd">Neon Magenta</option>
                     <option value="#6736ff">Violett</option>
                     <option value="#ff9f1c">Orange</option>
-                    <option value="#9da7d7">GedÃ¤mpft Blau</option>
-                    <option value="#ffffff">Rein WeiÃŸ</option>
+                    <option value="#9da7d7">Gedämpft Blau</option>
+                    <option value="#ffffff">Rein Weiß</option>
                     <option value="">Eigene Farbe</option>
                   </select>
                   <input class="editor-input" id="fontColor" type="color">
@@ -571,11 +575,11 @@
             </div>
 
             <div class="action-row">
-              <button class="button" id="bulletButton" type="button">AufzÃ¤hlung</button>
+              <button class="button" id="bulletButton" type="button">Aufzählung</button>
               <button class="button" id="linkButton" type="button">Link</button>
               <button class="button" id="saveButton" type="button">Speichern</button>
-              <button class="button" id="resetButton" type="button">Feld zurÃ¼cksetzen</button>
-              <button class="button" id="resetAllButton" type="button">Alles zurÃ¼cksetzen</button>
+              <button class="button" id="resetButton" type="button">Feld zurücksetzen</button>
+              <button class="button" id="resetAllButton" type="button">Alles zurücksetzen</button>
               <button class="button" id="logoutButton" type="button">Abmelden</button>
             </div>
             <div class="status" id="editorStatus"></div>
@@ -605,7 +609,7 @@
             </section>
 
             <section class="record-entry-panel" aria-label="Neuer Datensatz Projekt 1">
-              <h2 class="record-entry-title">Neuen Datensatz fÃ¼r Projekt 1 hinzufÃ¼gen</h2>
+              <h2 class="record-entry-title">Neuen Datensatz für Projekt 1 hinzufügen</h2>
               <div class="record-entry-grid">
                 <label class="editor-label">
                   Jahr
@@ -643,12 +647,12 @@
               <div class="status" id="recordStatus"></div>
             </section>
 
-            <section class="record-entry-panel" aria-label="DatensÃ¤tze Projekt 1 bearbeiten">
-              <h2 class="record-entry-title">DatensÃ¤tze Projekt 1 bearbeiten</h2>
+            <section class="record-entry-panel" aria-label="Datensätze Projekt 1 bearbeiten">
+              <h2 class="record-entry-title">Datensätze Projekt 1 bearbeiten</h2>
               <div class="record-manager-grid">
                 <label class="editor-label">
                   Datensatzliste
-                  <input class="editor-input" id="projectRecordSearch" type="search" placeholder="DatensÃ¤tze suchen">
+                  <input class="editor-input" id="projectRecordSearch" type="search" placeholder="Datensätze suchen">
                   <div class="record-manager-list" id="projectRecordList"></div>
                 </label>
 
@@ -682,8 +686,8 @@
                     <textarea class="editor-textarea" id="editRecordStyle" spellcheck="true" lang="de" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
                   </label>
                   <div class="action-row wide">
-                    <button class="button" id="recordUpdateButton" type="button">Ã„nderung speichern</button>
-                    <button class="button" id="recordDeleteButton" type="button">Datensatz lÃ¶schen</button>
+                    <button class="button" id="recordUpdateButton" type="button">Änderung speichern</button>
+                    <button class="button" id="recordDeleteButton" type="button">Datensatz löschen</button>
                   </div>
                   <div class="status wide" id="recordEditStatus"></div>
                 </div>
@@ -894,7 +898,7 @@
 
       const projectRecordLabel = (record) => {
         const title = [record.Interpret, record.Jahr].filter(Boolean).join(" - ");
-        const meta = [record.Genre, record.Mood, record.Datenfeld, record.Use].filter(Boolean).join(" Â· ");
+        const meta = [record.Genre, record.Mood, record.Datenfeld, record.Use].filter(Boolean).join(" · ");
         return { title: title || "Ohne Titel", meta };
       };
 
@@ -938,7 +942,7 @@
         if (!sortedRecords.length) {
           const empty = document.createElement("p");
           empty.className = "record-manager-empty";
-          empty.textContent = query ? "Keine DatensÃ¤tze zur Suche gefunden." : "Noch keine DatensÃ¤tze vorhanden.";
+          empty.textContent = query ? "Keine Datensätze zur Suche gefunden." : "Noch keine Datensätze vorhanden.";
           projectRecordList.appendChild(empty);
           if (!projectRecordsCache.some((record) => record._id === activeProjectRecordId)) clearProjectRecordEditor();
           return;
@@ -973,13 +977,13 @@
 
       const updateProjectRecord = async () => {
         if (!activeProjectRecordId) {
-          recordEditStatus.textContent = "Bitte zuerst einen Datensatz auswÃ¤hlen.";
+          recordEditStatus.textContent = "Bitte zuerst einen Datensatz auswählen.";
           return;
         }
 
         const nextRecord = getProjectRecordForm();
         if (!nextRecord.Jahr || !nextRecord.Interpret || !nextRecord.Genre || !nextRecord.Mood || !nextRecord.Style) {
-          recordEditStatus.textContent = "Bitte alle Datensatzfelder ausfÃ¼llen.";
+          recordEditStatus.textContent = "Bitte alle Datensatzfelder ausfüllen.";
           return;
         }
 
@@ -1010,13 +1014,13 @@
 
       const deleteProjectRecord = async () => {
         if (!activeProjectRecordId) {
-          recordEditStatus.textContent = "Bitte zuerst einen Datensatz auswÃ¤hlen.";
+          recordEditStatus.textContent = "Bitte zuerst einen Datensatz auswählen.";
           return;
         }
         const record = projectRecordsCache.find((entry) => entry._id === activeProjectRecordId);
         if (!record) return;
         const label = projectRecordLabel(record).title;
-        if (!window.confirm('Datensatz "' + label + '" wirklich lÃ¶schen?')) return;
+        if (!window.confirm('Datensatz "' + label + '" wirklich löschen?')) return;
 
         const projectRecords = projectRecordsCache
           .filter((entry) => entry._id !== activeProjectRecordId)
@@ -1024,8 +1028,8 @@
         const remoteSaved = await persistProjectRecords(projectRecords);
         clearProjectRecordEditor();
         recordEditStatus.textContent = window.AKRemoteStore?.isConfigured
-          ? (remoteSaved ? "Datensatz zentral gelÃ¶scht." : "Lokal gelÃ¶scht. Online-Speicher nicht erreichbar.")
-          : "Datensatz lokal gelÃ¶scht.";
+          ? (remoteSaved ? "Datensatz zentral gelöscht." : "Lokal gelöscht. Online-Speicher nicht erreichbar.")
+          : "Datensatz lokal gelöscht.";
       };
 
       const saveProjectRecord = async () => {
@@ -1041,7 +1045,7 @@
         };
 
         if (!nextRecord.Jahr || !nextRecord.Interpret || !nextRecord.Genre || !nextRecord.Mood || !nextRecord.Style) {
-          recordStatus.textContent = "Bitte alle Datensatzfelder ausfÃ¼llen.";
+          recordStatus.textContent = "Bitte alle Datensatzfelder ausfüllen.";
           return;
         }
 
@@ -1120,7 +1124,7 @@
           return;
         }
         if (!file) {
-          songUploadStatus.textContent = "Bitte eine Audiodatei auswÃ¤hlen.";
+          songUploadStatus.textContent = "Bitte eine Audiodatei auswählen.";
           return;
         }
         const contentType = getAudioContentType(file);
@@ -1176,7 +1180,7 @@
           button.type = "button";
           button.textContent = song.title || song.filename || "Ohne Titel";
           meta.className = "record-manager-meta";
-          meta.textContent = [song.filename, formatSongDate(song.uploadedAt)].filter(Boolean).join(" Â· ");
+          meta.textContent = [song.filename, formatSongDate(song.uploadedAt)].filter(Boolean).join(" · ");
           button.appendChild(meta);
           button.addEventListener("click", () => deleteSong(song));
           songManagerList.appendChild(button);
@@ -1191,15 +1195,15 @@
 
       const deleteSong = async (song) => {
         const title = song.title || song.filename || "Ohne Titel";
-        if (!window.confirm('Audiodatei "' + title + '" wirklich lÃ¶schen?')) return;
-        songManagerStatus.textContent = "Audiodatei wird gelÃ¶scht...";
+        if (!window.confirm('Audiodatei "' + title + '" wirklich löschen?')) return;
+        songManagerStatus.textContent = "Audiodatei wird gelöscht...";
         const result = await window.AKRemoteStore?.deleteAudio?.(song.id);
         if (result?.ok) {
-          songManagerStatus.textContent = "Audiodatei gelÃ¶scht.";
+          songManagerStatus.textContent = "Audiodatei gelöscht.";
           await refreshSongManagerList();
           return;
         }
-        songManagerStatus.textContent = result?.error ? "LÃ¶schen fehlgeschlagen: " + result.error : "LÃ¶schen fehlgeschlagen.";
+        songManagerStatus.textContent = result?.error ? "Löschen fehlgeschlagen: " + result.error : "Löschen fehlgeschlagen.";
       };
 
       const getContent = () => readJson(contentKey());
@@ -1297,17 +1301,17 @@
         const lines = selectedText.split("\n");
         const hasBullets = lines
           .filter((line) => line.trim() !== "")
-          .every((line) => /^\s*(?:[-â€¢]\s+)/.test(line));
+          .every((line) => /^\s*(?:[-•]\s+)/.test(line));
         const nextLines = lines.map((line) => {
           if (line.trim() === "") return line;
-          if (hasBullets) return line.replace(/^(\s*)(?:[-â€¢]\s+)/, "$1");
+          if (hasBullets) return line.replace(/^(\s*)(?:[-•]\s+)/, "$1");
           return line.replace(/^(\s*)/, "$1- ");
         });
         const replacement = nextLines.join("\n");
         fieldText.value = value.slice(0, lineStart) + replacement + value.slice(lineEnd);
         fieldText.focus();
         fieldText.setSelectionRange(lineStart, lineStart + replacement.length);
-        editorStatus.textContent = hasBullets ? "AufzÃ¤hlung entfernt." : "AufzÃ¤hlung eingefÃ¼gt.";
+        editorStatus.textContent = hasBullets ? "Aufzählung entfernt." : "Aufzählung eingefügt.";
       };
 
       const addExternalLink = () => {
@@ -1331,7 +1335,7 @@
         fieldText.value = fieldText.value.slice(0, start) + replacement + fieldText.value.slice(end);
         fieldText.focus();
         fieldText.setSelectionRange(start, start + replacement.length);
-        editorStatus.textContent = "Link eingefÃ¼gt. Danach speichern.";
+        editorStatus.textContent = "Link eingefügt. Danach speichern.";
       };
 
       const resetField = () => {
@@ -1344,7 +1348,7 @@
         writeJson(styleKey(), styles);
         selectField(activeField);
         window.SiteContent.applyContent();
-        editorStatus.textContent = "Feld zurÃ¼ckgesetzt.";
+        editorStatus.textContent = "Feld zurückgesetzt.";
       };
 
       const resetAll = () => {
@@ -1352,7 +1356,7 @@
         localStorage.removeItem(styleKey());
         selectField(activeField || window.SiteContent.fields[0]);
         window.SiteContent.applyContent();
-        editorStatus.textContent = "Alle Textfelder wurden zurÃ¼ckgesetzt.";
+        editorStatus.textContent = "Alle Textfelder wurden zurückgesetzt.";
       };
 
       const openEditor = async () => {
@@ -1411,4 +1415,3 @@
   </script>
 </body>
 </html>
-
