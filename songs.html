@@ -289,9 +289,9 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      opacity: 0.82;
+      opacity: 0.95;
       pointer-events: none;
-      z-index: 0;
+      z-index: 1;
       mix-blend-mode: screen;
     }
 
@@ -310,7 +310,7 @@
         48px 48px,
         48px 48px;
       pointer-events: none;
-      z-index: 1;
+      z-index: 2;
       opacity: 0.72;
       mix-blend-mode: screen;
       filter: drop-shadow(0 0 3px rgba(0, 217, 255, 0.28));
@@ -324,7 +324,7 @@
         linear-gradient(90deg, rgba(2, 5, 20, 0.68), rgba(2, 5, 20, 0.28), rgba(2, 5, 20, 0.68)),
         linear-gradient(180deg, rgba(2, 5, 20, 0.28), rgba(2, 5, 20, 0.76));
       pointer-events: none;
-      z-index: 2;
+      z-index: 0;
     }
 
     .song-play {
@@ -465,9 +465,6 @@
       let playAllSongsRunning = false;
       let sequentialSongIndex = -1;
       let masterVolumeValue = Number(masterVolume?.value || 0.75);
-      const isAppleMobilePlayback = /iPad|iPhone|iPod/.test(navigator.userAgent)
-        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
       const applyMasterVolumeToPlayer = (player) => {
         if (!player) return;
         if (player.audio) player.audio.volume = masterVolumeValue;
@@ -913,6 +910,45 @@
           canvas.stroke();
         };
 
+        const drawFallbackSpectrum = () => {
+          resizeSpectrum();
+          const canvas = spectrum.getContext("2d");
+          if (!canvas) return;
+          const width = spectrum.width;
+          const height = spectrum.height;
+          const center = height * 0.82;
+          const points = previewData?.length ? previewData.length - 1 : 96;
+          const timeOffset = audio.currentTime || performance.now() / 1000;
+          canvas.clearRect(0, 0, width, height);
+
+          const strokePreviewLine = (offset, color, blur, widthMultiplier, phase) => {
+            canvas.beginPath();
+            canvas.strokeStyle = color;
+            canvas.lineWidth = Math.max(1, width * widthMultiplier);
+            canvas.shadowColor = color;
+            canvas.shadowBlur = blur;
+            for (let index = 0; index <= points; index += 1) {
+              const ratio = index / points;
+              const x = ratio * width;
+              const storedValue = previewData?.[index] ?? (0.2 + Math.sin(ratio * Math.PI * 7) * 0.09);
+              const pulse = Math.sin(ratio * Math.PI * 10 + timeOffset * 4.2 + phase) * height * 0.026;
+              const shimmer = Math.sin(ratio * Math.PI * 25 + timeOffset * 2.4 + phase) * height * 0.012;
+              const y = center + offset - storedValue * height * 0.36 + pulse + shimmer;
+              if (index === 0) canvas.moveTo(x, y);
+              else canvas.lineTo(x, y);
+            }
+            canvas.stroke();
+          };
+
+          strokePreviewLine(0, "rgba(0, 217, 255, 0.9)", 12, 0.006, 0);
+          strokePreviewLine(height * 0.03, "rgba(255, 45, 253, 0.62)", 8, 0.004, 1.7);
+          strokePreviewLine(-height * 0.1, "rgba(248, 255, 19, 0.44)", 7, 0.003, 3.1);
+
+          if (!audio.paused && !audio.ended) {
+            animationFrame = requestAnimationFrame(drawFallbackSpectrum);
+          }
+        };
+
         const buildPreviewData = async (blob) => {
           const audioContext = getAudioContext();
           if (!audioContext) return;
@@ -1010,26 +1046,26 @@
         };
 
         const startSpectrum = async () => {
-          if (isAppleMobilePlayback) {
-            drawIdleSpectrum();
-            return;
-          }
           const audioContext = getAudioContext();
-          if (!audioContext) return;
-          if (audioContext.state === "suspended") await audioContext.resume();
-          if (!analyser) {
-            const source = audioContext.createMediaElementSource(audio);
-            analyser = audioContext.createAnalyser();
-            gainNode = audioContext.createGain();
-            analyser.fftSize = 2048;
-            analyser.smoothingTimeConstant = 0.78;
-            gainNode.gain.value = masterVolumeValue;
-            source.connect(analyser);
-            analyser.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            frequencyData = new Uint8Array(analyser.frequencyBinCount);
+          try {
+            if (!audioContext) throw new Error("AudioContext nicht verfuegbar.");
+            if (audioContext.state === "suspended") await audioContext.resume();
+            if (!analyser) {
+              const source = audioContext.createMediaElementSource(audio);
+              analyser = audioContext.createAnalyser();
+              gainNode = audioContext.createGain();
+              analyser.fftSize = 2048;
+              analyser.smoothingTimeConstant = 0.78;
+              gainNode.gain.value = masterVolumeValue;
+              source.connect(analyser);
+              analyser.connect(gainNode);
+              gainNode.connect(audioContext.destination);
+              frequencyData = new Uint8Array(analyser.frequencyBinCount);
+            }
+            if (!animationFrame) drawSpectrum();
+          } catch (error) {
+            if (!animationFrame) drawFallbackSpectrum();
           }
-          if (!animationFrame) drawSpectrum();
         };
 
         const ensureAudioLoaded = async () => {
