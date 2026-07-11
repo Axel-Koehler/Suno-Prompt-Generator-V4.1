@@ -255,9 +255,9 @@ Hinweis: Diese Version erzeugt Frequenzspuren. Eine echte KI-Trennung nach Gesan
     {
       id: "songs.links.title",
       page: "Meine Song`s",
-      label: "Feldtitel Linkliste",
+      label: "Feldtitel Meine Veröffentlichungen",
       selector: '[data-content-key="songs.links.title"]',
-      defaultText: "Linkliste",
+      defaultText: "Meine Veröffentlichungen",
     },
     {
       id: "songs.links.items",
@@ -487,6 +487,10 @@ Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung.
   const applyContent = () => {
     const content = readJson(STORAGE_KEY);
     const styles = readJson(STYLE_KEY);
+    if (content["songs.links.title"] === "Linkliste") {
+      content["songs.links.title"] = "Meine Veröffentlichungen";
+      writeJson(STORAGE_KEY, content);
+    }
 
     fields.forEach((field) => {
       document.querySelectorAll(field.selector).forEach((element) => {
