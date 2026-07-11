@@ -253,6 +253,21 @@ Hinweis: Diese Version erzeugt Frequenzspuren. Eine echte KI-Trennung nach Gesan
       defaultText: "Mit den Lautstärkereglern kannst du einzelne Spuren lauter oder leiser stellen. Der Button erstellt daraus eine neue WAV-Datei mit genau diesen Einstellungen.",
     },
     {
+      id: "songs.links.title",
+      page: "Meine Song`s",
+      label: "Feldtitel Linkliste",
+      selector: '[data-content-key="songs.links.title"]',
+      defaultText: "Linkliste",
+    },
+    {
+      id: "songs.links.items",
+      page: "Meine Song`s",
+      label: "Linkliste",
+      selector: '[data-content-key="songs.links.items"]',
+      defaultText: `Suno Create | https://suno.com/create
+AK AI Music Studio | https://www.ak-ai-music.studio`,
+    },
+    {
       id: "legal.imprint.title",
       page: "Rechtliches",
       label: "Impressum Titel",
@@ -489,6 +504,7 @@ Bitte pruefe und ergaenze diese Datenschutzerklaerung vor der Veroeffentlichung.
     if (typeof window.autoGrowTextareas === "function") {
       requestAnimationFrame(window.autoGrowTextareas);
     }
+    window.dispatchEvent(new CustomEvent("sitecontent:applied"));
   };
 
   const loadRemoteContent = async () => {

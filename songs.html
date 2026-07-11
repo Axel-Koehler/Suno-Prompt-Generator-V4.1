@@ -207,6 +207,134 @@
       accent-color: var(--cyan);
     }
 
+    .songs-link-panel {
+      position: relative;
+      margin: 0 0 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(0, 217, 255, 0.48);
+      background:
+        linear-gradient(135deg, rgba(248, 255, 19, 0.1), transparent 22%),
+        linear-gradient(225deg, rgba(255, 45, 253, 0.14), transparent 24%),
+        rgba(2, 5, 20, 0.52);
+      box-shadow:
+        0 0 18px rgba(0, 217, 255, 0.18),
+        inset 0 0 16px rgba(255, 45, 253, 0.08);
+    }
+
+    .songs-link-title {
+      margin: 0 0 10px;
+      color: var(--cyan);
+      font-size: 15px;
+      font-weight: 400;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+    }
+
+    .songs-link-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .songs-link-list [data-content-key="songs.links.items"] {
+      display: none;
+    }
+
+    .songs-link-button,
+    .song-link-open,
+    .song-link-close {
+      min-height: 38px;
+      padding: 9px 15px;
+      border: 1px solid rgba(0, 217, 255, 0.72);
+      color: rgba(247, 251, 255, 0.96);
+      background:
+        linear-gradient(135deg, var(--yellow) 0 8px, transparent 8px) left top / 22px 22px no-repeat,
+        linear-gradient(225deg, var(--yellow) 0 8px, transparent 8px) right top / 22px 22px no-repeat,
+        linear-gradient(90deg, rgba(9, 14, 42, 0.96), rgba(64, 12, 137, 0.82), rgba(9, 14, 42, 0.96));
+      box-shadow: 0 0 16px rgba(0, 217, 255, 0.24), inset 0 0 12px rgba(255, 45, 253, 0.12);
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .songs-link-button:hover,
+    .songs-link-button:focus-visible,
+    .song-link-open:hover,
+    .song-link-open:focus-visible,
+    .song-link-close:hover,
+    .song-link-close:focus-visible {
+      border-color: rgba(248, 255, 19, 0.9);
+      outline: none;
+      box-shadow:
+        0 0 18px rgba(248, 255, 19, 0.2),
+        0 0 24px rgba(0, 217, 255, 0.32),
+        inset 0 0 14px rgba(255, 45, 253, 0.16);
+    }
+
+    .song-link-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(2, 4, 16, 0.78);
+      backdrop-filter: blur(10px);
+    }
+
+    .song-link-modal.is-open {
+      display: flex;
+    }
+
+    .song-link-dialog {
+      width: min(1180px, 96vw);
+      height: min(760px, 88vh);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      border: 1px solid rgba(0, 217, 255, 0.62);
+      background:
+        linear-gradient(135deg, rgba(248, 255, 19, 0.1), transparent 20%),
+        linear-gradient(225deg, rgba(255, 45, 253, 0.14), transparent 24%),
+        rgba(5, 7, 24, 0.96);
+      box-shadow:
+        0 0 28px rgba(0, 217, 255, 0.3),
+        0 0 42px rgba(255, 45, 253, 0.24),
+        inset 0 0 24px rgba(0, 217, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .song-link-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(0, 217, 255, 0.28);
+    }
+
+    .song-link-title {
+      min-width: 0;
+      color: var(--cyan);
+      text-transform: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .song-link-actions {
+      display: flex;
+      flex: 0 0 auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .song-link-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #050718;
+    }
+
     .song-list {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -423,6 +551,12 @@
         grid-template-columns: 46px minmax(0, 1fr);
       }
 
+      .song-link-head,
+      .song-link-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
       .song-time {
         grid-column: 1 / -1;
         text-align: left;
@@ -448,16 +582,42 @@
             <input id="masterVolume" type="range" min="0" max="1" step="0.01" value="0.75">
           </label>
         </div>
+        <section class="songs-link-panel" aria-label="Linkliste">
+          <h2 class="songs-link-title" data-content-key="songs.links.title">Linkliste</h2>
+          <div class="songs-link-list" id="songsLinkList">
+            <div data-content-key="songs.links.items">Suno Create | https://suno.com/create
+AK AI Music Studio | https://www.ak-ai-music.studio</div>
+          </div>
+        </section>
         <div class="song-list" id="songList"></div>
       </div>
     </section>
   </main>
+
+  <div class="song-link-modal" id="songLinkModal" aria-hidden="true">
+    <div class="song-link-dialog" role="dialog" aria-modal="true" aria-labelledby="songLinkTitle">
+      <div class="song-link-head">
+        <div class="song-link-title" id="songLinkTitle">Link</div>
+        <div class="song-link-actions">
+          <a class="song-link-open" id="songLinkOpen" href="#" target="_blank" rel="noopener noreferrer">Extern öffnen</a>
+          <button class="song-link-close" id="songLinkClose" type="button">Schließen</button>
+        </div>
+      </div>
+      <iframe class="song-link-frame" id="songLinkFrame" title="Linkvorschau" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    </div>
+  </div>
 
   <script>
     (() => {
       const songList = document.getElementById("songList");
       const playAllSongsButton = document.getElementById("playAllSongsButton");
       const masterVolume = document.getElementById("masterVolume");
+      const songsLinkList = document.getElementById("songsLinkList");
+      const songLinkModal = document.getElementById("songLinkModal");
+      const songLinkTitle = document.getElementById("songLinkTitle");
+      const songLinkOpen = document.getElementById("songLinkOpen");
+      const songLinkClose = document.getElementById("songLinkClose");
+      const songLinkFrame = document.getElementById("songLinkFrame");
       let activeAudio = null;
       const objectUrls = [];
       let sharedAudioContext = null;
@@ -515,6 +675,65 @@
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
+        });
+      };
+
+      const getEditableText = (fieldId) => {
+        const content = window.SiteContent?.readJson?.(window.SiteContent.storageKey) || {};
+        if (typeof content[fieldId] === "string") return content[fieldId];
+        const field = window.SiteContent?.fields?.find((entry) => entry.id === fieldId);
+        return field?.defaultText || "";
+      };
+
+      const parseSongLinks = () => getEditableText("songs.links.items")
+        .replace(/\r\n/g, "\n")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const markdown = line.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/i);
+          if (markdown) return { title: markdown[1].trim(), url: markdown[2].trim() };
+
+          const parts = line.split(/\s+\|\s+|\s*;\s*|\s*,\s*/);
+          if (parts.length >= 2 && /^https?:\/\//i.test(parts[parts.length - 1])) {
+            return {
+              title: parts.slice(0, -1).join(" ").trim(),
+              url: parts[parts.length - 1].trim(),
+            };
+          }
+
+          if (/^https?:\/\//i.test(line)) return { title: line.replace(/^https?:\/\//i, ""), url: line };
+          return null;
+        })
+        .filter((entry) => entry && entry.title && /^https?:\/\//i.test(entry.url));
+
+      const closeSongLinkPopup = () => {
+        songLinkModal.classList.remove("is-open");
+        songLinkModal.setAttribute("aria-hidden", "true");
+        songLinkFrame.src = "about:blank";
+      };
+
+      const openSongLinkPopup = (entry) => {
+        songLinkTitle.textContent = entry.title;
+        songLinkOpen.href = entry.url;
+        songLinkFrame.src = entry.url;
+        songLinkModal.classList.add("is-open");
+        songLinkModal.setAttribute("aria-hidden", "false");
+      };
+
+      const renderSongLinks = () => {
+        const source = songsLinkList.querySelector('[data-content-key="songs.links.items"]');
+        const links = parseSongLinks();
+        songsLinkList.replaceChildren();
+        if (source) songsLinkList.appendChild(source);
+
+        links.forEach((entry) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "songs-link-button";
+          button.textContent = entry.title;
+          button.addEventListener("click", () => openSongLinkPopup(entry));
+          songsLinkList.appendChild(button);
         });
       };
 
@@ -1190,6 +1409,14 @@
       masterVolume?.addEventListener("input", handleMasterVolumeChange);
       masterVolume?.addEventListener("change", handleMasterVolumeChange);
       masterVolume?.addEventListener("touchmove", handleMasterVolumeChange, { passive: true });
+      songLinkClose.addEventListener("click", closeSongLinkPopup);
+      songLinkModal.addEventListener("click", (event) => {
+        if (event.target === songLinkModal) closeSongLinkPopup();
+      });
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && songLinkModal.classList.contains("is-open")) closeSongLinkPopup();
+      });
+      window.addEventListener("sitecontent:applied", renderSongLinks);
 
       const stopSequentialPlayback = () => {
         playAllSongsRunning = false;
@@ -1228,8 +1455,12 @@
       });
 
       if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", renderSongs, { once: true });
+        document.addEventListener("DOMContentLoaded", () => {
+          renderSongLinks();
+          renderSongs();
+        }, { once: true });
       } else {
+        renderSongLinks();
         renderSongs();
       }
     })();
