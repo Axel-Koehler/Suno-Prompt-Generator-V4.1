@@ -231,16 +231,13 @@
     }
 
     .songs-link-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      display: block;
     }
 
     .songs-link-list [data-content-key="songs.links.items"] {
       display: none;
     }
 
-    .songs-link-button,
     .song-link-open,
     .song-link-close {
       min-height: 38px;
@@ -256,8 +253,6 @@
       text-transform: uppercase;
     }
 
-    .songs-link-button:hover,
-    .songs-link-button:focus-visible,
     .song-link-open:hover,
     .song-link-open:focus-visible,
     .song-link-close:hover,
@@ -268,6 +263,46 @@
         0 0 18px rgba(248, 255, 19, 0.2),
         0 0 24px rgba(0, 217, 255, 0.32),
         inset 0 0 14px rgba(255, 45, 253, 0.16);
+    }
+
+    .songs-link-items {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .songs-link-item {
+      margin: 0;
+      padding: 0;
+    }
+
+    .songs-link-anchor {
+      display: block;
+      padding: 9px 12px;
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      color: rgba(247, 251, 255, 0.94);
+      background: rgba(4, 9, 30, 0.48);
+      text-decoration: none;
+      box-shadow: inset 0 0 12px rgba(255, 45, 253, 0.08);
+    }
+
+    .songs-link-anchor:hover,
+    .songs-link-anchor:focus-visible {
+      border-color: rgba(248, 255, 19, 0.8);
+      color: #ffffff;
+      outline: none;
+      box-shadow:
+        0 0 14px rgba(0, 217, 255, 0.22),
+        inset 0 0 12px rgba(255, 45, 253, 0.14);
+    }
+
+    .songs-link-empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
     }
 
     .song-link-modal {
@@ -585,8 +620,7 @@
         <section class="songs-link-panel" aria-label="Linkliste">
           <h2 class="songs-link-title" data-content-key="songs.links.title">Linkliste</h2>
           <div class="songs-link-list" id="songsLinkList">
-            <div data-content-key="songs.links.items">Suno Create | https://suno.com/create
-AK AI Music Studio | https://www.ak-ai-music.studio</div>
+            <div data-content-key="songs.links.items"></div>
           </div>
         </section>
         <div class="song-list" id="songList"></div>
@@ -727,14 +761,32 @@ AK AI Music Studio | https://www.ak-ai-music.studio</div>
         songsLinkList.replaceChildren();
         if (source) songsLinkList.appendChild(source);
 
+        const list = document.createElement("ul");
+        list.className = "songs-link-items";
         links.forEach((entry) => {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "songs-link-button";
-          button.textContent = entry.title;
-          button.addEventListener("click", () => openSongLinkPopup(entry));
-          songsLinkList.appendChild(button);
+          const item = document.createElement("li");
+          const anchor = document.createElement("a");
+          item.className = "songs-link-item";
+          anchor.className = "songs-link-anchor";
+          anchor.href = entry.url;
+          anchor.textContent = entry.title;
+          anchor.addEventListener("click", (event) => {
+            event.preventDefault();
+            openSongLinkPopup(entry);
+          });
+          item.appendChild(anchor);
+          list.appendChild(item);
         });
+
+        if (!links.length) {
+          const empty = document.createElement("p");
+          empty.className = "songs-link-empty";
+          empty.textContent = "Noch keine Links vorhanden.";
+          songsLinkList.appendChild(empty);
+          return;
+        }
+
+        songsLinkList.appendChild(list);
       };
 
       const renderSongs = async () => {

@@ -264,8 +264,7 @@ Hinweis: Diese Version erzeugt Frequenzspuren. Eine echte KI-Trennung nach Gesan
       page: "Meine Song`s",
       label: "Linkliste",
       selector: '[data-content-key="songs.links.items"]',
-      defaultText: `Suno Create | https://suno.com/create
-AK AI Music Studio | https://www.ak-ai-music.studio`,
+      defaultText: "",
     },
     {
       id: "legal.imprint.title",

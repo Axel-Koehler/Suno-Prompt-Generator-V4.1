@@ -608,6 +608,27 @@
               <div class="status" id="songManagerStatus"></div>
             </section>
 
+            <section class="record-entry-panel" aria-label="Linkliste Meine Songs bearbeiten">
+              <h2 class="record-entry-title">Linkliste Meine Song`s bearbeiten</h2>
+              <div class="record-entry-grid">
+                <label class="editor-label">
+                  Titel
+                  <input class="editor-input" id="songLinkTitleInput" type="text">
+                </label>
+                <label class="editor-label">
+                  Link
+                  <input class="editor-input" id="songLinkUrlInput" type="url" placeholder="https://">
+                </label>
+              </div>
+              <div class="action-row">
+                <button class="button" id="songLinkSaveButton" type="button">Link speichern</button>
+                <button class="button" id="songLinkClearButton" type="button">Felder leeren</button>
+                <button class="button" id="songLinkDeleteButton" type="button">Link löschen</button>
+              </div>
+              <div class="record-manager-list" id="songLinkManagerList"></div>
+              <div class="status" id="songLinkStatus"></div>
+            </section>
+
             <section class="record-entry-panel" aria-label="Neuer Datensatz Projekt 1">
               <h2 class="record-entry-title">Neuen Datensatz für Projekt 1 hinzufügen</h2>
               <div class="record-entry-grid">
@@ -734,10 +755,18 @@
       const songUploadStatus = document.getElementById("songUploadStatus");
       const songManagerList = document.getElementById("songManagerList");
       const songManagerStatus = document.getElementById("songManagerStatus");
+      const songLinkTitleInput = document.getElementById("songLinkTitleInput");
+      const songLinkUrlInput = document.getElementById("songLinkUrlInput");
+      const songLinkSaveButton = document.getElementById("songLinkSaveButton");
+      const songLinkClearButton = document.getElementById("songLinkClearButton");
+      const songLinkDeleteButton = document.getElementById("songLinkDeleteButton");
+      const songLinkManagerList = document.getElementById("songLinkManagerList");
+      const songLinkStatus = document.getElementById("songLinkStatus");
       const presetColors = Array.from(colorPreset.options).map((option) => option.value).filter(Boolean);
       const projectRecordStorageKey = "suno-prompt-menu-records-xlsx-txt-v1";
       const projectCustomRecordStorageKey = "suno-prompt-menu-custom-records-v1";
       let activeProjectRecordId = "";
+      let activeSongLinkIndex = -1;
       let projectRecordsCache = [];
 
       const readJson = (key) => {
@@ -1209,6 +1238,135 @@
       const getContent = () => readJson(contentKey());
       const getStyles = () => readJson(styleKey());
 
+      const getSongLinkText = () => {
+        const content = getContent();
+        if (typeof content["songs.links.items"] === "string") return content["songs.links.items"];
+        const field = window.SiteContent.fields.find((entry) => entry.id === "songs.links.items");
+        return field?.defaultText || "";
+      };
+
+      const parseEditorSongLinks = () => getSongLinkText()
+        .replace(/\r\n/g, "\n")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const markdown = line.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/i);
+          if (markdown) return { title: markdown[1].trim(), url: markdown[2].trim() };
+
+          const parts = line.split(/\s+\|\s+|\s*;\s*|\s*,\s*/);
+          if (parts.length >= 2 && /^https?:\/\//i.test(parts[parts.length - 1])) {
+            return {
+              title: parts.slice(0, -1).join(" ").trim(),
+              url: parts[parts.length - 1].trim(),
+            };
+          }
+
+          if (/^https?:\/\//i.test(line)) return { title: line.replace(/^https?:\/\//i, ""), url: line };
+          return null;
+        })
+        .filter((entry) => entry && entry.title && /^https?:\/\//i.test(entry.url));
+
+      const serializeSongLinks = (links) => links
+        .map((entry) => cleanValue(entry.title) + " | " + cleanValue(entry.url))
+        .filter((line) => line !== " | ")
+        .join("\n");
+
+      const clearSongLinkForm = () => {
+        activeSongLinkIndex = -1;
+        songLinkTitleInput.value = "";
+        songLinkUrlInput.value = "";
+        songLinkManagerList.querySelectorAll("button").forEach((button) => button.classList.remove("is-active"));
+      };
+
+      const renderSongLinkManager = () => {
+        const links = parseEditorSongLinks();
+        songLinkManagerList.replaceChildren();
+        if (!links.length) {
+          const empty = document.createElement("p");
+          empty.className = "record-manager-empty";
+          empty.textContent = "Noch keine Links vorhanden.";
+          songLinkManagerList.appendChild(empty);
+          clearSongLinkForm();
+          return;
+        }
+
+        links.forEach((link, index) => {
+          const button = document.createElement("button");
+          const meta = document.createElement("span");
+          button.type = "button";
+          button.textContent = link.title;
+          button.classList.toggle("is-active", index === activeSongLinkIndex);
+          meta.className = "record-manager-meta";
+          meta.textContent = link.url;
+          button.appendChild(meta);
+          button.addEventListener("click", () => {
+            activeSongLinkIndex = index;
+            songLinkTitleInput.value = link.title;
+            songLinkUrlInput.value = link.url;
+            songLinkStatus.textContent = "Link zum Bearbeiten geladen.";
+            renderSongLinkManager();
+          });
+          songLinkManagerList.appendChild(button);
+        });
+      };
+
+      const persistSongLinks = async (links) => {
+        const content = getContent();
+        const styles = getStyles();
+        content["songs.links.items"] = serializeSongLinks(links);
+        writeJson(contentKey(), content);
+        window.SiteContent.applyContent();
+        return window.SiteContent.saveRemoteContent(content, styles);
+      };
+
+      const saveSongLink = async () => {
+        const title = cleanValue(songLinkTitleInput.value);
+        const url = cleanValue(songLinkUrlInput.value);
+        if (!title || !url) {
+          songLinkStatus.textContent = "Bitte Titel und Link eingeben.";
+          return;
+        }
+        if (!/^https?:\/\//i.test(url)) {
+          songLinkStatus.textContent = "Bitte einen Link mit http:// oder https:// eingeben.";
+          return;
+        }
+
+        const links = parseEditorSongLinks();
+        const nextLink = { title, url };
+        if (activeSongLinkIndex >= 0 && activeSongLinkIndex < links.length) {
+          links[activeSongLinkIndex] = nextLink;
+        } else {
+          links.push(nextLink);
+        }
+
+        songLinkSaveButton.disabled = true;
+        const remoteSaved = await persistSongLinks(links);
+        songLinkSaveButton.disabled = false;
+        clearSongLinkForm();
+        renderSongLinkManager();
+        songLinkStatus.textContent = window.AKRemoteStore?.isConfigured
+          ? (remoteSaved ? "Link zentral gespeichert." : "Lokal gespeichert. Online-Speicher nicht erreichbar.")
+          : "Link lokal gespeichert.";
+      };
+
+      const deleteSongLink = async () => {
+        const links = parseEditorSongLinks();
+        if (activeSongLinkIndex < 0 || activeSongLinkIndex >= links.length) {
+          songLinkStatus.textContent = "Bitte zuerst einen Link aus der Liste auswählen.";
+          return;
+        }
+        links.splice(activeSongLinkIndex, 1);
+        songLinkDeleteButton.disabled = true;
+        const remoteSaved = await persistSongLinks(links);
+        songLinkDeleteButton.disabled = false;
+        clearSongLinkForm();
+        renderSongLinkManager();
+        songLinkStatus.textContent = window.AKRemoteStore?.isConfigured
+          ? (remoteSaved ? "Link gelöscht und zentral gespeichert." : "Link lokal gelöscht. Online-Speicher nicht erreichbar.")
+          : "Link gelöscht.";
+      };
+
       const selectField = (field) => {
         activeField = field;
         const content = getContent();
@@ -1367,6 +1525,7 @@
         await refreshProjectRecordList();
         await refreshSongManagerList();
         await loadVisitorCounter();
+        renderSongLinkManager();
         renderFieldList();
       };
 
@@ -1388,6 +1547,12 @@
       document.getElementById("resetAllButton").addEventListener("click", resetAll);
       document.getElementById("recordSaveButton").addEventListener("click", saveProjectRecord);
       songUploadButton.addEventListener("click", uploadSong);
+      songLinkSaveButton.addEventListener("click", saveSongLink);
+      songLinkClearButton.addEventListener("click", () => {
+        clearSongLinkForm();
+        songLinkStatus.textContent = "Felder geleert.";
+      });
+      songLinkDeleteButton.addEventListener("click", deleteSongLink);
       projectRecordSearch.addEventListener("input", renderProjectRecordList);
       document.getElementById("recordUpdateButton").addEventListener("click", updateProjectRecord);
       document.getElementById("recordDeleteButton").addEventListener("click", deleteProjectRecord);
