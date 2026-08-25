@@ -320,6 +320,74 @@
       text-transform: none;
     }
 
+    .generation-status {
+      display: grid;
+      gap: 8px;
+      min-height: 52px;
+      margin: 0 0 12px;
+      padding: 12px 14px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(248, 255, 19, 0.14), transparent 26%),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.22), rgba(255, 45, 253, 0.16)),
+        rgba(2, 5, 20, 0.88);
+      border: 1px solid rgba(248, 255, 19, 0.62);
+      border-radius: 6px;
+      box-shadow:
+        0 0 18px rgba(0, 217, 255, 0.22),
+        inset 0 0 16px rgba(255, 45, 253, 0.1);
+      text-transform: none;
+    }
+
+    .generation-status.is-success {
+      border-color: rgba(248, 255, 19, 0.72);
+      color: var(--yellow);
+    }
+
+    .generation-status.is-error {
+      border-color: rgba(255, 45, 253, 0.72);
+      color: rgba(255, 184, 255, 0.96);
+    }
+
+    .generation-status-text {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .generation-status-bar {
+      position: relative;
+      height: 3px;
+      overflow: hidden;
+      background: rgba(0, 217, 255, 0.16);
+      border-radius: 999px;
+    }
+
+    .generation-status-bar::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 42%;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+      transform: translateX(-110%);
+    }
+
+    .generation-status.is-active .generation-status-bar::before {
+      animation: generationPulse 1.1s linear infinite;
+    }
+
+    .generation-status.is-success .generation-status-bar::before,
+    .generation-status.is-error .generation-status-bar::before {
+      width: 100%;
+      transform: translateX(0);
+      animation: none;
+    }
+
+    @keyframes generationPulse {
+      to {
+        transform: translateX(240%);
+      }
+    }
+
     .topic-input {
       width: 100%;
       min-height: 44px;
@@ -423,6 +491,10 @@
         </section>
 
         <section class="output-panel" aria-label="Prompt Ausgabe">
+          <div class="generation-status" id="generationStatus" aria-live="polite">
+            <div class="generation-status-text" id="generationStatusText">Bereit für KI-Generierung.</div>
+            <div class="generation-status-bar" aria-hidden="true"></div>
+          </div>
           <label class="prompt-label">
             Songtext
             <textarea class="prompt-output" id="styleOutput" readonly></textarea>
@@ -460,6 +532,8 @@
     const styleOutput = document.getElementById("styleOutput");
     const detailOutput = document.getElementById("detailOutput");
     const copyStatus = document.getElementById("copyStatus");
+    const generationStatus = document.getElementById("generationStatus");
+    const generationStatusText = document.getElementById("generationStatusText");
     const selections = new Map([
       ["language", "de-DE"],
       ["rhyme", "ABAB"],
@@ -946,22 +1020,41 @@
       updateDetail();
     };
 
+    const setGenerationStatus = (state, text) => {
+      generationStatus.classList.toggle("is-active", state === "active");
+      generationStatus.classList.toggle("is-success", state === "success");
+      generationStatus.classList.toggle("is-error", state === "error");
+      generationStatusText.textContent = text || "Bereit für KI-Generierung.";
+    };
+
     const generateSong = async () => {
       const generateButton = document.getElementById("generateButton");
       const originalText = generateButton.textContent;
       generateButton.disabled = true;
       generateButton.textContent = "KI generiert...";
       copyStatus.textContent = "";
+      setGenerationStatus("active", "KI-Generierung gestartet. Auswahl, Thema, Sprache, Reim, Kernbotschaften und Metaphern werden übertragen...");
 
       const messages = selectedDetails(kernbotschaftOptions, selectedMessages);
       const metaphors = selectedDetails(metaphorOptions, selectedMetaphors);
+      const selectedControls = [
+        { label: "Thema", description: topicInput.value.trim() || "nicht eingegeben" },
+        { label: "Sprache - Songtext", description: getLabel("language") },
+        { label: "Reim - Schema", description: getLabel("rhyme") },
+        { label: "Reim - Qualität", description: getLabel("rhymeQuality") },
+        { label: "Kernbotschaften", description: messages.map((entry) => entry.label + (entry.description ? " - " + entry.description : "")).join("; ") || "keine" },
+        { label: "Metaphern", description: metaphors.map((entry) => entry.label + (entry.description ? " - " + entry.description : "")).join("; ") || "keine" },
+      ];
       const result = await window.AKRemoteStore?.generateLyrics?.({
         topic: topicInput.value.trim(),
         language: getValue("language"),
         languageLabel: getLabel("language"),
         rhyme: getValue("rhyme"),
-        rhymeQuality: getLabel("rhymeQuality"),
+        rhymeLabel: getLabel("rhyme"),
+        rhymeQuality: getValue("rhymeQuality"),
+        rhymeQualityLabel: getLabel("rhymeQuality"),
         creativeSeed: String(Date.now()) + "-" + Math.random().toString(36).slice(2),
+        selectedControls,
         messages,
         metaphors,
       });
@@ -969,14 +1062,17 @@
       if (result?.ok && result.value) {
         styleOutput.value = result.value;
         copyStatus.textContent = "KI-Songtext erstellt.";
+        setGenerationStatus("success", "Fertig. KI-Songtext wurde erfolgreich erstellt.");
         updateDetail();
       } else if ((result?.error || "").includes("OPENAI_API_KEY")) {
         styleOutput.value = "";
         copyStatus.textContent = "Echte KI ist noch nicht aktiv: OPENAI_API_KEY fehlt in Supabase.";
+        setGenerationStatus("error", "Fehler. OPENAI_API_KEY fehlt in Supabase.");
         updateDetail();
       } else {
         generateLocalSong();
         copyStatus.textContent = (result?.error || "KI nicht erreichbar.") + " Lokaler Ersatztext wurde verwendet.";
+        setGenerationStatus("error", "KI nicht erreichbar. Lokaler Ersatztext wurde erstellt.");
       }
 
       generateButton.disabled = false;
@@ -1055,6 +1151,8 @@
       });
       document.querySelectorAll(".choice-chip").forEach((button) => button.classList.remove("is-selected"));
       styleOutput.value = "";
+      copyStatus.textContent = "";
+      setGenerationStatus("", "Bereit für KI-Generierung.");
       updateDetail();
     });
 

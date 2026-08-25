@@ -77,21 +77,27 @@ const instructionItems = (value: unknown) => {
   }).filter(Boolean);
 };
 
+const instructionValue = (value: unknown, fallback = "") => String(value || fallback).trim();
+
 const createLyrics = async (body: Record<string, unknown>) => {
   const openAiKey = Deno.env.get("OPENAI_API_KEY");
-  const model = Deno.env.get("OPENAI_MODEL") || "gpt-5.4-mini";
+  const model = Deno.env.get("OPENAI_MODEL") || "gpt-5.1";
   if (!openAiKey) {
     return jsonResponse({ error: "OPENAI_API_KEY ist in Supabase noch nicht gesetzt." }, 500);
   }
 
-  const topic = String(body.topic || "").trim() || "a personal story";
-  const languageCode = String(body.language || "de-DE");
+  const topic = instructionValue(body.topic, "a personal story");
+  const languageCode = instructionValue(body.language, "de-DE");
   const language = languageNames[languageCode] || "English";
-  const rhyme = String(body.rhyme || "ABAB");
-  const rhymeQuality = String(body.rhymeQuality || "");
-  const creativeSeed = String(body.creativeSeed || crypto.randomUUID());
+  const languageLabel = instructionValue(body.languageLabel, language);
+  const rhyme = instructionValue(body.rhyme, "ABAB");
+  const rhymeLabel = instructionValue(body.rhymeLabel, rhyme);
+  const rhymeQuality = instructionValue(body.rhymeQuality);
+  const rhymeQualityLabel = instructionValue(body.rhymeQualityLabel, rhymeQuality);
+  const creativeSeed = instructionValue(body.creativeSeed, crypto.randomUUID());
   const messages = instructionItems(body.messages);
   const metaphors = instructionItems(body.metaphors);
+  const selectedControls = instructionItems(body.selectedControls);
 
   const instructions = [
     "You are a professional multilingual songwriter for modern AI music production.",
@@ -100,18 +106,22 @@ const createLyrics = async (body: Record<string, unknown>) => {
     "Never explain your choices. Output only the lyrics.",
     "Avoid generic filler, repeated stock phrases, and predictable template lines.",
     "Use vivid scenes, concrete objects, actions, places, and emotional consequences.",
+    "Use every selected UI setting as a real creative constraint, not as decorative metadata.",
   ].join("\n");
 
   const input = [
-    "Create a new song lyric from these settings:",
+    "Create a new song lyric from these complete generator settings:",
     "",
-    "Output language: " + language,
-    "Underlying theme: " + topic,
+    "All selected controls:",
+    selectedControls.length ? selectedControls.map((item) => "- " + item).join("\n") : "- No extra controls",
+    "",
+    "Theme field / Thema: " + topic,
+    "Language dropdown / Sprache - Songtext: " + languageLabel + " (" + languageCode + ", " + language + ")",
+    "Rhyme scheme dropdown / Reim - Schema: " + rhymeLabel + " (" + rhyme + ")",
+    rhymeQualityLabel ? "Rhyme quality dropdown / Reim - Qualität: " + rhymeQualityLabel : "Rhyme quality dropdown / Reim - Qualität: not selected",
     "Creative variation seed: " + creativeSeed,
-    "Rhyme scheme: " + rhyme,
-    rhymeQuality ? "Rhyme quality: " + rhymeQuality : "",
-    messages.length ? "Required core messages: " + messages.join("; ") : "Required core messages: none selected",
-    metaphors.length ? "Required metaphor fields: " + metaphors.join("; ") : "Required metaphor fields: none selected",
+    messages.length ? "Kernbotschaften / required core messages: " + messages.join("; ") : "Kernbotschaften / required core messages: none selected",
+    metaphors.length ? "Metaphern / required metaphor fields: " + metaphors.join("; ") : "Metaphern / required metaphor fields: none selected",
     "",
     "Theme handling:",
     "- First understand the theme internally: who is affected, what changed, what is at stake, and what sensory world belongs to it.",
@@ -120,6 +130,10 @@ const createLyrics = async (body: Record<string, unknown>) => {
     "- The listener should still clearly feel the theme through situations, images, conflict, and emotional consequences.",
     "",
     "Mandatory content rules:",
+    "- The lyrics must clearly answer the user's theme without repeating the topic as a literal slogan.",
+    "- The selected output language has highest priority. Translate the idea, not the exact German words.",
+    "- The selected rhyme scheme must shape the endings of the main lyrical sections unless the selected scheme is free.",
+    "- The selected rhyme quality must influence how exact, loose, assonant, or free the rhymes feel.",
     "- Every selected core message must visibly shape the chorus or the emotional turn of the song.",
     "- Every selected metaphor field must appear through concrete imagery in at least one different song section.",
     "- Make each generation feel fresh by using the creative seed to vary scenes, line endings, and perspective.",
