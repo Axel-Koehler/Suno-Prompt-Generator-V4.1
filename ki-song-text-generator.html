@@ -322,10 +322,11 @@
 
     .generation-status {
       display: grid;
-      gap: 8px;
-      min-height: 52px;
-      margin: 0 0 12px;
-      padding: 12px 14px;
+      gap: 9px;
+      min-height: 66px;
+      width: 100%;
+      margin: 0 0 16px;
+      padding: 14px 16px;
       color: #ffffff;
       background:
         linear-gradient(135deg, rgba(248, 255, 19, 0.14), transparent 26%),
@@ -339,6 +340,14 @@
       text-transform: none;
     }
 
+    .generation-status-label {
+      color: var(--yellow);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      text-shadow: 0 0 10px rgba(248, 255, 19, 0.42);
+    }
+
     .generation-status.is-success {
       border-color: rgba(248, 255, 19, 0.72);
       color: var(--yellow);
@@ -350,7 +359,7 @@
     }
 
     .generation-status-text {
-      font-size: 13px;
+      font-size: 15px;
       line-height: 1.35;
     }
 
@@ -469,6 +478,12 @@
 
       <nav class="site-nav" data-active="ki-song-text" aria-label="Hauptnavigation"></nav>
 
+      <div class="generation-status" id="generationStatus" aria-live="polite">
+        <div class="generation-status-label">Status</div>
+        <div class="generation-status-text" id="generationStatusText">Bereit für KI-Generierung.</div>
+        <div class="generation-status-bar" aria-hidden="true"></div>
+      </div>
+
       <div class="prompt-content">
         <section class="control-panel" aria-label="Prompt Parameter">
           <label class="prompt-label">
@@ -491,10 +506,6 @@
         </section>
 
         <section class="output-panel" aria-label="Prompt Ausgabe">
-          <div class="generation-status" id="generationStatus" aria-live="polite">
-            <div class="generation-status-text" id="generationStatusText">Bereit für KI-Generierung.</div>
-            <div class="generation-status-bar" aria-hidden="true"></div>
-          </div>
           <label class="prompt-label">
             Songtext
             <textarea class="prompt-output" id="styleOutput" readonly></textarea>
